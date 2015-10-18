@@ -1,0 +1,9 @@
+---
+- name: update supervisord
+  command: "{{ supervisorctl_command }} update {{ name }}"
+  sudo: yes
+
+- name: restart task {{ name }}
+  command: "{{ supervisorctl_command }} restart {{ name }}:*"
+  sudo: yes
+  ignore_errors: yes

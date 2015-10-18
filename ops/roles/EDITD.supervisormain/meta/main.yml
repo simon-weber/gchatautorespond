@@ -1,0 +1,29 @@
+---
+
+galaxy_info:
+  author: EDITD devs
+  description: A role for creating supervisor tasks
+  company: EDITD
+  license: MIT
+  min_ansible_version: 1.2
+  platforms:
+  - name: Ubuntu
+    versions:
+    - all
+    - lucid
+    - maverick
+    - natty
+    - oneiric
+    - precise
+    - quantal
+    - raring
+    - saucy
+    - trusty
+  categories:
+  - cloud
+  - development
+  - packaging
+  - system
+  - web
+dependencies: []
+

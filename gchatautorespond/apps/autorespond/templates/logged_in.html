@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+    <div id="details">
+        <h3>autorespond accounts:</h3>
+        <ul>
+            {% for gcredential in gcredentials %}
+            <li>{{ gcredential.email }}</li>
+            {% endfor %}
+        </ul>
+
+        <form action="{% url 'gchatautorespond.apps.autorespond.views.auth_view' %}">
+            <input class="button-primary" type="submit" value="add an autorespond account">
+        </form>
+
+        {% if gcredentials %}
+            <h3>autoresponses:</h3>
+
+            Creating an autoresponse will make the account:
+            <ul>
+                <li>always appear online</li>
+                <li>accept all chat invitations</li>
+                <li>respond to every Chat or Hangouts message</li>
+            </ul>
+            Be sure to include contact information like an email or profile link.
+
+            <br/>
+            Note that email notifications will be sent to your login email ({{ user.email }}).
+
+            <form id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
+                {% csrf_token %}
+                <table>
+                    {{ autorespond_formset }}
+                </table>
+                <input class="button-primary" type="submit" value="update autoresponses">
+            </form>
+        {% endif %}
+    </div>
+{% endblock content %}

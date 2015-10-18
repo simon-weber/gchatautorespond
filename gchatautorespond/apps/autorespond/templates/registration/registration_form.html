@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<p>
+You can sign up with any email, not just those you'd like to autorespond to.
+You'll set up your autoresponse emails after your account is active.
+</p>
+
+<form method="post" action=".">
+    {% csrf_token %}
+  {{ form.as_p }}
+
+  <input type="submit" value="{% trans 'Submit' %}" />
+</form>
+{% endblock %}

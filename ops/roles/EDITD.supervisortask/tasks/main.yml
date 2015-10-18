@@ -1,0 +1,9 @@
+- name: install task {{ name }}
+  template: src=task.conf.j2 dest={{ supervisor_config_dir }}/{{ name }}.conf
+  sudo: yes
+  notify:
+    - update supervisord
+      # not convinced this is needed; update will restart.
+      # I think you'd just need to start if it's not running already.
+    - restart task {{ name }}
+

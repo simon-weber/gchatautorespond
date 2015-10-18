@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <!-- Basic Page Needs
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <meta charset="utf-8">
+        <title>Google Chat Autoresponder</title>
+        <meta name="description" content="Set up automatic responses to unmonitored Google Chat accounts.">
+        <meta name="author" content="simon@simonmweber.com">
+
+        <!-- Mobile Specific Metas
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- FONT
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+        <!-- CSS
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+        <style>
+            #header {
+                text-align: center;
+            }
+
+            #footer {
+                text-align: center;
+            }
+
+            /* Improve error list presentation. */
+            .errorlist li {
+                list-style-type: none;
+                color: red;
+            }
+        </style>
+
+        <!-- Favicon
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <!-- <link rel="icon" type="image/png" href="/assets/skeleton/images/favicon.png"> -->
+
+    </head>
+    <body>
+        <div class="container">
+            <div id="header">
+                {% block header %}
+                    <a href="/">Home</a> 
+                    {% if user.is_authenticated %}
+                        Logged in: {{ user.username }} ({{ user.email }})
+                        (<a href="{% url 'auth_logout' %}?next=/">Log Out</a> |
+                        <a href="{% url 'auth_password_change' %}">Change Password</a>)
+                    {% else %}
+                        | <a href="{% url 'auth_login' %}">Log In</a>
+                    {% endif %}
+                {% endblock header %}
+            </div>
+
+            <div id="content">
+                {% block content %}
+                {% endblock content %}
+            </div>
+
+            <div id="footer">
+                {% block footer %}
+                Created by <a href="https://www.simonmweber.com">Simon Weber</a>.
+                Email <a href="mailto:simon@simonmweber.com">simon@simonmweber.com</a> with feedback or questions.
+                {% endblock footer %}
+            </div>
+        </div>
+    </body>
+</html>

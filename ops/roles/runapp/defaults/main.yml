@@ -1,0 +1,4 @@
+approot: "/opt/app"
+appdir: "/opt/app/code"
+appuser: vagrant
+venv: "{{ approot }}/venv"

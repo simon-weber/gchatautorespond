@@ -1,0 +1,19 @@
+---
+# Restarting supervisord requires checking if it's running first
+- name: restart supervisord
+  command: "sudo status supervisor"
+  register: supervisor_status
+  sudo: yes
+  notify:
+      - stop supervisor
+
+- name: stop supervisor
+  command: "stop supervisor"
+  when: '"start/running" in supervisor_status.stdout'
+  sudo: yes
+  notify:
+      - start supervisor
+
+- name: start supervisor
+  command: "start supervisor"
+  sudo: yes

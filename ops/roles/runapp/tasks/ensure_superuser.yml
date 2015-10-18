@@ -1,0 +1,22 @@
+---
+
+- name: check for superuser
+  shell: >
+    echo "from django.db import DEFAULT_DB_ALIAS as database;
+    from django.contrib.auth.models import User;
+    sus = User.objects.filter(is_superuser=True);
+    print any([su for su in sus if su.username == '{{ DJ_SUPERUSER }}'])"
+    | {{ venv }}/exec python manage.py shell
+  args:
+      chdir: "{{ appdir }}"
+  register: superuser_present
+
+- name: create superuser if not present
+  shell: >
+    echo "from django.db import DEFAULT_DB_ALIAS as database;
+    from django.contrib.auth.models import User;
+    print User.objects.db_manager(database).create_superuser('{{ DJ_SUPERUSER }}', '{{ DJ_SUPERUSER_EMAIL }}', '{{ DJ_SUPERUSER_PASSWORD }}');"
+    | {{ venv }}/exec python manage.py shell
+  args:
+      chdir: "{{ appdir }}"
+  when: not "True" in superuser_present.stdout

@@ -1,0 +1,17 @@
+# file: python/meta/main.yml
+
+galaxy_info:
+  author: pjan vandaele
+  company: ANXS
+  description: "Installs python, pip, setuptools and virtualenv"
+  min_ansible_version: 1.4
+  license: MIT
+  platforms:
+  - name: Ubuntu
+    versions:
+    - all
+  categories:
+  - system
+  - development
+
+dependencies: []

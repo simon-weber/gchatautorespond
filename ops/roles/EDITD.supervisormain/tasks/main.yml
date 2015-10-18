@@ -1,0 +1,28 @@
+- name: install supervisor
+  apt: pkg=supervisor state=present
+  sudo: yes
+
+- name: check for system-v script
+  stat: path=/etc/init.d/supervisord
+  register: supervisor_systemd
+
+- name: stop system-v service
+  command: "service supervisor stop"
+  when: supervisor_systemd.stat.exists
+  sudo: yes
+
+- name: remove system-v script
+  file: path=/etc/init.d/supervisord state=absent
+  when: supervisor_systemd.stat.exists
+  sudo: yes
+
+- name: remove supervisor with update-rc.d
+  command: "update-rc.d supervisor remove"
+  when: supervisor_systemd.stat.exists
+  sudo: yes
+
+- name: add upstart job
+  template: src=supervisor.conf.j2 dest="/etc/init/supervisor.conf"
+  sudo: yes
+  notify:
+      - restart supervisord

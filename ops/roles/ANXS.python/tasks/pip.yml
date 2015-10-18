@@ -1,0 +1,17 @@
+# file: python/tasks/pip.yml
+
+- name: python | pip | Upload the pip install script
+  copy:
+    src: get-pip.py
+    dest: /tmp/get-pip.py
+    mode: 0644
+
+- name: python | pip | install pip
+  command: python /tmp/get-pip.py creates="{{python_pip_location}}"
+  sudo: yes
+
+- name: python | pip | update setuptools
+  pip:
+    name: "setuptools{% if python_setuptools_version is defined %}=={{python_setuptools_version}}{% endif %}"
+    state: present
+  sudo: yes

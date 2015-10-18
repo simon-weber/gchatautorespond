@@ -1,0 +1,32 @@
+---
+
+- hosts: appservers
+  remote_user: "{{ appuser }}"
+  vars_files:
+      - secrets.yml
+  tasks:
+    - name: install app dependencies
+      pip: requirements={{ appdir }}/requirements.txt virtualenv={{ venv }}
+
+    - name: perform migrations
+      command: "{{ venv }}/exec python manage.py migrate --noinput"
+      args:
+          chdir: "{{ appdir }}"
+
+    - include: roles/runapp/tasks/ensure_superuser.yml
+
+    - name: shut down an existing djsupervisor
+      command: "{{ venv }}/exec python manage.py supervisor shutdown"
+      args:
+          chdir: "{{ appdir }}"
+          ignore_errors: yes
+
+    - name: start djsupervisor
+      command: "{{ venv }}/exec python manage.py supervisor --daemonize"
+      args:
+          chdir: "{{ appdir }}"
+      register: result
+      # Sometimes the socket isn't released right away.
+      until: result.stdout.find("Another program is already listening") == -1
+      retries: 3
+      delay: 2

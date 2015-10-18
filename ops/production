@@ -1,0 +1,10 @@
+impact ansible_ssh_host=64.140.159.108 ansible_ssh_port=22 ansible_ssh_private_key_file=impact_rsa
+
+[appservers]
+impact
+
+[webservers]
+impact
+
+[deploytargets:children]
+appservers

@@ -1,0 +1,7 @@
+# file: python/tasks/virtualenv.yml
+
+- name: python | virtualenv | install virtualenv
+  pip:
+    name: "virtualenv{% if python_virtualenv_version is defined %}=={{python_virtualenv_version}}{% endif %}"
+    state: present
+  sudo: yes

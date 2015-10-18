@@ -1,0 +1,13 @@
+# file: python/defaults/main.yml
+
+python_prefix_dir: "/usr/local"
+python_binary: "{{python_prefix_dir}}/bin/python"
+
+python_pip_location:  "{{python_prefix_dir}}/bin/pip"
+python_virtualenv_location: "{{python_prefix_dir}}/bin/virtualenv"
+# python_setuptools_version:    # default to latest
+# python_virtualenv_version:    # default to latest
+
+python_source_url: "http://www.python.org/ftp/python"
+python_source_version: "2.7.6"
+python_source_configure_options: "--prefix={{python_prefix_dir}}"

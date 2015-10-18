@@ -1,0 +1,8 @@
+supervisor_config_dir: "/etc/supervisor/conf.d/"
+supervisorctl_command: "supervisorctl"
+redirect_stderr: "true"
+autorestart: "true"
+autostart: "true"
+env_vars: {}
+numprocs: 1
+process_name: "%(program_name)s_%(process_num)02d"

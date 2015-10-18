@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block header %}
+<h1>Autoresponder for Google Chat and Hangouts</h1>
+
+<p>
+Have Google accounts that forward email, but you never log into?
+If so, you might be missing Google Chat or Hangouts messages.
+</p>
+
+<p>
+Sign up to create automatic responses so people know how to get in touch.
+</p>
+
+<p>
+<a class="button" href="{% url 'auth_login' %}">Log In</a>
+<a class="button button-primary" href="{% url 'registration_register' %}">Sign Up</a>
+</p>
+
+{% endblock header %}
+
+{% block content %}
+<section>
+Features:
+<ul>
+    <li>email notifications on autoresponses</li>
+    <li>multiple account support</li>
+    <li>open source (soon)</li>
+</ul>
+</section>
+
+<section>
+Details:
+<ul>
+    <li>uses <a href="https://developers.google.com/talk/jep_extensions/oauth">XMPP OAuth 2.0</a></li>
+    <li>free</li>
+</ul>
+</section>
+{% endblock content %}

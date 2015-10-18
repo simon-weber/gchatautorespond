@@ -1,0 +1,13 @@
+---
+
+- name: create ssl directory
+  file: path=/etc/nginx/ssl state=directory owner=root group=root
+  sudo: yes
+
+- name: copy in ssl key
+  copy: src=ssl.key dest=/etc/nginx/ssl/ssl.key owner=root group=root mode=0600
+  sudo: yes
+
+- name: copy in ssl cert
+  copy: src=ssl-unified.crt dest=/etc/nginx/ssl/ssl-unified.crt owner=root group=root mode=0600
+  sudo: yes

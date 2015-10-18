@@ -1,0 +1,8 @@
+---
+
+- name: create venv directory
+  file: path={{ venv }} state=directory owner={{ appuser }} group={{ appgroup }}
+  sudo: yes
+
+- name: install venv exec
+  template: src=venv_exec.j2 dest={{ venv }}/exec mode=755

@@ -1,0 +1,27 @@
+---
+
+- hosts: appservers
+  remote_user: "{{ appuser }}"
+  vars_files:
+      - secrets.yml
+  vars:
+      - pydrive_key: "{{ lookup('file', '../secrets/pydriveprivatekey.pem') }}"
+  roles:
+    - role: common
+    - role: Stouts.backup
+      sudo: true
+      tags: backup
+      backup_profiles:
+        - name: gchat_db3
+          schedule: "0 18 * * *"
+          source: "{{ approot }}"
+          exclude:
+             - "{{ assetdir }}"
+             - "{{ appdir }}"
+             - "{{ deploydir }}"
+             - "{{ venv }}"
+          target: "pydrive://{{ pydrive_user }}/gchat_backups/db3"
+    - role: sivel.newrelic
+      sudo: yes
+    - ANXS.python
+    - runapp

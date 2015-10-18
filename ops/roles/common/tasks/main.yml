@@ -1,0 +1,21 @@
+---
+
+- name: execute apt-get update
+  apt: update_cache=yes cache_valid_time=86400
+  sudo: yes
+
+- name: execute apt-get upgrade
+  apt: upgrade=dist
+  sudo: yes
+
+- name: install tree
+  apt: pkg=tree state=latest
+  sudo: yes
+
+- name: create app directory
+  file: path={{ appdir }} state=directory owner={{ appuser }} group={{ appgroup }}
+  sudo: yes
+
+- name: create asset directory
+  file: path={{ assetdir }} state=directory owner={{ appuser }} group={{ appgroup }}
+  sudo: yes
