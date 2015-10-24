@@ -10,9 +10,11 @@ from django.core.mail import mail_admins
 import httplib2
 from oauth2client import xsrfutil
 from oauth2client.client import flow_from_clientsecrets
+from django.contrib.auth.views import login as contrib_login
 from django.forms.models import modelformset_factory
 from django.template.context_processors import csrf
 from django.conf import settings
+from django.views.generic import TemplateView
 
 from .models import GoogleCredential, AutoResponse
 from gchatautorespond.lib.chatworker import Worker, WorkerUpdate
@@ -47,11 +49,29 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         return form
 
 
+class LoggedOutView(TemplateView):
+    """Display a static about page.
+
+    This should be cached aggressively.
+    """
+
+    template_name = 'logged_out.html'
+
+
+def login(request):
+    """Default login, but redirect if we're already logged in."""
+
+    if request.user.is_authenticated():
+        return redirect(settings.LOGIN_REDIRECT_URL)
+
+    return contrib_login(request)
+
+
 def autorespond_view(request):
     """List/update accounts and autoresponses."""
 
     if not request.user.is_authenticated():
-        return render_to_response('logged_out.html')
+        return redirect('logged_out')
 
     gcredentials = GoogleCredential.objects.filter(user=request.user)
 
@@ -96,7 +116,7 @@ def autorespond_view(request):
                     "There were %s updates." % len(updates),
                     fail_silently=True)
 
-            return redirect(autorespond_view)
+            return redirect('autorespond')
         else:
             c = {
                 'user': request.user,
@@ -148,4 +168,4 @@ def auth_return_view(request):
             email=email, user=request.user,
             defaults={'credentials': credential})
 
-    return redirect(autorespond_view)
+    return redirect('autorespond')
