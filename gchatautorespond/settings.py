@@ -43,7 +43,7 @@ INSTALLED_APPS = (
 
     # Adding this fixes a 1.9 upgrade warning, but also requires that we
     # set up the db to support Sites.
-    #'django.contrib.sites',
+    # 'django.contrib.sites',
 
     'gchatautorespond.apps.autorespond',
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     # password reset templates.
     'django.contrib.admin',
 
+    'djmail',
     'djsupervisor',
     'registration',
 )
@@ -141,6 +142,9 @@ DATABASES = {
 }
 
 # Email
+EMAIL_BACKEND = 'djmail.backends.async.EmailBackend'
+DJMAIL_REAL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 EMAIL_HOST = 'mail.gandi.net'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'gchat@simon.codes'

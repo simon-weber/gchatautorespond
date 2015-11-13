@@ -21,4 +21,4 @@ DATABASES = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DJMAIL_REAL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
