@@ -12,6 +12,9 @@ DEBUG = False
 SECRET_KEY = get_secret('secret_key.txt')
 QUEUE_AUTH_KEY = get_secret('queue_auth_key.txt')
 
+GA_CODE = 'UA-69242364-1'
+SEND_GA_EVENTS = True
+
 SCHEME = 'https://'
 HOST = 'gchat.simon.codes'
 ALLOWED_HOSTS = [HOST]

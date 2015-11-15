@@ -7,6 +7,8 @@ from django.core.mail import EmailMessage
 from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import resolver, cert
 
+from gchatautorespond.lib import report_ga_event_async
+
 
 class GChatBot(ClientXMPP):
     """A Bot that connects to Google Chat over ssl."""
@@ -23,6 +25,8 @@ class GChatBot(ClientXMPP):
             raise ValueError('email must be a full email')
 
         super(GChatBot, self).__init__(email + '/chatbot', token)
+
+        self.email = email
 
         # TODO it'd be nice if the sleekxmpp logs had the context of the email as well.
         # It looks like this could be done with a filter + threadlocal variable, since
@@ -182,6 +186,8 @@ class AutoRespondBot(GChatBot):
         """
 
         self.last_reply_datetime[jid] = datetime.datetime.now()
+
+        report_ga_event_async(self.email, category='message', action='receive')
 
         if self.notify_email is not None:
             from_identifier = jid.jid

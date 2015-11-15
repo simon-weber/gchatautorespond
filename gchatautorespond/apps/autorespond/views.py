@@ -18,6 +18,7 @@ from django.views.generic import TemplateView
 
 from .models import GoogleCredential, AutoResponse
 from gchatautorespond.lib.chatworker import Worker, WorkerUpdate
+from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
     settings.CLIENT_SECRETS_PATH,
@@ -97,11 +98,13 @@ def autorespond_view(request):
             for autorespond in formset.deleted_objects:
                 updates.append(WorkerUpdate(autorespond.id, stop=True))
                 autorespond.delete()
+                report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='delete')
 
             for autorespond in autoresponds:
                 autorespond.user = request.user
                 autorespond.save()
                 updates.append(WorkerUpdate(autorespond.id, stop=False))
+                report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
 
             if updates:
                 Worker.QueueManager.register('get_queue')
