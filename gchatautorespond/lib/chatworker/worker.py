@@ -35,7 +35,7 @@ class Worker(object):
         self.autoresponds = {}
         self.queue = Queue.Queue()
         self.QueueManager.register('get_queue', callable=lambda: self.queue)
-        self.manager = self.QueueManager(address=('', 50000), authkey=settings.QUEUE_AUTH_KEY)
+        self.manager = self.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
 
     def load(self):
         """Start bots for any existing autoresponses."""
@@ -51,7 +51,7 @@ class Worker(object):
         logger.info('manager server started')
 
         # connect to the manager server.
-        m = self.QueueManager(address=('', 50000), authkey=settings.QUEUE_AUTH_KEY)
+        m = self.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
         m.connect()
         logger.info('manager client conected')
         queue = m.get_queue()

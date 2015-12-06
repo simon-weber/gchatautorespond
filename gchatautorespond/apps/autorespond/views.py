@@ -108,7 +108,7 @@ def autorespond_view(request):
 
             if updates:
                 Worker.QueueManager.register('get_queue')
-                manager = Worker.QueueManager(address=('', 50000), authkey=settings.QUEUE_AUTH_KEY)
+                manager = Worker.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
                 manager.connect()  # TODO errno 61 if worker not running
                 queue = manager.get_queue()
                 for update in updates:
