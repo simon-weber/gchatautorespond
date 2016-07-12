@@ -23,6 +23,7 @@ To create a new dev environment:
 
 * create a new virtualenv
 * `pip install -r test_requirements.txt`
+* `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev python manage.py migrate`
 
 Then:
 
