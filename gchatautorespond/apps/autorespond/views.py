@@ -6,7 +6,6 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render_to_response
 from django.utils.encoding import smart_str
-from django.core.mail import mail_admins
 import httplib2
 from oauth2client import xsrfutil
 from oauth2client.client import flow_from_clientsecrets
@@ -113,11 +112,6 @@ def autorespond_view(request):
                 queue = manager.get_queue()
                 for update in updates:
                     queue.put_nowait(update)
-
-                mail_admins(
-                    "autoresponses changed by %s" % request.user.username,
-                    "There were %s updates." % len(updates),
-                    fail_silently=True)
 
             return redirect('autorespond')
         else:
