@@ -28,7 +28,7 @@ To create a new dev environment:
 Then:
 
 * run locally: `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev python manage.py supervisor`
-* run tests: `./manage.py test test/`
+* run tests: `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev ./manage.py test test/`
 
 ## production
 
