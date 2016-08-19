@@ -16,7 +16,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from .models import GoogleCredential, AutoResponse
-from gchatautorespond.lib.chatworker import WorkerUpdate, WorkerIPC
+from gchatautorespond.lib.chatworker import IPCMessage, MessageType, WorkerIPC
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
@@ -93,24 +93,24 @@ def autorespond_view(request):
         formset = AutoResponseFormSet(gcredentials, request.POST)
         if formset.is_valid():
             autoresponds = formset.save(commit=False)   # save_m2m if add many 2 many
-            updates = []
+            messages = []
             for autorespond in formset.deleted_objects:
-                updates.append(WorkerUpdate(autorespond.id, stop=True))
+                messages.append(IPCMessage(MessageType.stop, autorespond.id))
                 autorespond.delete()
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='delete')
 
             for autorespond in autoresponds:
                 autorespond.user = request.user
                 autorespond.save()
-                updates.append(WorkerUpdate(autorespond.id, stop=False))
+                messages.append(IPCMessage(MessageType.restart, autorespond.id))
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
 
-            if updates:
+            if messages:
                 ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
                 ipc.connect()  # TODO errno 61 if worker not running
                 queue = ipc.get_request_queue()
-                for update in updates:
-                    queue.put_nowait(update)
+                for message in messages:
+                    queue.put_nowait(message)
 
             return redirect('autorespond')
         else:

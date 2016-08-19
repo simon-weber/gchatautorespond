@@ -1,1 +1,1 @@
-from worker import Worker, WorkerUpdate, WorkerIPC  # noqa
+from worker import Worker, IPCMessage, MessageType, WorkerIPC  # noqa

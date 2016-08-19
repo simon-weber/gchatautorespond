@@ -1,4 +1,5 @@
 import Queue
+from enum import Enum
 import functools
 from collections import namedtuple
 import logging
@@ -13,7 +14,13 @@ from .bot import AutoRespondBot
 
 logger = logging.getLogger(__name__)
 
-WorkerUpdate = namedtuple('WorkerUpdate', 'autorespond_id stop')
+IPCMessage = namedtuple('IPCMessage', 'type autorespond_id')
+
+
+class MessageType(Enum):
+    stop = 1
+    restart = 2
+    status = 3
 
 
 class WorkerIPC(BaseManager):
@@ -62,13 +69,12 @@ class Worker(object):
         request_queue = self.ipc.get_request_queue()
         while True:
             logger.info('state: %r', self.autoresponds)
-            update = request_queue.get()
-            logger.info('update: %r', update)
-            if update.stop:
-                self.stop(update.autorespond_id)
-            else:
-                # this can be a create or an update
-                autorespond = AutoResponse.objects.get(id=update.autorespond_id)
+            message = request_queue.get()
+            logger.info('message: %r', message)
+            if message.type is MessageType.stop:
+                self.stop(message.autorespond_id)
+            elif message.type is MessageType.restart:
+                autorespond = AutoResponse.objects.get(id=message.autorespond_id)
                 self.stop(autorespond.id)
                 self.start(autorespond)
 
