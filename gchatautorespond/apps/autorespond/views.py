@@ -2,8 +2,7 @@ import logging
 
 from apiclient.discovery import build
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render_to_response
 from django.utils.encoding import smart_str
 import httplib2
@@ -108,9 +107,9 @@ def autorespond_view(request):
             if messages:
                 ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
                 ipc.connect()  # TODO errno 61 if worker not running
-                queue = ipc.get_request_queue()
+                request_queue = ipc.get_request_queue()
                 for message in messages:
-                    queue.put_nowait(message)
+                    request_queue.put_nowait(message)
 
             return redirect('autorespond')
         else:
@@ -124,6 +123,20 @@ def autorespond_view(request):
             return render_to_response('logged_in.html', c, status=400)
     else:
         return HttpResponseBadRequest()
+
+
+def worker_status_view(request):
+    """Show the status of the worker."""
+
+    ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
+    ipc.connect()
+    request_queue = ipc.get_request_queue()
+    request_queue.put_nowait(IPCMessage(MessageType.status, None))
+
+    response_queue = ipc.get_response_queue()
+    response = response_queue.get(timeout=5)
+
+    return JsonResponse(response.data)
 
 
 @login_required

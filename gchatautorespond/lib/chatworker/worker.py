@@ -14,13 +14,14 @@ from .bot import AutoRespondBot
 
 logger = logging.getLogger(__name__)
 
-IPCMessage = namedtuple('IPCMessage', 'type autorespond_id')
+IPCMessage = namedtuple('IPCMessage', 'type data')
 
 
 class MessageType(Enum):
     stop = 1
     restart = 2
     status = 3
+    status_response = 4
 
 
 class WorkerIPC(BaseManager):
@@ -67,16 +68,30 @@ class Worker(object):
         self.ipc.connect()
         logger.info('manager client conected')
         request_queue = self.ipc.get_request_queue()
+        response_queue = self.ipc.get_response_queue()
+
         while True:
             logger.info('state: %r', self.autoresponds)
             message = request_queue.get()
             logger.info('message: %r', message)
             if message.type is MessageType.stop:
-                self.stop(message.autorespond_id)
+                self.stop(message.data)
             elif message.type is MessageType.restart:
-                autorespond = AutoResponse.objects.get(id=message.autorespond_id)
+                autorespond = AutoResponse.objects.get(id=message.data)
                 self.stop(autorespond.id)
                 self.start(autorespond)
+            elif message.type is MessageType.status:
+                response_queue.put_nowait(IPCMessage(MessageType.status_response, self.get_status()))
+            else:
+                logger.error('unrecognized message! %r', message)
+
+    def get_status(self):
+        """Return a human-readable dict representative of the worker's current state."""
+
+        num_bots = len(self.autoresponds)
+        status = 'ok' if num_bots > 0 else 'idle'
+
+        return {'status': status, 'num_bots': len(self.autoresponds), 'autoresponds': self.autoresponds.keys()}
 
     def start(self, autorespond):
         """Start a bot for an autorespond in a new thread."""
