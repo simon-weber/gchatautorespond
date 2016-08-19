@@ -2,8 +2,7 @@ import logging
 
 from apiclient.discovery import build
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render_to_response
 from django.utils.encoding import smart_str
 import httplib2
@@ -16,7 +15,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from .models import GoogleCredential, AutoResponse
-from gchatautorespond.lib.chatworker import Worker, WorkerUpdate
+from gchatautorespond.lib.chatworker import IPCMessage, MessageType, WorkerIPC
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
@@ -93,25 +92,24 @@ def autorespond_view(request):
         formset = AutoResponseFormSet(gcredentials, request.POST)
         if formset.is_valid():
             autoresponds = formset.save(commit=False)   # save_m2m if add many 2 many
-            updates = []
+            messages = []
             for autorespond in formset.deleted_objects:
-                updates.append(WorkerUpdate(autorespond.id, stop=True))
+                messages.append(IPCMessage(MessageType.stop, autorespond.id))
                 autorespond.delete()
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='delete')
 
             for autorespond in autoresponds:
                 autorespond.user = request.user
                 autorespond.save()
-                updates.append(WorkerUpdate(autorespond.id, stop=False))
+                messages.append(IPCMessage(MessageType.restart, autorespond.id))
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
 
-            if updates:
-                Worker.QueueManager.register('get_queue')
-                manager = Worker.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
-                manager.connect()  # TODO errno 61 if worker not running
-                queue = manager.get_queue()
-                for update in updates:
-                    queue.put_nowait(update)
+            if messages:
+                ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
+                ipc.connect()  # TODO errno 61 if worker not running
+                request_queue = ipc.get_request_queue()
+                for message in messages:
+                    request_queue.put_nowait(message)
 
             return redirect('autorespond')
         else:
@@ -125,6 +123,20 @@ def autorespond_view(request):
             return render_to_response('logged_in.html', c, status=400)
     else:
         return HttpResponseBadRequest()
+
+
+def worker_status_view(request):
+    """Show the status of the worker."""
+
+    ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
+    ipc.connect()
+    request_queue = ipc.get_request_queue()
+    request_queue.put_nowait(IPCMessage(MessageType.status, None))
+
+    response_queue = ipc.get_response_queue()
+    response = response_queue.get(timeout=5)
+
+    return JsonResponse(response.data)
 
 
 @login_required

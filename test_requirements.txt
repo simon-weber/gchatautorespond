@@ -5,6 +5,7 @@ django-registration-redux==1.2
 git+git://github.com/simon-weber/django-supervisor.git@autoreload_on_created#egg=django-supervisor==0.3.3.dev0
 djmail==0.11.0
 dnspython==1.12.0
+enum34==1.1.6
 funcsigs==0.4
 futures==3.0.3
 gevent==1.0.2
