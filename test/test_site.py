@@ -64,7 +64,7 @@ class AuthedTestCase(TestCase):
         self.assertContains(self.c.get('/autorespond/'), 'autorespond one')
         self.assertContains(self.c.get('/autorespond/'), 'autorespond two')
 
-    @patch('gchatautorespond.apps.autorespond.views.Worker')
+    @patch('gchatautorespond.apps.autorespond.views.WorkerIPC')
     def test_adding_autorespond(self, _):
         cred = GoogleCredential.objects.create(user=self.user, email=self.user.email)
         self.assertEqual(len(AutoResponse.objects.all()), 0)
@@ -79,7 +79,7 @@ class AuthedTestCase(TestCase):
         self.assertEqual(autorespond.credentials, cred)
         self.assertEqual(autorespond.email_notifications, True)
 
-    @patch('gchatautorespond.apps.autorespond.views.Worker')
+    @patch('gchatautorespond.apps.autorespond.views.WorkerIPC')
     def test_adding_autorespond_for_other_users_credentials_fails(self, _):
         other_cred = GoogleCredential.objects.create(user=user(2), email=self.user.email)
         self.assertEqual(post_first_autorespond(self.c, 'autorespond one', other_cred, 'on').status_code, 400)
@@ -87,7 +87,7 @@ class AuthedTestCase(TestCase):
         autoresponds = AutoResponse.objects.all()
         self.assertEqual(len(autoresponds), 0)
 
-    @patch('gchatautorespond.apps.autorespond.views.Worker')
+    @patch('gchatautorespond.apps.autorespond.views.WorkerIPC')
     def test_only_my_autoresponds_show(self, _):
         cred = GoogleCredential.objects.create(user=self.user, email=self.user.email)
         self.assertEqual(len(AutoResponse.objects.all()), 0)
