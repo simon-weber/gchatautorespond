@@ -4,6 +4,7 @@ import functools
 from collections import namedtuple
 import logging
 from multiprocessing.managers import BaseManager
+import subprocess
 
 from django.conf import settings
 import httplib2
@@ -71,19 +72,22 @@ class Worker(object):
         response_queue = self.ipc.get_response_queue()
 
         while True:
-            logger.info('state: %r', self.autoresponds)
-            message = request_queue.get()
-            logger.info('message: %r', message)
-            if message.type is MessageType.stop:
-                self.stop(message.data)
-            elif message.type is MessageType.restart:
-                autorespond = AutoResponse.objects.get(id=message.data)
-                self.stop(autorespond.id)
-                self.start(autorespond)
-            elif message.type is MessageType.status:
-                response_queue.put_nowait(IPCMessage(MessageType.status_response, self.get_status()))
-            else:
-                logger.error('unrecognized message! %r', message)
+            try:
+                logger.info('state: %r', self.autoresponds)
+                message = request_queue.get()
+                logger.info('message: %r', message)
+                if message.type is MessageType.stop:
+                    self.stop(message.data)
+                elif message.type is MessageType.restart:
+                    autorespond = AutoResponse.objects.get(id=message.data)
+                    self.stop(autorespond.id)
+                    self.start(autorespond)
+                elif message.type is MessageType.status:
+                    response_queue.put_nowait(IPCMessage(MessageType.status_response, self.get_status()))
+                else:
+                    logger.error('unrecognized message! %r', message)
+            except:
+                logging.exception('exception while processing %s', message)
 
     def get_status(self):
         """Return a human-readable dict representative of the worker's current state."""
@@ -91,7 +95,15 @@ class Worker(object):
         num_bots = len(self.autoresponds)
         status = 'ok' if num_bots > 0 else 'idle'
 
-        return {'status': status, 'num_bots': len(self.autoresponds), 'autoresponds': self.autoresponds.keys()}
+        # Shockingly, NR can't report disk usage of virtual volumes.
+        df_output = subprocess.check_output(['df'])
+        logging.info('df output: %r', df_output)
+        df_percents = [int(line.split()[4].rstrip('%')) for line in df_output.split('\n')[1:] if line]
+        max_percent = max(df_percents)
+        if max_percent > 75:
+            status = 'disk_warning'
+
+        return {'status': status, 'num_bots': len(self.autoresponds), 'max_disk_percent': max_percent}
 
     def start(self, autorespond):
         """Start a bot for an autorespond in a new thread."""
