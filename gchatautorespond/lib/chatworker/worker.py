@@ -16,10 +16,21 @@ logger = logging.getLogger(__name__)
 WorkerUpdate = namedtuple('WorkerUpdate', 'autorespond_id stop')
 
 
+class WorkerIPC(BaseManager):
+    """
+    A Manager that provides a request and response queue to talk to a Worker cross-process.
+    """
+    request_queue = Queue.Queue()
+    response_queue = Queue.Queue()
+
+WorkerIPC.register('get_request_queue', callable=lambda: WorkerIPC.request_queue)
+WorkerIPC.register('get_response_queue', callable=lambda: WorkerIPC.response_queue)
+
+
 class Worker(object):
     """A Worker maintains multiple Bots.
 
-    Updates are sent via ipc over a QueueManager.
+    Updates are sent via a WorkerIPC.
 
     Typical usage::
 
@@ -28,14 +39,9 @@ class Worker(object):
         worker.listen_forever()
     """
 
-    class QueueManager(BaseManager):
-        pass
-
     def __init__(self):
         self.autoresponds = {}
-        self.queue = Queue.Queue()
-        self.QueueManager.register('get_queue', callable=lambda: self.queue)
-        self.manager = self.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
+        self.ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
 
     def load(self):
         """Start bots for any existing autoresponses."""
@@ -47,17 +53,16 @@ class Worker(object):
         """Block forever while receiving updates over the queue."""
 
         # start the manager server in a subprocess.
-        self.manager.start()
+        self.ipc.start()
         logger.info('manager server started')
 
         # connect to the manager server.
-        m = self.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
-        m.connect()
+        self.ipc.connect()
         logger.info('manager client conected')
-        queue = m.get_queue()
+        request_queue = self.ipc.get_request_queue()
         while True:
             logger.info('state: %r', self.autoresponds)
-            update = queue.get()
+            update = request_queue.get()
             logger.info('update: %r', update)
             if update.stop:
                 self.stop(update.autorespond_id)

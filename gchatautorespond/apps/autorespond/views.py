@@ -16,7 +16,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from .models import GoogleCredential, AutoResponse
-from gchatautorespond.lib.chatworker import Worker, WorkerUpdate
+from gchatautorespond.lib.chatworker import WorkerUpdate, WorkerIPC
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
@@ -106,10 +106,9 @@ def autorespond_view(request):
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
 
             if updates:
-                Worker.QueueManager.register('get_queue')
-                manager = Worker.QueueManager(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
-                manager.connect()  # TODO errno 61 if worker not running
-                queue = manager.get_queue()
+                ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
+                ipc.connect()  # TODO errno 61 if worker not running
+                queue = ipc.get_request_queue()
                 for update in updates:
                     queue.put_nowait(update)
 
