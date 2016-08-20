@@ -204,13 +204,13 @@ class AutoRespondBot(GChatBot):
 
             body_paragraphs.append("We replied with your autoresponse \"%s\"." % self.response.encode('utf-8'))
 
-            body_paragraphs.append("If any of this is unexpected or strange, reply to this email for support.")
+            body_paragraphs.append("If any of this is unexpected or strange, email simon@simonmweber.com for support.")
 
             email = EmailMessage(
                 subject='gchat.simon.codes sent an autoresponse',
                 to=[self.notify_email],
                 body='\n\n'.join(body_paragraphs),
-                reply_to=['simon@simonmweber.com'],
+                reply_to=['noreply@gchat.simon.codes'],
             )
             email.send(fail_silently=True)
             self.logger.info("sent an email notification to %r", self.notify_email)
