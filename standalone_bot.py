@@ -23,10 +23,10 @@ from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 import oauth2client.file
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_dev'
-import django  # noqa
+import django
 django.setup()
 
-from gchatautorespond.lib.chatworker.bot import AutoRespondBot  # noqa
+from gchatautorespond.lib.chatworker.bot import AutoRespondBot
 
 
 class StandaloneBot(AutoRespondBot):

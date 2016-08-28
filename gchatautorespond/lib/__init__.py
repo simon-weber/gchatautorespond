@@ -7,7 +7,7 @@ import google_measurement_protocol as gmp
 
 
 logger = logging.getLogger(__name__)
-thread_pool = ThreadPoolExecutor(1)
+thread_pool = ThreadPoolExecutor(4)
 
 
 def report_ga_event_async(client_id, **event_kwargs):

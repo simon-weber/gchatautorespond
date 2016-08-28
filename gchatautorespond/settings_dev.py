@@ -2,7 +2,6 @@ from .settings import *  # noqa
 
 DEBUG = True
 SECRET_KEY = 'dev_secret_key'
-QUEUE_AUTH_KEY = 'dev_auth_key'
 
 SEND_GA_EVENTS = False
 

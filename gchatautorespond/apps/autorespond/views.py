@@ -1,6 +1,7 @@
 import logging
 
 from apiclient.discovery import build
+from concurrent.futures import ThreadPoolExecutor
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render_to_response
@@ -13,9 +14,9 @@ from django.forms.models import modelformset_factory
 from django.template.context_processors import csrf
 from django.conf import settings
 from django.views.generic import TemplateView
+import requests
 
 from .models import GoogleCredential, AutoResponse
-from gchatautorespond.lib.chatworker import IPCMessage, MessageType, WorkerIPC
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
@@ -29,6 +30,12 @@ _AutoResponseFormSet = modelformset_factory(
     can_delete=True)
 
 logger = logging.getLogger(__name__)
+thread_pool = ThreadPoolExecutor(4)
+
+
+def _send_to_worker(verb, url):
+    method = getattr(requests, verb)
+    return method("http://localhost:%s%s" % (settings.WORKER_PORT, url))
 
 
 class AutoResponseFormSet(_AutoResponseFormSet):
@@ -92,24 +99,16 @@ def autorespond_view(request):
         formset = AutoResponseFormSet(gcredentials, request.POST)
         if formset.is_valid():
             autoresponds = formset.save(commit=False)   # save_m2m if add many 2 many
-            messages = []
             for autorespond in formset.deleted_objects:
-                messages.append(IPCMessage(MessageType.stop, autorespond.id))
+                thread_pool.submit(_send_to_worker, 'post', "/stop/%s" % autorespond.id)
                 autorespond.delete()
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='delete')
 
             for autorespond in autoresponds:
                 autorespond.user = request.user
                 autorespond.save()
-                messages.append(IPCMessage(MessageType.restart, autorespond.id))
+                thread_pool.submit(_send_to_worker, 'post', "/restart/%s" % autorespond.id)
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
-
-            if messages:
-                ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
-                ipc.connect()  # TODO errno 61 if worker not running
-                request_queue = ipc.get_request_queue()
-                for message in messages:
-                    request_queue.put_nowait(message)
 
             return redirect('autorespond')
         else:
@@ -128,15 +127,8 @@ def autorespond_view(request):
 def worker_status_view(request):
     """Show the status of the worker."""
 
-    ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
-    ipc.connect()
-    request_queue = ipc.get_request_queue()
-    request_queue.put_nowait(IPCMessage(MessageType.status, None))
-
-    response_queue = ipc.get_response_queue()
-    response = response_queue.get(timeout=5)
-
-    return JsonResponse(response.data)
+    res = _send_to_worker('get', '/status')
+    return JsonResponse(res.json())
 
 
 @login_required

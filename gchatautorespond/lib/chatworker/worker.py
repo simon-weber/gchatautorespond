@@ -1,12 +1,9 @@
-import Queue
-from enum import Enum
 import functools
-from collections import namedtuple
+import httplib
 import logging
-from multiprocessing.managers import BaseManager
 import subprocess
 
-from django.conf import settings
+from flask import Flask, jsonify
 import httplib2
 from oauth2client.client import AccessTokenRefreshError
 
@@ -15,79 +12,49 @@ from .bot import AutoRespondBot
 
 logger = logging.getLogger(__name__)
 
-IPCMessage = namedtuple('IPCMessage', 'type data')
+# This app provides an api to the Worker.
+app = Flask(__name__)
 
 
-class MessageType(Enum):
-    stop = 1
-    restart = 2
-    status = 3
-    status_response = 4
+@app.route('/status')
+def status():
+    return jsonify(app.config['worker'].get_status())
 
 
-class WorkerIPC(BaseManager):
-    """
-    A Manager that provides a request and response queue to talk to a Worker cross-process.
-    """
-    request_queue = Queue.Queue()
-    response_queue = Queue.Queue()
+@app.route('/stop/<int:autorespond_id>', methods=['POST'])
+def stop(autorespond_id):
+    app.config['worker'].stop(autorespond_id)
+    return ('', httplib.NO_CONTENT)
 
-WorkerIPC.register('get_request_queue', callable=lambda: WorkerIPC.request_queue)
-WorkerIPC.register('get_response_queue', callable=lambda: WorkerIPC.response_queue)
+
+@app.route('/restart/<int:autorespond_id>', methods=['POST'])
+def restart(autorespond_id):
+    autorespond = AutoResponse.objects.get(id=autorespond_id)
+
+    app.config['worker'].stop(autorespond.id)
+    app.config['worker'].start(autorespond)
+
+    return ('', httplib.NO_CONTENT)
 
 
 class Worker(object):
     """A Worker maintains multiple Bots.
 
-    Updates are sent via a WorkerIPC.
-
     Typical usage::
 
         worker = Worker()
         worker.load()
-        worker.listen_forever()
+        # serve app with some wsgi server
     """
 
     def __init__(self):
         self.autoresponds = {}
-        self.ipc = WorkerIPC(address=('localhost', 50000), authkey=settings.QUEUE_AUTH_KEY)
 
     def load(self):
         """Start bots for any existing autoresponses."""
 
         for autorespond in AutoResponse.objects.all():
             self.start(autorespond)
-
-    def listen_forever(self):
-        """Block forever while receiving updates over the queue."""
-
-        # start the manager server in a subprocess.
-        self.ipc.start()
-        logger.info('manager server started')
-
-        # connect to the manager server.
-        self.ipc.connect()
-        logger.info('manager client conected')
-        request_queue = self.ipc.get_request_queue()
-        response_queue = self.ipc.get_response_queue()
-
-        while True:
-            try:
-                logger.info('state: %r', self.autoresponds.keys())
-                message = request_queue.get()
-                logger.info('message: %r', message)
-                if message.type is MessageType.stop:
-                    self.stop(message.data)
-                elif message.type is MessageType.restart:
-                    autorespond = AutoResponse.objects.get(id=message.data)
-                    self.stop(autorespond.id)
-                    self.start(autorespond)
-                elif message.type is MessageType.status:
-                    response_queue.put_nowait(IPCMessage(MessageType.status_response, self.get_status()))
-                else:
-                    logger.error('unrecognized message! %r', message)
-            except:
-                logging.exception('exception while processing %s', message)
 
     def get_status(self):
         """Return a human-readable dict representative of the worker's current state."""
