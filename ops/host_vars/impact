@@ -1,3 +1,6 @@
 vagrant: False
 appuser: simonweber
 appgroup: simonweber
+nginx_worker_processes: 1
+nginx_events_params:
+  - worker_connections 1024
