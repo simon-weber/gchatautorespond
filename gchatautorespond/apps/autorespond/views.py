@@ -35,7 +35,7 @@ thread_pool = ThreadPoolExecutor(4)
 
 def _send_to_worker(verb, url):
     method = getattr(requests, verb)
-    return method("http://localhost:%s%s" % (settings.WORKER_PORT, url))
+    return method("http://127.0.0.1:%s%s" % (settings.WORKER_PORT, url))
 
 
 class AutoResponseFormSet(_AutoResponseFormSet):

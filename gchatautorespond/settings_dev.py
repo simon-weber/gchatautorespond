@@ -6,7 +6,7 @@ SECRET_KEY = 'dev_secret_key'
 SEND_GA_EVENTS = False
 
 SCHEME = 'http://'
-HOST = 'localhost'
+HOST = '127.0.0.1'
 ALLOWED_HOSTS = [HOST]
 PORT = 8000
 

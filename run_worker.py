@@ -12,5 +12,5 @@ if __name__ == '__main__':
     worker.load()
 
     app.config['worker'] = worker
-    server = WSGIServer(('localhost', settings.WORKER_PORT), app)
+    server = WSGIServer(('127.0.0.1', settings.WORKER_PORT), app)
     server.serve_forever()
