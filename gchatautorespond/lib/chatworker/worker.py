@@ -73,7 +73,7 @@ class Worker(object):
 
         while True:
             try:
-                logger.info('state: %r', self.autoresponds)
+                logger.info('state: %r', self.autoresponds.keys())
                 message = request_queue.get()
                 logger.info('message: %r', message)
                 if message.type is MessageType.stop:
