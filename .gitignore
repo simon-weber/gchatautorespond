@@ -1,6 +1,7 @@
 .vagrant
 venv-*
 *.pyc
+*.oauth_credentials
 
 *.sqlite3
 supervisord.log

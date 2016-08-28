@@ -1,7 +1,6 @@
 import datetime
 import logging
 import ssl
-import sys
 
 from django.core.mail import EmailMessage
 from sleekxmpp import ClientXMPP
@@ -226,9 +225,3 @@ class AutoRespondBot(GChatBot):
             self.logger.info("bot is throttled")
 
         return throttled
-
-
-if __name__ == '__main__':
-    xmpp = AutoRespondBot(*sys.argv[1:])
-    xmpp.connect()
-    xmpp.process()

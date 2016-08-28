@@ -34,15 +34,20 @@ Then:
 
 ### for just you 
 
-If you're only hosting for yourself, it's easy to run a bot without the django site:
+If you're only hosting for yourself, it's easy to run a bot without the django site.
 
+First, run the setup:
 ```
 $ pip install -r requirements.txt
-$ python gchatautorespond/lib/chatworker/bot.py <email> <access_token> <response> [notify_email]
+$ python standalone_bot.py auth
 ```
 
-This doesn't handle refreshing the access token, though (handled by `Worker._bot_failed_auth` in the full site).
-A nice contribution would be a subclass of AutoRespondBot that's built for this workflow, probably accepting a Credentials filepath and using it during `failed_auth`.
+Then, start the bot:
+```
+$ python standalone_bot.py run myemail@gmail.com 'my autoresponse'
+```
+
+You only need to run setup once.
 
 ### equivalent to gchat.simon.codes
 
