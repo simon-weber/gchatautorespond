@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'djmail',
     'djsupervisor',
     'registration',
+    'raven.contrib.django.raven_compat',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -110,6 +111,10 @@ LOGGING = {
         'console_verbose': {
             'class': 'logging.StreamHandler',
             'formatter': 'withfile',
+        },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
     },
     'loggers': {
@@ -182,3 +187,9 @@ STATIC_URL = '/assets/'
 
 # Django Registration
 ACCOUNT_ACTIVATION_DAYS = 1
+
+
+# Sentry
+RAVEN_CONFIG = {
+    'dsn': get_secret('raven.dsn'),
+}
