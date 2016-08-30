@@ -1,0 +1,13 @@
+galaxy_info:
+  author: Yannik Sembritzki
+  description: This role removes the .disabled extension that hosting companys sometimes adds to default cronjobs to disable them and save cpu cycles. These cronjobs generally exist for a reason and should be run if there is no reason against it.
+  license: GPLv2
+  min_ansible_version: 2.0
+
+  platforms:
+  - name: GenericLinux
+    versions:
+    - all
+  
+  galaxy_tags: ['cronjob', 'cronjobs', 'system']
+dependencies: []

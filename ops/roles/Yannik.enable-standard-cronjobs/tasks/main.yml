@@ -1,0 +1,2 @@
+ - include: fix-cronjobs.yml
+   tags: fix-cronjobs

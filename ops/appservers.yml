@@ -8,6 +8,10 @@
       - pydrive_key: "{{ lookup('file', '../secrets/pydriveprivatekey.pem') }}"
   roles:
     - role: common
+    - role: Yannik.enable-standard-cronjobs
+      sudo: true
+    - role: jnv.unattended-upgrades
+      sudo: true
     - role: Stouts.backup
       sudo: true
       tags: backup

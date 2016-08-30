@@ -1,0 +1,8 @@
+---
+# overwrite this to blacklist a specific cronjob
+cronjob_enable_blacklist: []
+
+# overwrite this to enable more cronjobs
+cronjob_enable_list: ['apt', 'man-db', 'aptitude', 'bsdmainutils', 
+                      'cracklib-runtime', 'dpkg', 'mlocate', 'passwd',
+                      'quota', 'upstart', 'fstrim', 'logrotate']
