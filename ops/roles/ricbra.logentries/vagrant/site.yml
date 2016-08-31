@@ -1,0 +1,13 @@
+---
+- hosts: all
+  roles:
+  - {
+    role: ansible-logentries,
+    logentries_account_key: "b19183c3-798b-4543-bb95-302fdabf4ee7",
+    logentries_logs: [
+      {
+        name: "Auth",
+        path: "/var/log/auth.log"
+      }
+    ]
+  }

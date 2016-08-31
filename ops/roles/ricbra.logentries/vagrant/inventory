@@ -1,0 +1,8 @@
+wheezy64 ansible_ssh_host=10.1.1.11
+jessie64 ansible_ssh_host=10.1.1.12
+wily64 ansible_ssh_host=10.1.1.13
+precise64 ansible_ssh_host=10.1.1.14
+trusty64 ansible_ssh_host=10.1.1.15
+vivid64 ansible_ssh_host=10.1.1.16
+centos ansible_ssh_host=10.1.1.17
+xenial64 ansible_ssh_host=10.1.1.18

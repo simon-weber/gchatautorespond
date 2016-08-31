@@ -1,0 +1,31 @@
+---
+galaxy_info:
+  author: Richard van den Brand
+  description: Logentries.com installation and configuration
+  license: MIT
+  min_ansible_version: 1.2
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  - name: Ubuntu
+    versions:
+    - lucid
+    - natty
+    - oneiric
+    - precise
+    - quantal
+    - raring
+    - saucy
+    - trusty
+    - vivid
+    - wily
+    - xenial
+  - name: Debian
+    versions:
+    - wheezy
+    - jessie
+  categories:
+  - monitoring
+dependencies: []

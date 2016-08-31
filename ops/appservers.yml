@@ -12,6 +12,9 @@
       sudo: true
     - role: jnv.unattended-upgrades
       sudo: true
+    - role: ricbra.logentries
+      sudo: true
+      tags: logentries
     - role: Stouts.backup
       sudo: true
       tags: backup

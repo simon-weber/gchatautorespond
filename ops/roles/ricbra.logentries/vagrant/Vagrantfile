@@ -1,0 +1,69 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure(2) do |config|
+  config.vm.define "wheezy64" do |wheezy64|
+    wheezy64.vm.box = "debian/wheezy64"
+    wheezy64.vm.network :private_network, :ip => "10.1.1.11"
+    wheezy64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "jessie64" do |jessie64|
+    jessie64.vm.box = "debian/jessie64"
+    jessie64.vm.network :private_network, :ip => "10.1.1.12"
+    jessie64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "wily64" do |wily64|
+    wily64.vm.box = "ubuntu/wily64"
+    wily64.vm.network :private_network, :ip => "10.1.1.13"
+    wily64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "precise64" do |precise64|
+    precise64.vm.box = "ubuntu/precise64"
+    precise64.vm.network :private_network, :ip => "10.1.1.14"
+    precise64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "trusty64" do |trusty64|
+    trusty64.vm.box = "ubuntu/trusty64"
+    trusty64.vm.network :private_network, :ip => "10.1.1.15"
+    trusty64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "xenial64" do |xenial64|
+    xenial64.vm.box = "ubuntu/xenial64"
+    xenial64.vm.network :private_network, :ip => "10.1.1.18"
+    xenial64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "vivid64" do |vivid64|
+    vivid64.vm.box = "ubuntu/vivid64"
+    vivid64.vm.network :private_network, :ip => "10.1.1.16"
+    vivid64.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+  config.vm.define "centos" do |centos|
+    centos.vm.box = "centos/7-cloud"
+    centos.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.7.1/vagrant-centos-7.1.box"
+    centos.vm.network :private_network, :ip => "10.1.1.17"
+    centos.vm.provision "ansible" do |ansible|
+      ansible.sudo = true
+      ansible.playbook = "site.yml"
+    end
+  end
+end

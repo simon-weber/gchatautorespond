@@ -1,0 +1,3 @@
+---
+- name: Restart logentries
+  service: name={{ logentries_service }} state=restarted
