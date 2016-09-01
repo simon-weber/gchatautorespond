@@ -5,15 +5,24 @@ nginx_worker_processes: 1
 nginx_events_params:
   - worker_connections 1024
 logentries_logs:
-  - name: "auth"
-    path: "/var/log/auth.log"
-  - name: "nginx_access"
-    path: "/var/log/nginx/access.log"
-  - name: "nginx_error"
-    path: "/var/log/nginx/error.log"
-  - name: "backups"
-    path: "/var/log/duply/gchat_db3.log"
-  - name: "supervisor"
-    path: "/opt/gchat/code/supervisord.log"
-  - name: "syslog"
-    path: "/var/log/syslog"
+  - name: auth
+    path: /var/log/auth.log
+  - name: nginx_access
+    path: /var/log/nginx/access.log
+  - name: nginx_error
+    path: /var/log/nginx/error.log
+  - name: backups
+    path: /var/log/duply/gchat_db3.log
+  - name: supervisor
+    path: /opt/gchat/code/supervisord.log
+  - name: syslog
+    path: /var/log/syslog
+  - name: fail2ban
+    path: /var/log/fail2ban.log
+fail2ban_services:
+  - name: ssh
+    enabled: true
+    port: ssh
+    filter: sshd
+    logpath: /var/log/auth.log
+    maxretry: 6
