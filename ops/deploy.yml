@@ -30,4 +30,7 @@
     - name: unpack new code
       unarchive: copy=no src={{ deploydir }}/{{ revparse.stdout }}.tar dest={{ appdir }} owner={{ appuser }} group={{ appgroup }}
 
+    - name: add release file
+      shell: "echo {{ revparse.stdout }} > {{ appdir }}/release.sha"
+
 - include: post_deploy.yml

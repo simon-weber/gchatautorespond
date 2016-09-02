@@ -1,3 +1,4 @@
+import datetime
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,12 @@ OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 
 LOGIN_URL = '/'
+
+try:
+    with open(os.path.join(BASE_DIR, 'release.sha')) as f:
+        RELEASE = f.read().strip()
+except:
+    RELEASE = str(datetime.datetime.now())
 
 # Security
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -193,4 +200,5 @@ ACCOUNT_ACTIVATION_DAYS = 1
 # Sentry
 RAVEN_CONFIG = {
     'dsn': get_secret('raven.dsn'),
+    'release': RELEASE,
 }

@@ -22,6 +22,8 @@ if __name__ == '__main__':
     thread.start()
 
     app.config['worker'] = worker
+    app.config.update({'SENTRY_' + k.upper(): v for (k, v) in settings.RAVEN_CONFIG.items()
+                      if k != 'dsn'})
 
     sentry = Sentry(app, dsn=settings.RAVEN_CONFIG['dsn'],
                     logging=True, level=logging.ERROR)
