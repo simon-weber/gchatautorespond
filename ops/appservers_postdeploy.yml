@@ -11,11 +11,16 @@
 
     - name: install app dependencies
       pip: requirements={{ appdir }}/requirements.txt virtualenv={{ venv }}
+      register: pip_result
+      changed_when: '"Successfully installed" in pip_result.stdout'
+
 
     - name: perform migrations
       command: "{{ venv }}/exec python manage.py migrate --noinput"
       args:
           chdir: "{{ appdir }}"
+      register: migrate_result
+      changed_when: '"No migrations to apply." not in migrate_result.stdout'
 
     - include: roles/runapp/tasks/ensure_superuser.yml
 

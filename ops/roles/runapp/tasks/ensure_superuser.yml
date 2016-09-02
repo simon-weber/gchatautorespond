@@ -10,6 +10,7 @@
   args:
       chdir: "{{ appdir }}"
   register: superuser_present
+  changed_when: False
 
 - name: create superuser if not present
   shell: >
