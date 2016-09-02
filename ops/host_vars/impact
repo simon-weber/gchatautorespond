@@ -13,9 +13,6 @@ logentries_logs:
     path: /var/log/nginx/error.log
   - name: backups
     path: /var/log/duply/gchat_db3.log
-  - name: supervisor
-    path: /opt/gchat/code/supervisord.log
-    state: absent
   - name: supervisor_main
     path: /var/log/supervisord/supervisord.log
   - name: supervisor_webserver
