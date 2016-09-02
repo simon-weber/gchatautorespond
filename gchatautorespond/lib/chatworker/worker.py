@@ -1,3 +1,5 @@
+from collections import deque, defaultdict
+import datetime
 import functools
 import httplib
 import logging
@@ -47,8 +49,15 @@ class Worker(object):
         # serve app with some wsgi server
     """
 
+    # If a bot disconnects this many times in the period, it will be shut down.
+    max_disconnects = 3
+    disconnect_period = datetime.timedelta(minutes=1)
+
     def __init__(self):
         self.autoresponds = {}
+
+        # Map autorespond ids onto the last N times they disconnected.
+        self.disconnects = defaultdict(lambda: deque(maxlen=self.max_disconnects))
 
     def load(self):
         """Start bots for any existing autoresponses."""
@@ -94,6 +103,10 @@ class Worker(object):
                                                  autorespond=autorespond)
         bot.add_event_handler('failed_auth', failed_auth_callback)
 
+        disconnect_callback = functools.partial(self._bot_disconnected,
+                                                autorespond=autorespond)
+        bot.add_event_handler('disconnected', disconnect_callback)
+
         self.autoresponds[autorespond.id] = bot
         bot.connect()
         bot.process(block=False)  # starts a new thread
@@ -115,8 +128,23 @@ class Worker(object):
 
         return bot
 
+    def _bot_disconnected(self, bot, autorespond):
+        """Stop bots that are constantly disconnecting and reconnecting,"""
+
+        disconnects = self.disconnects[autorespond.id]
+
+        now = datetime.datetime.now()
+        disconnects.append(now)
+
+        if ((len(disconnects) == self.max_disconnects
+             and disconnects[0] > (now - self.disconnect_period))):
+            logger.warning("shutting down flapping bot %s (%r) after disconnects %r",
+                           autorespond.id, autorespond.credentials.email, disconnects)
+
+            self.stop(autorespond.id)
+
     def _bot_failed_auth(self, bot, autorespond):
-        """This callback is triggered in two cases:
+        """Handle two cases:
 
         * expired auth -> attempt to refresh
         * revoked auth -> remove the credentials
