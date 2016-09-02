@@ -14,7 +14,7 @@
       register: revparse
 
     - name: create git archive
-      local_action: command git archive {{ revparse.stdout }} -o ops/{{ revparse.stdout }}.tar chdir=".."
+      local_action: command git archive {{ revparse.stdout }} -o ops/{{ revparse.stdout }}.tar
       run_once: true
 
     - name: create deploy dir
