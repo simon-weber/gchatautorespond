@@ -19,12 +19,12 @@
             <ul>
                 <li>always appear online</li>
                 <li>accept all chat invitations</li>
-                <li>respond to every Chat or Hangouts message</li>
+                <li>respond to Chat or Hangouts messages when you are offline, away, or busy</li>
             </ul>
             Be sure to include contact information like an email or profile link.
 
             <br/>
-            Note that email notifications will be sent to your login email ({{ user.email }}).
+            Email notifications will be sent to your login email ({{ user.email }}).
 
             <form id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                 {% csrf_token %}
