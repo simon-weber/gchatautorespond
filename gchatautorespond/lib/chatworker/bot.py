@@ -61,32 +61,16 @@ class GChatBot(ClientXMPP):
         #     logging.error('Server is taking too long to respond')
         #     self.disconnect()
 
-    def ssl_invalid_cert(self, raw_cert):
-        self._verify_gtalk_cert(raw_cert)
+    def ssl_invalid_cert(self, pem_cert):
+        # Source: https://github.com/poezio/slixmpp/blob/master/examples/gtalk_custom_domain.py
 
-    def _verify_gtalk_cert(self, raw_cert):
-        hosts = resolver.get_SRV(self.boundjid.server, 5222,
-                                 self.dns_service,
-                                 resolver=resolver.default_resolver())
-        it_is_google = False
-        for host, _ in hosts:
-            if host.lower().find('google.com') > -1:
-                it_is_google = True
-
-        if it_is_google:
-            try:
-                if cert.verify('talk.google.com', ssl.PEM_cert_to_DER_cert(raw_cert)):
-                    self.logger.info('google cert found for %s',
-                                     self.boundjid.server)
-                    return
-            except cert.CertificateError:
-                pass
-
-        self.logger.error("invalid cert received for %s",
-                          self.boundjid.server)
-
-        # We should probably disconnect, but custom domains (eg simonmweber.com) trigger false positives here.
-        # self.disconnect()
+        der_cert = ssl.PEM_cert_to_DER_cert(pem_cert)
+        try:
+            cert.verify('talk.google.com', der_cert)
+            self.logger.info("found GTalk certificate")
+        except cert.CertificateError as err:
+            self.logger.error(err.message)
+            self.disconnect(send_close=False)
 
 
 class AutoRespondBot(GChatBot):
