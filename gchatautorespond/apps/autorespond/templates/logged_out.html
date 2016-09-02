@@ -9,6 +9,7 @@ If so, you might be missing Google Chat or Hangouts messages.
 
 <p>
 Sign up to create automatic responses so people know how to get in touch.
+It's free!
 </p>
 
 <p>
@@ -20,18 +21,20 @@ Sign up to create automatic responses so people know how to get in touch.
 
 {% block content %}
 <section>
-Features:
+How it works:
 <ul>
-    <li>email notifications on autoresponses</li>
-    <li>multiple account support</li>
+    <li>connect one or more Google accounts</li>
+    <li>set a message that will be sent if you receive a message when offline, away, or busy</li>
+    <li>optionally, receive an email when an autoresponse is sent</li>
+    <li>due to a limitation on Google's end, SMS and group messages can not be responded to</li>
 </ul>
 </section>
 
 <section>
-Details:
+Behind the scenes:
 <ul>
-    <li>uses <a href="https://developers.google.com/talk/jep_extensions/oauth">XMPP OAuth 2.0</a></li>
-    <li>free and <a href="https://github.com/simon-weber/gchatautorespond">open source</a></li>
+    <li>your account is accessed securely with <a href="https://developers.google.com/talk/jep_extensions/oauth">Google's XMPP OAuth 2.0</a></li>
+    <li>the code powering everything is <a href="https://github.com/simon-weber/gchatautorespond">free and open source</a></li>
 </ul>
 </section>
 {% endblock content %}
