@@ -4,9 +4,11 @@ import ssl
 
 from django.core.mail import EmailMessage
 from sleekxmpp import ClientXMPP
-from sleekxmpp.xmlstream import resolver, cert
+from sleekxmpp.xmlstream import cert
 
 from gchatautorespond.lib import report_ga_event_async
+
+RESOURCE = 'autorespond'
 
 
 class GChatBot(ClientXMPP):
@@ -23,7 +25,7 @@ class GChatBot(ClientXMPP):
         if '@' not in email:
             raise ValueError('email must be a full email')
 
-        super(GChatBot, self).__init__(email + '/chatbot', token)
+        super(GChatBot, self).__init__(email + '/' + RESOURCE, token)
 
         self.email = email
 
@@ -40,7 +42,7 @@ class GChatBot(ClientXMPP):
         self.add_event_handler('ssl_invalid_cert', self.ssl_invalid_cert)
 
     def connect(self):
-        self.credentials['api_key'] = self.jid
+        self.credentials['api_key'] = self.boundjid.bare
         self.credentials['access_token'] = self.password
         super(GChatBot, self).connect(('talk.google.com', 5222))
 
@@ -93,7 +95,8 @@ class AutoRespondBot(GChatBot):
       * later, a resource under that jid coming online
     """
 
-    def __init__(self, email, token, response, notify_email, response_throttle=datetime.timedelta(seconds=60)):
+    def __init__(self, email, token, response, notify_email,
+                 response_throttle=datetime.timedelta(seconds=60), detect_unavailable=True):
         """
         Args:
             email (string): see GChatBot.
@@ -101,34 +104,57 @@ class AutoRespondBot(GChatBot):
             response (string): the message to respond with.
             notify_email (string): if not None, an email will be sent for each response.
             response_throttle (datetime.timedelta): no more than one response will be sent during this interval.
+            detect_unavailable (bool): when True, don't autorespond if another resource for the same account is
+              available and not away.
         """
 
         self.response = response
         self.notify_email = notify_email
         self.response_throttle = response_throttle
+        self.detect_unavailable = detect_unavailable
 
         self.last_reply_datetime = {}  # {jid: datetime.datetime}
+        self.other_active_resources = set()  # jids of other resources for our user
 
         super(AutoRespondBot, self).__init__(email, token)
 
         self.add_event_handler('message', self.message)
+        self.add_event_handler('presence', self.presence)
 
         # uncomment this to respond to chat invites.
         # self.add_event_handler('roster_subscription_request',
         #                        self.roster_subscription_request)
-        # self.add_event_handler('presence_available', self.presence_available)
+        # self.add_event_handler('presence_available', self.detect_hangouts_jids)
 
         self.hangouts_jids_seen = set()
 
     def message(self, msg):
         """Respond to Hangouts/gchat normal messages."""
 
-        if msg['type'] in ('chat', 'normal') and not self._throttled(msg['from']):
+        if msg['type'] in ('chat', 'normal') and self._should_send_to(msg['from']):
             jid = msg['from']
             body = msg.get('body')
             self.logger.info("responding to %s via message. message %r", jid, msg)
             msg.reply(self.response).send()
             self._sent_reply(jid, body)
+
+    def presence(self, presence):
+        other_jid = presence['from']
+        if other_jid.bare == self.boundjid.bare:  # only compare the user+domain
+            if other_jid.resource.startswith(RESOURCE):
+                # There's probably something more to be done here, like ensuring only one autoresponder replies
+                # (maybe the one with the highest resource?).
+                # For now, they're not considered another resource, and multiple bots can respond.
+                self.logger.error('more than one autoresponder is running? we are %s and they are %s',
+                                  self.boundjid, other_jid)
+                return
+
+            if presence['type'] == 'available':
+                self.other_active_resources.add(other_jid)
+                self.logger.info('other resource came online: %s', other_jid)
+            elif presence['type'] in ('away', 'dnd', 'unavailable'):
+                self.other_active_resources.discard(other_jid)
+                self.logger.info('other resource %s now %s', other_jid, presence['type'])
 
     def roster_subscription_request(self, presence):
         """Watch for Hangouts bridge chat invites and add them to `hangouts_jids_seen`."""
@@ -148,13 +174,13 @@ class AutoRespondBot(GChatBot):
             self.logger.info("saw hangouts jid %s. message %r", from_jid, presence)
             self.hangouts_jids_seen.add(waiting_jid)
 
-    def presence_available(self, presence):
+    def detect_hangouts_jids(self, presence):
         """Watch for Hangouts bridge jids coming online and respond to any in `hangouts_jids_seen`."""
 
         from_jid = presence['from']
         if from_jid.bare in self.hangouts_jids_seen and from_jid.resource:
             self.hangouts_jids_seen.remove(from_jid.bare)
-            if not self._throttled(from_jid):
+            if self._should_send_to(from_jid):
                 # Message type is important; omitting it will silently discard the message.
                 self.logger.info("responding to %s via presence. message %r", from_jid, presence)
                 self.send_message(mto=from_jid, mbody=self.response, mtype='chat')
@@ -198,14 +224,22 @@ class AutoRespondBot(GChatBot):
             email.send(fail_silently=True)
             self.logger.info("sent an email notification to %r", self.notify_email)
 
-    def _throttled(self, jid):
-        """Return True if we're currently throttled and should not send a message."""
+    def _should_send_to(self, jid):
+        """Return False if another resource is active or messages to the given jid are throttled."""
 
         throttled = False
         if jid in self.last_reply_datetime:
             throttled = (datetime.datetime.now() - self.last_reply_datetime[jid]) < self.response_throttle
 
         if throttled:
-            self.logger.info("bot is throttled")
+            self.logger.info("do not send; bot is throttled")
+            return False
 
-        return throttled
+        if self.detect_unavailable:
+            # Ideally we could check the status the other resources right now to make sure they're still active.
+            # However, Google doesn't seem to respond to presence probes, and pings seem to always come back.
+            if self.other_active_resources:
+                self.logger.info('do not send; other resources are active: %s', self.other_active_resources)
+                return False
+
+        return True
