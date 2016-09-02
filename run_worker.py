@@ -5,6 +5,7 @@ import django
 django.setup()
 
 import logging
+from threading import Thread
 
 from django.conf import settings
 from gevent.wsgi import WSGIServer
@@ -15,7 +16,10 @@ from gchatautorespond.lib.chatworker import Worker, app
 
 if __name__ == '__main__':
     worker = Worker()
-    worker.load()
+
+    # Loading takes some time; don't block the api while it goes on.
+    thread = Thread(target=worker.load)
+    thread.start()
 
     app.config['worker'] = worker
 

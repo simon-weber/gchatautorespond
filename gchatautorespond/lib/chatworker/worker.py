@@ -55,6 +55,7 @@ class Worker(object):
 
         for autorespond in AutoResponse.objects.all():
             self.start(autorespond)
+            logger.info('loaded %r', autorespond.credentials.email)
 
     def get_status(self):
         """Return a human-readable dict representative of the worker's current state."""
@@ -64,7 +65,6 @@ class Worker(object):
 
         # Shockingly, NR can't report disk usage of virtual volumes.
         df_output = subprocess.check_output(['df'])
-        logging.info('df output: %r', df_output)
         df_percents = [int(line.split()[4].rstrip('%')) for line in df_output.split('\n')[1:] if line]
         max_percent = max(df_percents)
         if max_percent > 75:
