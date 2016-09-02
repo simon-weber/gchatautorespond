@@ -92,6 +92,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gchatautorespond.wsgi.application'
 
+SUPERVISOR_LOG_DIR = '/var/log/supervisord'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

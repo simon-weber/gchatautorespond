@@ -15,6 +15,13 @@ logentries_logs:
     path: /var/log/duply/gchat_db3.log
   - name: supervisor
     path: /opt/gchat/code/supervisord.log
+    state: absent
+  - name: supervisor_main
+    path: /var/log/supervisord/supervisord.log
+  - name: supervisor_webserver
+    path: /var/log/supervisord/webserver.log
+  - name: supervisor_chatworker
+    path: /var/log/supervisord/chatworker.log
   - name: syslog
     path: /var/log/syslog
   - name: fail2ban

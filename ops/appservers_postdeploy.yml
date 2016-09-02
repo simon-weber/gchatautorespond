@@ -5,6 +5,9 @@
   vars_files:
       - secrets.yml
   tasks:
+    - name: create logging directory
+      file: path=/var/log/supervisord state=directory owner={{ appuser }} group={{ appuser }} mode=0770
+
     - name: install app dependencies
       pip: requirements={{ appdir }}/requirements.txt virtualenv={{ venv }}
 
