@@ -172,6 +172,11 @@ def auth_return_view(request):
                 email=email, user=request.user,
                 defaults={'credentials': credential})
         except IntegrityError:
+            logger.error('attempt to connect already-connected account %r to %r',
+                         email, request.user.email,
+                         extra={'tags': {'linker': request.user.email,
+                                         'linkee': email}})
+
             raise SuspiciousOperation('This Google account is already connected to a different account.')
 
     return redirect('autorespond')

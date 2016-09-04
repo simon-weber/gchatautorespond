@@ -121,26 +121,34 @@ LOGGING = {
             'formatter': 'withfile',
         },
         'sentry': {
-            'level': 'ERROR',
+            'level': 'WARNING',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
     },
     'loggers': {
+        'root': {
+            'level': 'WARNING',
+            'handlers': ['sentry'],
+        },
         'django': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
         },
         'sleekxmpp': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'propagate': True,
         },
         'gchatautorespond': {
             'handlers': ['console_verbose'],
             'level': 'INFO',
+            'propagate': True,
         },
     },
 }
