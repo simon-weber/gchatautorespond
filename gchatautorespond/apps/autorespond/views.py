@@ -2,7 +2,6 @@ import logging
 
 from apiclient.discovery import build
 from concurrent.futures import ThreadPoolExecutor
-from django.core.exceptions import SuspiciousOperation
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
@@ -153,7 +152,7 @@ def auth_return_view(request):
 
     token = smart_str(request.GET['state'])
     if not xsrfutil.validate_token(settings.SECRET_KEY, token, request.user):
-        raise SuspiciousOperation('Improper OAuth request.')
+        return HttpResponseBadRequest('Improper OAuth request.')
 
     credential = FLOW.step2_exchange(request.GET)
 
@@ -177,6 +176,6 @@ def auth_return_view(request):
                          extra={'tags': {'linker': request.user.email,
                                          'linkee': email}})
 
-            raise SuspiciousOperation('This Google account is already connected to a different account.')
+            return HttpResponseBadRequest('This Google account is already connected to a different account.')
 
     return redirect('autorespond')

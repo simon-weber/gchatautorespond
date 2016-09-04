@@ -102,7 +102,7 @@ WSGI_APPLICATION = 'gchatautorespond.wsgi.application'
 SUPERVISOR_LOG_DIR = '/var/log/supervisord'
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'simple': {
             'format': '%(levelname)s: %(asctime)s - %(name)s: %(message)s'
@@ -126,29 +126,25 @@ LOGGING = {
         },
     },
     'loggers': {
-        'root': {
+        '': {
             'level': 'WARNING',
             'handlers': ['sentry'],
         },
         'django': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
-            'propagate': False,
         },
         'django.request': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': True,
         },
         'sleekxmpp': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
-            'propagate': True,
         },
         'gchatautorespond': {
             'handlers': ['console_verbose'],
             'level': 'INFO',
-            'propagate': True,
         },
     },
 }
