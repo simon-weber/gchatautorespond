@@ -9,6 +9,13 @@
       file: path=/var/log/supervisord state=directory owner={{ appuser }} group={{ appuser }} mode=0770
       sudo: yes
 
+    - cron: name="delete old emails"
+            special_time="daily"
+            user="{{ appuser }}"
+            job="cd {{ appdir }}; DJANGO_SETTINGS_MODULE=gchatautorespond.settings {{ venv }}/bin/python delete_old_mail.py"
+            cron_file="gchat_delete_old_mail"
+      sudo: yes
+
     - name: install app dependencies
       pip: requirements={{ appdir }}/requirements.txt virtualenv={{ venv }}
       register: pip_result
