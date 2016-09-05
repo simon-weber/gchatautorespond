@@ -205,4 +205,7 @@ ACCOUNT_ACTIVATION_DAYS = 1
 RAVEN_CONFIG = {
     'dsn': get_secret('raven.dsn'),
     'release': RELEASE,
+    'processors': [
+        'gchatautorespond.lib.chatworker.bot.ContextProcessor',
+    ],
 }

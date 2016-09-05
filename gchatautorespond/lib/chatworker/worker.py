@@ -10,7 +10,7 @@ import httplib2
 from oauth2client.client import AccessTokenRefreshError
 
 from gchatautorespond.apps.autorespond.models import AutoResponse
-from .bot import AutoRespondBot
+from .bot import AutoRespondBot, ContextFilter
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +25,14 @@ def status():
 
 @app.route('/stop/<int:autorespond_id>', methods=['POST'])
 def stop(autorespond_id):
+    ContextFilter.context.log_id = autorespond_id
     app.config['worker'].stop(autorespond_id)
     return ('', httplib.NO_CONTENT)
 
 
 @app.route('/restart/<int:autorespond_id>', methods=['POST'])
 def restart(autorespond_id):
+    ContextFilter.context.log_id = autorespond_id
     autorespond = AutoResponse.objects.get(id=autorespond_id)
 
     app.config['worker'].stop(autorespond.id)
@@ -95,6 +97,7 @@ class Worker(object):
         bot = AutoRespondBot(
             autorespond.credentials.email,
             autorespond.credentials.credentials.access_token,
+            autorespond.id,
             autorespond.response,
             notify_email,
         )

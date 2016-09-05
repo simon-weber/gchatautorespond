@@ -12,6 +12,7 @@ from gevent.wsgi import WSGIServer
 from raven.contrib.flask import Sentry
 
 from gchatautorespond.lib.chatworker import Worker, app
+from gchatautorespond.lib.chatworker.bot import ContextFilter
 
 
 if __name__ == '__main__':
@@ -22,8 +23,23 @@ if __name__ == '__main__':
     thread.start()
 
     app.config['worker'] = worker
+    app.config['LOGGER_NAME'] = 'gchatautorespond.worker'
     app.config.update({'SENTRY_' + k.upper(): v for (k, v) in settings.RAVEN_CONFIG.items()
                       if k != 'dsn'})
+
+    # Add the ContextFilter to all stream handlers.
+    # It can't be attached to the loggers since that wouldn't handle subloggers,
+    # nor can it be attached to null/sentry handlers, since it'd produce output twice.
+    handlers = set()
+    for logger_name in settings.LOGGING['loggers']:
+        logger = logging.getLogger(logger_name)
+
+        for handler in logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                handlers.add(handler)
+
+    for handler in handlers:
+        handler.addFilter(ContextFilter)
 
     sentry = Sentry(app, dsn=settings.RAVEN_CONFIG['dsn'],
                     logging=True, level=logging.ERROR)

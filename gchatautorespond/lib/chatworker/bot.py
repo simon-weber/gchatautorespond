@@ -1,8 +1,11 @@
 import datetime
 import logging
+import re
 import ssl
+import threading
 
 from django.core.mail import EmailMessage
+from raven.processors import Processor
 from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import cert
 
@@ -11,15 +14,56 @@ from gchatautorespond.lib import report_ga_event_async
 RESOURCE = 'autorespond'
 
 
+class ContextFilter(logging.Filter):
+    """If context.log_id is set, add it to log messages and tags.
+
+    This separates sleekxmpp logs by bot.
+    """
+
+    context = threading.local()
+
+    @classmethod
+    def filter(cls, record):
+        if getattr(cls.context, 'log_id', None):
+            record.msg = "[log_id=%s] %s" % (cls.context.log_id, record.msg)
+            record.tags = getattr(record, 'tags', {})
+            record.tags['log_id'] = cls.context.log_id
+        return True
+
+
+class ContextProcessor(Processor):
+    """Remove the prepended log_id bit from messages going to sentry, since it prevents aggregation.
+
+    Sentry gets this information from the tags instead.
+    """
+
+    pattern = re.compile(r'^\[log_id=\d\d*\] ')
+
+    def get_data(self, data, **kwargs):
+
+        if 'message' in data:
+            data['message'] = re.sub(self.pattern, '', data['message'])
+
+        if 'sentry.interfaces.Message' in data:
+            imes = data['sentry.interfaces.Message']
+            if 'message' in imes:
+                imes['message'] = re.sub(self.pattern, '', imes['message'])
+            if 'formatted' in imes:
+                imes['formatted'] = re.sub(self.pattern, '', imes['formatted'])
+
+        return data
+
+
 class GChatBot(ClientXMPP):
     """A Bot that connects to Google Chat over ssl."""
 
-    def __init__(self, email, token, **kwargs):
+    def __init__(self, email, token, log_id, **kwargs):
         """
         Args:
             email (unicode): the email to login as, including domain.
               Custom domains are supported.
             token (string): a `googletalk` scoped oauth2 access token
+            log_id: if not None, will be prepended onto all logging messages triggered by this bot.
         """
 
         if '@' not in email:
@@ -28,11 +72,13 @@ class GChatBot(ClientXMPP):
         super(GChatBot, self).__init__(email + '/' + RESOURCE, token)
 
         self.email = email
+        self.log_id = log_id
 
-        # TODO it'd be nice if the sleekxmpp logs had the context of the email as well.
-        # It looks like this could be done with a filter + threadlocal variable, since
-        # process(block=False) starts a new thread.
-        self.logger = logging.getLogger("%s.%s.%s" % (__name__, id(self), email.encode('utf-8')))
+        logger_name = __name__
+        if self.log_id is not None:
+            logger_name += str(self.log_id)
+
+        self.logger = logging.getLogger(logger_name)
         self.logger.info("bot initialized (%s)", id(self))
 
         self.use_ipv6 = False
@@ -41,12 +87,31 @@ class GChatBot(ClientXMPP):
         self.add_event_handler('session_start', self.session_start)
         self.add_event_handler('ssl_invalid_cert', self.ssl_invalid_cert)
 
+    # Since python doesn't have inheritable threadlocals, we need to set the context from one spot in each new thread.
+    # These spots were found from http://sleekxmpp.com/_modules/sleekxmpp/xmlstream/xmlstream.html#XMLStream.process.
+    # It doesn't include the scheduler thread, but that doesn't seem to log anything interesting.
+    def _process(self, *args, **kwargs):
+        if self.log_id:
+            ContextFilter.context.log_id = self.log_id
+        super(GChatBot, self)._process(*args, **kwargs)
+
+    def _send_thread(self, *args, **kwargs):
+        if self.log_id:
+            ContextFilter.context.log_id = self.log_id
+        super(GChatBot, self)._send_thread(*args, **kwargs)
+
+    def _event_runner(self, *args, **kwargs):
+        if self.log_id:
+            ContextFilter.context.log_id = self.log_id
+        super(GChatBot, self)._event_runner(*args, **kwargs)
+
     def connect(self):
         self.credentials['api_key'] = self.boundjid.bare
         self.credentials['access_token'] = self.password
         super(GChatBot, self).connect(('talk.google.com', 5222))
 
     def session_start(self, event):
+        # TODO try seeing if send_presence will trigger presence responses for use in autodetect
         self.send_presence()
         self.get_roster()
 
@@ -95,7 +160,7 @@ class AutoRespondBot(GChatBot):
       * later, a resource under that jid coming online
     """
 
-    def __init__(self, email, token, response, notify_email,
+    def __init__(self, email, token, log_id, response, notify_email,
                  response_throttle=datetime.timedelta(seconds=60), detect_unavailable=True):
         """
         Args:
@@ -116,7 +181,7 @@ class AutoRespondBot(GChatBot):
         self.last_reply_datetime = {}  # {jid: datetime.datetime}
         self.other_active_resources = set()  # jids of other resources for our user
 
-        super(AutoRespondBot, self).__init__(email, token)
+        super(AutoRespondBot, self).__init__(email, token, log_id)
 
         self.add_event_handler('message', self.message)
         self.add_event_handler('presence', self.presence)

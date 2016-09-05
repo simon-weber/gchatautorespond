@@ -111,7 +111,7 @@ def perform_oauth():
 
     credentials = flow.step2_exchange(code)
 
-    storage = StandaloneBot(credentials.id_token['email'], None, None, None).oauth_storage
+    storage = StandaloneBot(credentials.id_token['email'], None, None, None, None).oauth_storage
     storage.put(credentials)
 
     return credentials
@@ -123,6 +123,6 @@ if __name__ == '__main__':
     if arguments['auth']:
         perform_oauth()
     elif arguments['run']:
-        bot = StandaloneBot(arguments['<email>'], None, arguments['<autoresponse>'], None)
+        bot = StandaloneBot(arguments['<email>'], None, None, arguments['<autoresponse>'], None)
         bot.connect()
         bot.process(block=True)
