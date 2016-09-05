@@ -138,7 +138,7 @@ class Worker(object):
 
         if ((len(disconnects) == self.max_disconnects
              and disconnects[0] > (now - self.disconnect_period))):
-            logger.warning("shutting down flapping bot %s (%r) after disconnects %r",
+            logger.warning("shutting down flapping bot for autorespond %s (%r) after disconnects %r",
                            autorespond.id, autorespond.credentials.email, disconnects)
 
             self.stop(autorespond.id)
