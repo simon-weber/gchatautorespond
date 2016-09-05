@@ -65,6 +65,10 @@ class LoggedOutView(TemplateView):
     template_name = 'logged_out.html'
 
 
+class PrivacyView(TemplateView):
+    template_name = 'privacy.html'
+
+
 def login(request):
     """Default login, but redirect if we're already logged in."""
 

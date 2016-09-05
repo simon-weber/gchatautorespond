@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 from .apps.autorespond import urls as autorespond_urls
-from .apps.autorespond.views import LoggedOutView
+from .apps.autorespond.views import LoggedOutView, PrivacyView
 
 urlpatterns = [
     url(r'^autorespond/', include(autorespond_urls)),
@@ -19,5 +19,6 @@ urlpatterns = [
     # post-login will redirect here.
     url(r'^accounts/profile/$', RedirectView.as_view(pattern_name='autorespond', permanent=False)),
 
+    url(r'^privacy/$', PrivacyView.as_view(), name='privacy'),
     url(r'^$', LoggedOutView.as_view(), name='logged_out'),
 ]
