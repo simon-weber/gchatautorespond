@@ -154,6 +154,10 @@ def auth_return_view(request):
     if not xsrfutil.validate_token(settings.SECRET_KEY, token, request.user):
         return HttpResponseBadRequest('Improper OAuth request.')
 
+    if 'error' in request.GET:
+        logger.error("error on oauth return: %s", request.GET['error'])
+        return redirect('autorespond')
+
     credential = FLOW.step2_exchange(request.GET)
 
     if credential.refresh_token is not None:
