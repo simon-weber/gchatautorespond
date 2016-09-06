@@ -21,7 +21,7 @@ ALLOWED_HOSTS = [HOST]
 PORT = 8000
 WORKER_PORT = 50001
 
-CLIENT_SECRETS_PATH = os.path.join(SECRETS_DIR, 'client_secrets.json')
+GOOGLE_OAUTH2_CLIENT_SECRETS_JSON = os.path.join(SECRETS_DIR, 'client_secrets.json')
 OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 

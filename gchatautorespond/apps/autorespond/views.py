@@ -8,7 +8,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render_to_response
 from django.utils.encoding import smart_str
 import httplib2
-from oauth2client import xsrfutil
+import oauth2client.contrib.xsrfutil as xsrfutil
 from oauth2client.client import flow_from_clientsecrets
 from django.contrib.auth.views import login as contrib_login
 from django.forms.models import modelformset_factory
@@ -21,7 +21,7 @@ from .models import GoogleCredential, AutoResponse
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
-    settings.CLIENT_SECRETS_PATH,
+    settings.GOOGLE_OAUTH2_CLIENT_SECRETS_JSON,
     scope=settings.OAUTH_SCOPE,
     redirect_uri=settings.OAUTH_REDIRECT_URI)
 
