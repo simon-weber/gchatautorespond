@@ -155,7 +155,9 @@ def auth_return_view(request):
         return HttpResponseBadRequest('Improper OAuth request.')
 
     if 'error' in request.GET:
-        logger.error("error on oauth return: %s", request.GET['error'])
+        if request.GET['error'] != 'access_denied':
+            # access_denied means the user clicked deny; it's not exceptional.
+            logger.error("error on oauth return: %s", request.GET['error'])
         return redirect('autorespond')
 
     credential = FLOW.step2_exchange(request.GET)
