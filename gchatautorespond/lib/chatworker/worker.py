@@ -120,7 +120,7 @@ class Worker(object):
         logger.info("stopping autorespond %s", autorespond_id)
 
         if autorespond_id not in self.autoresponds:
-            logger.warning("autorespond %s not yet running", autorespond_id)
+            logger.info("autorespond %s not yet running", autorespond_id)
             return
 
         bot = self.autoresponds.pop(autorespond_id)
