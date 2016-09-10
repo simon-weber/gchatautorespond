@@ -44,6 +44,7 @@ rsa==3.4.2                # via oauth2client
 simplejson==3.8.2         # via uritemplate
 six==1.10.0               # via google-api-python-client, mock, oauth2client, pip-tools
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
+sparkpost==1.2.0
 static3==0.7.0            # via dj-static
 supervisor==3.3.1
 uritemplate==0.6          # via google-api-python-client

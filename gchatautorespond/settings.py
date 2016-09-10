@@ -163,13 +163,8 @@ DATABASES = {
 
 # Email
 EMAIL_BACKEND = 'djmail.backends.async.EmailBackend'
-DJMAIL_REAL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_HOST = 'smtp.sparkpostmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret('sparkpost.user')
-EMAIL_HOST_PASSWORD = get_secret('sparkpost.password')
-EMAIL_USE_TLS = True
+DJMAIL_REAL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'
+SPARKPOST_API_KEY = get_secret('sparkpost.password')
 DEFAULT_FROM_EMAIL = 'noreply@gchat.simon.codes'
 
 ADMINS = (('Simon', 'simon@simonmweber.com'),)
