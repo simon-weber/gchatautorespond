@@ -22,15 +22,15 @@
   set_fact:
     configured_port: "{{ ansible_port }}"
 
-# From localhost, check if we're able to reach {{ inventory_hostname }} on
+# From localhost, check if we're able to reach {{ ansible_ssh_host }} on
 # port 22
 - name: Check if we're using the default SSH port
   wait_for:
     port: "22"
     state: "started"
-    host: "{{ inventory_hostname }}"
-    connect_timeout: "5"
-    timeout: "10"
+    host: "{{ ansible_ssh_host }}"
+    connect_timeout: "3"
+    timeout: "5"
   delegate_to: "localhost"
   ignore_errors: "yes"
   register: default_ssh
@@ -44,13 +44,13 @@
   register: ssh_port_set
 
 # If unreachable on port 22, check if we're able to reach
-# {{ inventory_hostname }} on {{ ansible_port }} provided by the inventory
+# {{ ansible_ssh_host }} on {{ ansible_port }} provided by the inventory
 # from localhost
 - name: Check if we're using the inventory-provided SSH port
   wait_for:
     port: "{{ ansible_port }}"
     state: "started"
-    host: "{{ inventory_hostname }}"
+    host: "{{ ansible_ssh_host }}"
     connect_timeout: "5"
     timeout: "10"
   delegate_to: "localhost"
@@ -84,13 +84,14 @@
     regexp: "^Port"
     line: "Port {{ configured_port }}"
   notify: "Restart sshd"
+  sudo: true
 
-- name: Setup selinux for alternate SSH port
-  seport:
-    ports: "{{ configured_port }}"
-    proto: "tcp"
-    setype: "ssh_port_t"
-    state: "present"
+# - name: Setup selinux for alternate SSH port
+#   seport:
+#     ports: "{{ configured_port }}"
+#     proto: "tcp"
+#     setype: "ssh_port_t"
+#     state: "present"
 
 # We notified "Restart sshd" if we modified the sshd config.
 # By calling flush_handlers, we make sure the handler is run *right now*
@@ -108,3 +109,4 @@
 # We run setup to gather facts here once the SSH port is set up.
 - name: Run deferred setup to gather facts
   setup:
+  sudo: true
