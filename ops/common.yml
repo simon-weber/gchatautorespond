@@ -16,4 +16,6 @@
     - role: Oefenweb.fail2ban
       sudo: true
     - role: sivel.newrelic
-      sudo: yes
+      sudo: true
+    - role: geerlingguy.firewall
+      sudo: true

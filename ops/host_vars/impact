@@ -30,3 +30,7 @@ fail2ban_services:
     filter: sshd
     logpath: /var/log/auth.log
     maxretry: 6
+firewall_allowed_tcp_ports:
+  - 22
+  - 443
+  - 54000
