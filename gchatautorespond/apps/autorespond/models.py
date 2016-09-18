@@ -24,3 +24,5 @@ class AutoResponse(models.Model):
     email_notifications = models.BooleanField(
         default=False,
         help_text="Enable to receive an email when an autoresponse is sent.")
+
+    admin_disabled = models.BooleanField(default=False)

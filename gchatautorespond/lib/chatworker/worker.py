@@ -87,8 +87,13 @@ class Worker(object):
         """Start a bot for an autorespond in a new thread."""
 
         logger.info("starting autorespond %s", autorespond.id)
+
         if autorespond.id in self.autoresponds:
             logger.warning("autorespond %s already running? state: %r", autorespond.id, self.autoresponds)
+
+        if autorespond.admin_disabled:
+            logger.warning("refusing to start disabled autorespond %s", autorespond.id)
+            return
 
         notify_email = None
         if autorespond.email_notifications:
@@ -141,10 +146,12 @@ class Worker(object):
 
         if ((len(disconnects) == self.max_disconnects
              and disconnects[0] > (now - self.disconnect_period))):
-            logger.warning("shutting down flapping bot for autorespond %s (%r) after disconnects %r",
+            logger.warning("disabling flapping bot for autorespond %s (%r) after disconnects %r",
                            autorespond.id, autorespond.credentials.email, disconnects)
 
             self.stop(autorespond.id)
+            autorespond.admin_disabled = True
+            autorespond.save()
 
     def _bot_failed_auth(self, bot, autorespond):
         """Handle two cases:
