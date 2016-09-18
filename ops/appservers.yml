@@ -8,15 +8,6 @@
       - pydrive_key: "{{ lookup('file', '../secrets/pydriveprivatekey.pem') }}"
   roles:
     - role: common
-    - role: Yannik.enable-standard-cronjobs
-      sudo: true
-    - role: jnv.unattended-upgrades
-      sudo: true
-    - role: ricbra.logentries
-      sudo: true
-      tags: logentries
-    - role: Oefenweb.fail2ban
-      sudo: true
     - role: Stouts.backup
       sudo: true
       tags: backup
@@ -31,7 +22,5 @@
              - "{{ venv }}"
           target: "pydrive://{{ pydrive_user }}/gchat_backups/db3"
           action: 'backup_verify_purge --force'
-    - role: sivel.newrelic
-      sudo: yes
     - ANXS.python
     - runapp

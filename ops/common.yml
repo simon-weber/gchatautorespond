@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+  remote_user: "{{ appuser }}"
+  vars_files:
+      - secrets.yml
+  roles:
+    - role: common
+    - role: Yannik.enable-standard-cronjobs
+      sudo: true
+    - role: jnv.unattended-upgrades
+      sudo: true
+    - role: ricbra.logentries
+      sudo: true
+      tags: logentries
+    - role: Oefenweb.fail2ban
+      sudo: true
+    - role: sivel.newrelic
+      sudo: yes
