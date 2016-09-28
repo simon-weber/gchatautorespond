@@ -10,7 +10,7 @@ class GoogleCredential(models.Model):
     email = models.EmailField(unique=True)
 
     def __unicode__(self):
-        return self.email
+        return "<GoogleCredential email:%s>" % self.email
 
 
 class AutoResponse(models.Model):
@@ -26,3 +26,6 @@ class AutoResponse(models.Model):
         help_text="Enable to receive an email when an autoresponse is sent.")
 
     admin_disabled = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return "<AutoResponse email:%s>" % self.credentials.email
