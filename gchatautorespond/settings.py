@@ -170,7 +170,7 @@ SPARKPOST_OPTIONS = {
     'track_clicks': False,
     'transactional': True,
 }
-DEFAULT_FROM_EMAIL = 'noreply@gchat.simon.codes'
+DEFAULT_FROM_EMAIL = 'GChat Autoresponder <noreply@gchat.simon.codes>'
 
 ADMINS = (('Simon', 'simon@simonmweber.com'),)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
