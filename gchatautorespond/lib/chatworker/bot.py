@@ -216,6 +216,10 @@ class AutoRespondBot(GChatBot):
                 self.logger.error('more than one autoresponder is running? we are %s and they are %s',
                                   self.boundjid, other_jid)
                 return
+            if other_jid == self.boundjid:
+                self.logger.error('received a loopback message not caught by resource! us: %r them: %r',
+                                  self.boundjid, other_jid)
+                return
 
             if presence['type'] == 'available':
                 self.other_active_resources.add(other_jid)
