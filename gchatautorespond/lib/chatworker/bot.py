@@ -180,6 +180,7 @@ class AutoRespondBot(GChatBot):
         self.response_throttle = response_throttle
         self.detect_unavailable = detect_unavailable
 
+        # FIXME this never gets cleaned up, leaking (a small amount of) memory
         self.last_reply_datetime = {}  # {jid: datetime.datetime}
         self.other_active_resources = set()  # jids of other resources for our user
 
