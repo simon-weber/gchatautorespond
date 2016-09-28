@@ -196,6 +196,7 @@ class AutoRespondBot(GChatBot):
     def message(self, msg):
         """Respond to Hangouts/gchat normal messages."""
 
+        self.logger.info("received message from %s: %r", msg['from'], msg)
         if msg['type'] in ('chat', 'normal') and self._should_send_to(msg['from']):
             jid = msg['from']
             body = msg.get('body')
