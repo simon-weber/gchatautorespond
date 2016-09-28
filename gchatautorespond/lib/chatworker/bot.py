@@ -11,7 +11,9 @@ from sleekxmpp.xmlstream import cert
 
 from gchatautorespond.lib import report_ga_event_async
 
-RESOURCE = 'autorespond'
+# This should be under 10 characters to avoid Google truncating it.
+# See https://github.com/simon-weber/gchatautorespond/issues/3.
+RESOURCE = 'autore'
 
 
 class ContextFilter(logging.Filter):
