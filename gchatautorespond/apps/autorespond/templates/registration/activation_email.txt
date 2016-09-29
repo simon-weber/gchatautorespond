@@ -1,6 +1,3 @@
-{% load i18n %}
-{% trans "Activate account at" %} {{ site.name }}:
+To activate your Autoresponder account, please follow this link:
 
-http://{{ site.domain }}{% url 'registration_activate' activation_key %}
-
-{% blocktrans %}Link is valid for {{ expiration_days }} days.{% endblocktrans %}
+https://{{ site.domain }}{% url 'registration_activate' activation_key %}
