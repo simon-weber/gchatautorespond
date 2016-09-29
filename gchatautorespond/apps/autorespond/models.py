@@ -10,7 +10,7 @@ class GoogleCredential(models.Model):
     email = models.EmailField(unique=True)
 
     def __unicode__(self):
-        return "<GoogleCredential email:%s>" % self.email
+        return self.email
 
 
 class AutoResponse(models.Model):
