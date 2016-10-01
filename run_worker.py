@@ -41,8 +41,9 @@ if __name__ == '__main__':
     for handler in handlers:
         handler.addFilter(ContextFilter)
 
-    sentry = Sentry(app, dsn=settings.RAVEN_CONFIG['dsn'],
-                    logging=True, level=logging.ERROR)
+    if 'dsn' in settings.RAVEN_CONFIG:
+        sentry = Sentry(app, dsn=settings.RAVEN_CONFIG['dsn'],
+                        logging=True, level=logging.ERROR)
 
     server = WSGIServer(('127.0.0.1', settings.WORKER_PORT), app)
     server.serve_forever()

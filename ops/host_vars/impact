@@ -23,6 +23,10 @@ logentries_logs:
     path: /var/log/syslog
   - name: fail2ban
     path: /var/log/fail2ban.log
+  - name: delete_old_mail
+    path: /var/log/delete_old_mail.log
+  - name: sync_licenses
+    path: /var/log/sync_licenses.log
 fail2ban_services:
   - name: ssh
     enabled: true

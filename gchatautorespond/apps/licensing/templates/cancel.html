@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+    <div id="details">
+        <h3>cancellation</h3>
+        {% if not can_cancel %}
+        You don't have an active subscription, so you can't cancel your account.
+        {% else %}
+        Here's what will happen if you cancel your subscription:
+        <ul>
+            <li>your account will immediately become inactive, disabling your autoresponses</li>
+            <li>you will not be billed again</li>
+            <li>your data will be saved in case you want to reactivate your account</li>
+        </ul>
+
+        <form method="post" action=".">
+            {% csrf_token %}
+            What could we have done better?
+            <br/>
+            <textarea class="u-full-width" name="feedback"></textarea>
+            <br/>
+            <input type="submit" value="cancel my subscription"/>
+        </form>
+
+        {% endif %}
+    </div>
+{% endblock content %}

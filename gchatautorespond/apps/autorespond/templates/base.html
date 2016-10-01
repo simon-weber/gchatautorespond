@@ -62,8 +62,15 @@
                     {% if user.is_authenticated %}
                         <a href="{% url 'autorespond' %}">Home</a> 
                         Logged in: {{ user.username }} ({{ user.email }})
-                        (<a href="{% url 'auth_logout' %}?next=/">Log Out</a> |
-                        <a href="{% url 'auth_password_change' %}">Change Password</a>)
+                        (
+                        <a href="{% url 'auth_logout' %}?next=/">Log Out</a> |
+                        <a href="{% url 'auth_password_change' %}">Change Password</a> |
+                        <a href="{% url 'license_details' %}">Billing</a>
+                        )
+                        {% if user.currentlicense.license.is_trial %}
+                            <br/>
+                            Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
+                        {% endif %}
                     {% else %}
                         <a href="/">Home</a> 
                         | <a href="{% url 'auth_login' %}">Log In</a>
@@ -78,11 +85,18 @@
 
             <div id="footer">
                 {% block footer %}
-                <a href="mailto:simon@simonmweber.com">contact</a>
-                <a href="/privacy">privacy</a>
-                <a href="https://simonmweber.com">author</a>
                 <br/>
-                Google Music user? Check out <a href="https://autoplaylists.simon.codes/">Autoplaylists for Google Music</a>.
+                <br/>
+                <a href="/privacy">privacy</a>
+                <a href="/terms">terms</a>
+                <a href="https://simonmweber.com">author</a>
+
+                <br/>
+                For support, email 
+                <a href="mailto:support@gchat.simon.codes" target="_blank" rel="noopener noreferrer">support@gchat.simon.codes</a>.
+
+                <br/>
+                Google Music user? Check out <a href="https://autoplaylists.simon.codes/" target="_blank" rel="noopener noreferrer">Autoplaylists for Google Music</a>.
                 {% endblock footer %}
             </div>
         </div>

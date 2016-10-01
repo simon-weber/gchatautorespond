@@ -1,6 +1,8 @@
 import datetime
 import os
 
+import braintree
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS_DIR = os.path.join(BASE_DIR, 'secrets')
 
@@ -41,6 +43,17 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
 
+# Braintree
+BRAINTREE_MERCHANT_ID = get_secret('bt_prod.merchant_id')
+BRAINTREE_PUBLIC_KEY = get_secret('bt_prod.public_key')
+BRAINTREE_PRIVATE_KEY = get_secret('bt_prod.private_key')
+braintree.Configuration.configure(braintree.Environment.Production,
+                                  merchant_id=BRAINTREE_MERCHANT_ID,
+                                  public_key=BRAINTREE_PUBLIC_KEY,
+                                  private_key=BRAINTREE_PRIVATE_KEY)
+PRICE_REPR = '$2'
+PLAN_ID = 'monthly_v0'
+
 
 # Application definition
 
@@ -56,6 +69,7 @@ INSTALLED_APPS = (
     # 'django.contrib.sites',
 
     'gchatautorespond.apps.autorespond',
+    'gchatautorespond.apps.licensing',
 
     # Putting the admin app after our own prevents overriding
     # password reset templates.
@@ -188,7 +202,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

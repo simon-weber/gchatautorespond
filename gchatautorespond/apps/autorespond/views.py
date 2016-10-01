@@ -18,6 +18,7 @@ from django.views.generic import TemplateView
 import requests
 
 from .models import GoogleCredential, AutoResponse
+from gchatautorespond.apps.licensing.models import License
 from gchatautorespond.lib import report_ga_event_async
 
 FLOW = flow_from_clientsecrets(
@@ -56,17 +57,20 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         return form
 
 
+# These next three views are static and should be cached aggressively.
 class LoggedOutView(TemplateView):
-    """Display a static about page.
-
-    This should be cached aggressively.
-    """
+    price = settings.PRICE_REPR
+    trial_length = "%s day" % License.TRIAL_LENGTH.days
 
     template_name = 'logged_out.html'
 
 
 class PrivacyView(TemplateView):
     template_name = 'privacy.html'
+
+
+class TermsView(TemplateView):
+    template_name = 'terms.html'
 
 
 def login(request):
@@ -85,6 +89,7 @@ def autorespond_view(request):
         return redirect('logged_out')
 
     gcredentials = GoogleCredential.objects.filter(user=request.user)
+    license = request.user.currentlicense.license
 
     if request.method == 'GET':
         autoresponds = AutoResponse.objects.filter(user=request.user)
@@ -93,6 +98,7 @@ def autorespond_view(request):
 
         c = {
             'user': request.user,
+            'is_active': license.is_active,
             'gcredentials': gcredentials,
             'autorespond_formset': formset,
         }
@@ -119,6 +125,7 @@ def autorespond_view(request):
         else:
             c = {
                 'user': request.user,
+                'is_active': license.is_active,
                 'gcredentials': gcredentials,
                 'autorespond_formset': formset,
             }

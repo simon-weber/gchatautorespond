@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+    <div id="details">
+        <h3>payment details:</h3>
+        {% if admin_override == 'EN' %}
+        Your account has been activated by a site admin.
+        {% elif admin_override == 'DI' %}
+        Your account has been deactivated by a site admin.
+        {% else %}
+
+        {% if is_active %}
+        Your account is currently active.
+        {% else %}
+        Your account is currently inactive.
+        {% endif %}
+
+        {% if trial_expire_date %}
+        <br/>
+        Your trial expires on {{ trial_expire_date }}.
+        {% endif %}
+
+        {% if next_bill_date %}
+        <br/>
+        You will be billed {{ price }} next on {{ next_bill_date }}.
+        <a href="{% url 'license_cancel' %}">Cancel your subscription.</a>
+        {% endif %}
+
+        {% if not has_valid_subscription %}
+        <br/>
+        A subscription is {{ price }} charged monthly.
+        It begins immediately and you may cancel it at any time.
+        {% endif %}
+        <form method="post" action=".">
+            {% csrf_token %}
+            Your payment details are stored securely by
+            <a href="https://www.braintreepayments.com/" target="_blank" rel="noopener noreferrer">Braintree</a> (a PayPal company).
+            <div id="dropin-container"></div>
+            <input type="submit" value="{{ has_valid_subscription |yesno:"save changes,begin subscription" }}"/>
+        </form>
+
+        <script src="https://js.braintreegateway.com/js/braintree-2.28.0.min.js"></script>
+        <script type="text/javascript">
+            braintree.setup('{{ client_token }}', 'dropin', {
+                container: 'dropin-container',
+                defaultFirst: true,
+            });
+        </script>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -12,6 +12,11 @@ You'll set up your autoresponse emails after your account is active.
     {% csrf_token %}
   {{ form.as_p }}
 
+  Read the Terms of Service here:
+  <a href="{% url 'terms' %}" target="_blank" rel="noopener noreferrer">terms</a>.
+  <br/>
+  <br/>
+
   <input type="submit" value="{% trans 'Submit' %}" />
 </form>
 {% endblock %}

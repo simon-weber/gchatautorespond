@@ -95,6 +95,10 @@ class Worker(object):
             logger.warning("refusing to start disabled autorespond %s", autorespond.id)
             return
 
+        if not autorespond.user.currentlicense.license.is_active:
+            logger.warning("refusing to start autorespond for inactive account %s", autorespond.user)
+            return
+
         notify_email = None
         if autorespond.email_notifications:
             notify_email = autorespond.user.email
