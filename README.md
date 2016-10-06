@@ -25,6 +25,9 @@ Then, start the bot:
 $ python standalone_bot.py run my-email@gmail.com 'my autoresponse'
 ```
 
+Email notifications aren't currently supported when self-hosting.
+That's being worked on in https://github.com/simon-weber/gchatautorespond/issues/7.
+
 ## project layout
 
 * gchatautorespond/apps/autorespond: main django app
