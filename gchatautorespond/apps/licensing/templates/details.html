@@ -30,12 +30,11 @@
         A subscription is {{ price }} charged monthly.
         It begins immediately and you may cancel it at any time.
         {% endif %}
-        <form method="post" action=".">
+        <form id="card-form" method="post" action=".">
             {% csrf_token %}
             Your payment details are stored securely by
             <a href="https://www.braintreepayments.com/" target="_blank" rel="noopener noreferrer">Braintree</a> (a PayPal company).
             <div id="dropin-container"></div>
-            <input type="submit" value="{{ has_valid_subscription |yesno:"save changes,begin subscription" }}"/>
         </form>
 
         <script src="https://js.braintreegateway.com/js/braintree-2.28.0.min.js"></script>
@@ -44,7 +43,14 @@
                 container: 'dropin-container',
                 defaultFirst: true,
             });
+            var submit = document.createElement('input');
+            submit.type='submit';
+            submit.value='{{ has_valid_subscription |yesno:"save changes,begin subscription" }}';
+            document.getElementById('card-form').appendChild(submit);
         </script>
+        <noscript>
+            Sorry, 3rd party scripts must be enabled since this form uses Braintree's Drop-in UI.
+        </noscript>
         {% endif %}
     </div>
 {% endblock content %}
