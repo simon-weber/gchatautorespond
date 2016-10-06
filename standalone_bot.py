@@ -22,7 +22,7 @@ import httplib2  # included with oauth2client
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 import oauth2client.file
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_dev'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_standalone'
 import django
 django.setup()
 
