@@ -3,3 +3,6 @@ ops/secrets.yml  filter=crypt diff=crypt
 ops/roles/ssl/files/ssl.key  filter=crypt diff=crypt
 ops/roles/ssl/files/ssl-unified.crt  filter=crypt diff=crypt
 ops/newrelic.ini   filter=crypt diff=crypt
+
+# exempt the secrets readme
+secrets/README.md
