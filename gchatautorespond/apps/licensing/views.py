@@ -8,12 +8,31 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render_to_response
 from django.template.context_processors import csrf
 
-from .lib import transition_license, get_default_payment_method, report_bt_event
+from .lib import (
+    transition_license,
+    get_default_payment_method,
+    report_bt_event,
+    raise_unless_successful,
+    UnsuccessfulResultError,
+)
 
 logger = logging.getLogger(__name__)
 
 
+def handle_unsuccessful_result(view):
+    def _result_wrapper(*args, **kwargs):
+        try:
+            return view(*args, **kwargs)
+        except UnsuccessfulResultError as e:
+            logger.exception("unsuccessful bt result from %s: %s", view, e.result)
+            mail_admins("unsuccessful bt result", "See sentry for details.", fail_silently=True)
+            return render_to_response('payment_error.html')
+
+    return _result_wrapper
+
+
 @login_required
+@handle_unsuccessful_result
 def details_view(request):
     if request.method == 'GET':
         license = request.user.currentlicense.license
@@ -62,7 +81,7 @@ def details_view(request):
                 'payment_method_nonce': nonce,
                 'first_name': request.user.username,
             })
-            logger.info(result)
+            raise_unless_successful(result)
             report_bt_event(request.user.email, result, 'Customer', 'create')
             license = transition_license(license, {
                 'bt_customer_id': result.customer.id,
@@ -73,7 +92,7 @@ def details_view(request):
                 'payment_method_nonce': nonce,
                 'options': {'make_default': True},
             })
-            logger.info(result)
+            raise_unless_successful(result)
             report_bt_event(request.user.email, result, 'PaymentMethod', 'create')
 
         customer = braintree.Customer.find(license.bt_customer_id)
@@ -89,7 +108,7 @@ def details_view(request):
                 payload['options'] = {'start_immediately': True}
 
             result = braintree.Subscription.create(payload)
-            logger.info(result)
+            raise_unless_successful(result)
             report_bt_event(request.user.email, result, 'Subscription', 'create')
             license = transition_license(license, {
                 'bt_subscription_id': result.subscription.id,
@@ -100,7 +119,7 @@ def details_view(request):
                 'payment_method_token': default_payment_method.token,
             })
             report_bt_event(request.user.email, result, 'Subscription', 'update')
-            logger.info(result)
+            raise_unless_successful(result)
             license = transition_license(license, {
                 'bt_status': result.subscription.status,
             })
@@ -111,6 +130,7 @@ def details_view(request):
 
 
 @login_required
+@handle_unsuccessful_result
 def cancel_view(request):
     license = request.user.currentlicense.license
     can_cancel = bool(license.bt_subscription_id)
@@ -137,7 +157,7 @@ def cancel_view(request):
         feedback = request.POST['feedback']
 
         result = braintree.Subscription.cancel(license.bt_subscription_id)
-        logger.info(result)
+        raise_unless_successful(result)
         report_bt_event(request.user.email, result, 'Subscription', 'cancel')
 
         license = transition_license(license, {

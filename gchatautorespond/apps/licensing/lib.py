@@ -14,6 +14,19 @@ from .models import License, CurrentLicense
 logger = logging.getLogger(__name__)
 
 
+class UnsuccessfulResultError(Exception):
+    def __init__(self, message, result):
+        super(UnsuccessfulResultError, self).__init__(message)
+        self.result = result
+
+
+def raise_unless_successful(bt_result):
+    if not bt_result.is_success:
+        raise UnsuccessfulResultError('', bt_result)
+
+    logger.info("%s", bt_result)
+
+
 def report_bt_event(email, result, object, action):
     value = 1 if result.is_success else -1
     report_ga_event_async(email, category=object, action=action, label='braintree', value=value)
