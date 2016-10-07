@@ -42,8 +42,9 @@ def notify_of_trial_expiry(user):
 
 
 def save_init_license(user):
-    license = License.objects.create(user=user, trial_start=timezone.now())
-    CurrentLicense.objects.create(user=user, license=license)
+    with transaction.atomic():
+        license = License.objects.create(user=user, trial_start=timezone.now())
+        CurrentLicense.objects.create(user=user, license=license)
 
 
 def get_default_payment_method(customer):
