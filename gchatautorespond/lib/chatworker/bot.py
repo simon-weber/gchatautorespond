@@ -210,15 +210,16 @@ class AutoRespondBot(GChatBot):
     def presence(self, presence):
         other_jid = presence['from']
         if other_jid.bare == self.boundjid.bare:  # only compare the user+domain
+            if other_jid == self.boundjid:
+                # I have no idea why these happen.
+                # It seems to happen for a single user exactly twice before stopping.
+                self.logger.warning('received loopback presence: %r,%r', self.boundjid, other_jid)
+                return
             if other_jid.resource.startswith(RESOURCE):
                 # There's probably something more to be done here, like ensuring only one autoresponder replies
                 # (maybe the one with the highest resource?).
                 # For now, they're not considered another resource, and multiple bots can respond.
                 self.logger.error('more than one autoresponder is running? we are %s and they are %s',
-                                  self.boundjid, other_jid)
-                return
-            if other_jid == self.boundjid:
-                self.logger.error('received a loopback message not caught by resource! us: %r them: %r',
                                   self.boundjid, other_jid)
                 return
 
@@ -286,7 +287,8 @@ class AutoRespondBot(GChatBot):
 
             body_paragraphs.append("We replied with your autoresponse \"%s\"." % self.response.encode('utf-8'))
 
-            body_paragraphs.append("If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
+            body_paragraphs.append(
+                "If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
 
             email = EmailMessage(
                 subject='gchat.simon.codes sent an autoresponse',
