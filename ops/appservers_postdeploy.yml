@@ -25,7 +25,7 @@
 
     - cron: name="sync licenses"
             minute="30"
-            hour="10"
+            hour="22"
             user="{{ appuser }}"
             job="cd {{ appdir }}; DJANGO_SETTINGS_MODULE=gchatautorespond.settings {{ venv }}/bin/python sync_licenses.py >> /var/log/sync_licenses.log 2>&1"
             cron_file="gchat_sync_licenses"
