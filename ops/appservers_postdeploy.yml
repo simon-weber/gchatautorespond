@@ -24,7 +24,8 @@
       sudo: yes
 
     - cron: name="sync licenses"
-            special_time="daily"
+            minute="30"
+            hour="10"
             user="{{ appuser }}"
             job="cd {{ appdir }}; DJANGO_SETTINGS_MODULE=gchatautorespond.settings {{ venv }}/bin/python sync_licenses.py >> /var/log/sync_licenses.log 2>&1"
             cron_file="gchat_sync_licenses"
