@@ -14,6 +14,7 @@
       with_items:
           - delete_old_mail.log
           - sync_licenses.log
+          - reenable_bots.log
       sudo: yes
 
     - cron: name="delete old emails"
@@ -29,6 +30,13 @@
             user="{{ appuser }}"
             job="cd {{ appdir }}; DJANGO_SETTINGS_MODULE=gchatautorespond.settings {{ venv }}/bin/python sync_licenses.py >> /var/log/sync_licenses.log 2>&1"
             cron_file="gchat_sync_licenses"
+      sudo: yes
+
+    - cron: name="reenable bots"
+            special_time="hourly"
+            user="{{ appuser }}"
+            job="cd {{ appdir }}; DJANGO_SETTINGS_MODULE=gchatautorespond.settings {{ venv }}/bin/python reenable_bots.py >> /var/log/reenable_bots.log 2>&1"
+            cron_file="gchat_reenable_bots"
       sudo: yes
 
     - name: install app dependencies

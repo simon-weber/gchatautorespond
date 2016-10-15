@@ -27,6 +27,8 @@ logentries_logs:
     path: /var/log/delete_old_mail.log
   - name: sync_licenses
     path: /var/log/sync_licenses.log
+  - name: reenable_bots
+    path: /var/log/reenable_bots.log
 fail2ban_services:
   - name: ssh
     enabled: true
