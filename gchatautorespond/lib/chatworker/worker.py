@@ -81,7 +81,11 @@ class Worker(object):
         if max_percent > 75:
             status = 'disk_warning'
 
-        return {'status': status, 'num_bots': len(self.autoresponds), 'max_disk_percent': max_percent}
+        return {'status': status,
+                'num_bots': len(self.autoresponds),
+                'max_disk_percent': max_percent,
+                'bots': self.autoresponds.keys(),
+                }
 
     def start(self, autorespond):
         """Start a bot for an autorespond in a new thread."""
