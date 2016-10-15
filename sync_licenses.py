@@ -2,6 +2,7 @@ import django
 django.setup()
 
 import datetime
+import logging
 
 import braintree
 from raven.contrib.django.raven_compat.models import client as raven_client
@@ -13,9 +14,11 @@ from gchatautorespond.apps.licensing.lib import (
 )
 from gchatautorespond.apps.licensing.models import CurrentLicense
 
+logger = logging.getLogger('gchatautorespond.sync_licenses')
 
 if __name__ == '__main__':
     try:
+        logger.info('running')
         for currentlicense in CurrentLicense.objects.all():
             license = currentlicense.license
             if license.bt_subscription_id:

@@ -15,6 +15,7 @@ logger = logging.getLogger('gchatautorespond.delete_old_mail')
 
 if __name__ == '__main__':
     try:
+        logger.info('running')
         cutoff = datetime.datetime.now() - OLD_CUTOFF
         old_messages = Message.objects.filter(created_at__lt=cutoff)
 
