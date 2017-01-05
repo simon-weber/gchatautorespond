@@ -23,12 +23,16 @@
         <br/>
         You will be billed {{ price }} next on {{ next_bill_date }}.
         <a href="{% url 'license_cancel' %}">Cancel your subscription.</a>
+        <br/>
+        A receipt will automatically be sent to your account email.
         {% endif %}
 
         {% if not has_valid_subscription %}
         <br/>
         A subscription is {{ price }} charged monthly.
         It begins immediately and you may cancel it at any time.
+        <br/>
+        Upon starting a subscription, a receipt will automatically be sent to your account email.
         {% endif %}
         <form id="card-form" method="post" action=".">
             {% csrf_token %}
