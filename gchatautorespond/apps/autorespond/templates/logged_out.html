@@ -1,42 +1,78 @@
 {% extends "base.html" %}
 {% block header %}
-<h1>Autoresponder for Google Chat and Hangouts</h1>
+<div class="jumbotron">
+    <div class="container text-center">
+        <h1>Autoresponder</h1>
+        <h2>for Google Chat and Hangouts</h2>
+        <br/>
 
-<p>
-Have Google accounts that forward email, but you never log into?
-<br/>
-You might be missing Google Chat or Hangouts messages.
-</p>
+        <p>
+        Autoresponder lets you reply automatically to Google Chat and Hangouts messages, even if you're offline.
+        <br/>
+        It's {{ view.price }} charged monthly, with a {{ view.trial_length }} no-questions-asked free trial, and cancellable any time.
+        </p>
 
-<p>
-Sign up to create automatic responses so people know how to get in touch.
-<br/>
-It's {{ view.price }} charged monthly, with a {{ view.trial_length }} no-questions-asked free trial, cancellable any time.
-</p>
+        <a class="btn btn-default btn-lg active" href="{% url 'auth_login' %}">Log In</a>
+        <a class="btn btn-primary btn-lg active" href="{% url 'registration_register' %}">Sign Up</a>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="text-center">
+                <span class="glyphicon glyphicon-glass" style="font-size:4em;"></span>
+            </div>
+            <h3>out of office / vacation reply for chat</h3>
+            <p>Going away? Gmail can respond automatically to your emails, but not your chat messages. Autoresponder can fill the gap.</p>
+        </div>
 
-<p>
-<a class="button" href="{% url 'auth_login' %}">Log In</a>
-<a class="button button-primary" href="{% url 'registration_register' %}">Sign Up</a>
-</p>
+        <div class="col-lg-4">
+            <div class="text-center">
+                <span class="glyphicon glyphicon-eye-open" style="font-size:4em;"></span>
+            </div>
+            <h3>avoid missing chat messages to unmonitored accounts</h3>
+            <p>Have accounts that foward email that you never log into? You could be missing chat messages. Autoresponder can tell people how to get in touch and let you know about incoming messages.</p>
+        </div>
 
+        <div class="col-lg-4">
+            <div class="text-center">
+                <span class="glyphicon glyphicon-transfer" style="font-size:4em;"></span>
+            </div>
+            <h3>automatically direct people to a chat platform you're migrating to</h3>
+            <p>Switching from Google Chat to something like Slack? Autoresponder can tell existing contacts where to find you.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="text-center">
+            <h2>Features</h2>
+        </div>
+        <div class="col-lg-3">
+            <h4>multiple account support</h4>
+            <p>
+            Want autoreplies on multiple accounts? No problem; you can attach them all to one Autoresponder account.
+            </p>
+        </div>
+        <div class="col-lg-3">
+            <h4>optional email notifications</h4>
+            <p>
+            You can receive emails when an autoreply is sent so you don't miss a thing.
+            </p>
+        </div>
+        <div class="col-lg-3">
+            <h4>secure <a href="https://developers.google.com/talk/jep_extensions/oauth">OAuth 2.0</a> access</h4>
+            <p>
+            Autoresponder can only access your chat messages, and will never use them for anything other than sending replies.
+            </p>
+        </div>
+        <div class="col-lg-3">
+            <h4><a href="https://github.com/simon-weber/gchatautorespond">free and open source</a></h4>
+            <p>
+            Contributions are welcome! Also, if you have your own server, feel free to self-host.
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock header %}
 
 {% block content %}
-<section>
-How it works:
-<ul>
-    <li>connect one or more Google accounts</li>
-    <li>set a message that will be sent if you receive a message when offline, away, or busy</li>
-    <li>optionally, receive an email when an autoresponse is sent</li>
-    <li>due to a limitation on Google's end, SMS and group messages can not be responded to</li>
-</ul>
-</section>
-
-<section>
-Behind the scenes:
-<ul>
-    <li>your account is accessed securely with <a href="https://developers.google.com/talk/jep_extensions/oauth">Google's XMPP OAuth 2.0</a></li>
-    <li>the code powering everything is <a href="https://github.com/simon-weber/gchatautorespond">free and open source</a>; you can <a href="https://github.com/simon-weber/gchatautorespond#self-hosting">self-host for free</a>.</li>
-</ul>
-</section>
 {% endblock content %}

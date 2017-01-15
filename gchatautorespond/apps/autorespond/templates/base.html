@@ -5,13 +5,12 @@
         <!-- Basic Page Needs
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
         <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <title>Google Chat Autoresponder</title>
         <meta name="description" content="Set up automatic responses to unmonitored Google Chat accounts.">
         <meta name="author" content="simon@simonmweber.com">
-
-        <!-- Mobile Specific Metas
-        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <!-- FONT
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -19,7 +18,15 @@
 
         <!-- CSS
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha384-wKclsw1inR27tF/KhTEhyufz5SmBKSkOaIEKhq9qu8QbqeaMhzuGtCQmrghNKXq0" crossorigin="anonymous">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <!--
         <style>
             #header {
                 text-align: center;
@@ -39,6 +46,7 @@
                 max-width: 800px;
             }
         </style>
+        -->
 
         <!-- Favicon
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -56,37 +64,26 @@
         </script>
     </head>
     <body>
-        <div class="container">
-            <div id="header">
-                {% block header %}
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'autorespond' %}">Home</a> 
-                        Logged in: {{ user.username }} ({{ user.email }})
-                        (
-                        <a href="{% url 'auth_logout' %}?next=/">Log Out</a> |
-                        <a href="{% url 'auth_password_change' %}">Change Password</a> |
-                        <a href="{% url 'license_details' %}">Billing</a>
-                        )
-                        {% if user.currentlicense.license.is_trial %}
-                            <br/>
-                            Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
-                        {% endif %}
-                    {% else %}
-                        <a href="/">Home</a> 
-                        | <a href="{% url 'auth_login' %}">Log In</a>
-                    {% endif %}
-                {% endblock header %}
-            </div>
+        <div class="navbar-wrapper">
+            {% block navbar %}
+            {% endblock navbar %}
+        </div>
 
-            <div id="content">
-                {% block content %}
-                {% endblock content %}
-            </div>
+        <div id="header">
+            {% block header %}
+            {% endblock header %}
+        </div>
 
-            <div id="footer">
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+            <footer class="footer text-center">
                 {% block footer %}
                 <br/>
                 <br/>
+                <hr>
                 <a href="/privacy">privacy</a>
                 <a href="/terms">terms</a>
                 <a href="https://simonmweber.com">author</a>
@@ -98,7 +95,7 @@
                 <br/>
                 Google Music user? Check out <a href="https://autoplaylists.simon.codes/" target="_blank" rel="noopener noreferrer">Autoplaylists for Google Music</a>.
                 {% endblock footer %}
-            </div>
+            </footer>
         </div>
     </body>
 </html>
