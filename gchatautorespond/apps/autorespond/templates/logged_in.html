@@ -1,25 +1,42 @@
 {% extends "base.html" %}
 {% block navbar %}
-            <div class="container">
-                <div class="navbar navbar-inverse navbar-static-top">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'autorespond' %}">Home</a> 
-                        Logged in: {{ user.username }} ({{ user.email }})
-                        (
-                        <a href="{% url 'auth_logout' %}?next=/">Log Out</a> |
-                        <a href="{% url 'auth_password_change' %}">Change Password</a> |
-                        <a href="{% url 'license_details' %}">Billing</a>
-                        )
-                        {% if user.currentlicense.license.is_trial %}
-                            <br/>
-                            Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
-                        {% endif %}
-                    {% else %}
-                        <a href="/">Home</a> 
-                        | <a href="{% url 'auth_login' %}">Log In</a>
-                    {% endif %}
-                </div>
-            </div>
+
+<div class="container">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+        {% if user.is_authenticated %}
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'autorespond' %}">Autoresponder</a>
+        </div>
+        {% else %}
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Autoresponder</a>
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <ul class="nav navbar-nav">
+            <li><a href="{% url 'license_details' %}">Billing</a></li>
+            <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
+            <li><a href="{% url 'auth_logout' %}?next=/">Log Out</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.currentlicense.license.is_trial %}
+            <li><p class="navbar-text">
+                Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
+                </p></li>
+                {% endif %}
+                <li><p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{ user.username }} ({{ user.email }})</p></li>
+        </ul>
+        {% else %}
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{% url 'auth_login' %}?next=/">Log In</a></li>
+            </ul>
+        </div>
+        {% endif %}
+  </nav>
+</div>
 {% endblock navbar %}
 {% block content %}
     <div id="details">
