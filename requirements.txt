@@ -10,6 +10,7 @@ braintree==3.29.2
 click==6.6                # via flask, pip-tools
 contextlib2==0.5.4        # via raven
 dj-static==0.0.6
+django-bootstrap3==8.1.0
 django-registration-redux==1.4
 git+git://github.com/simon-weber/django-supervisor.git@autoreload_on_created#egg=django-supervisor==0.3.3.dev0
 Django==1.8.14
