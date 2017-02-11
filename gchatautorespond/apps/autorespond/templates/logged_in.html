@@ -1,46 +1,8 @@
 {% extends "base.html" %}
-{% block navbar %}
-
-<div class="container">
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-        {% if user.is_authenticated %}
-        <div class="navbar-header">
-            <a class="navbar-brand" href="{% url 'autorespond' %}">Autoresponder</a>
-        </div>
-        {% else %}
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">Autoresponder</a>
-        </div>
-        {% endif %}
-
-        {% if user.is_authenticated %}
-        <ul class="nav navbar-nav">
-            <li><a href="{% url 'license_details' %}">Billing</a></li>
-            <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
-            <li><a href="{% url 'auth_logout' %}?next=/">Log Out</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            {% if user.currentlicense.license.is_trial %}
-            <li><p class="navbar-text">
-                Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
-                </p></li>
-                {% endif %}
-                <li><p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{ user.username }} ({{ user.email }})</p></li>
-        </ul>
-        {% else %}
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="{% url 'auth_login' %}?next=/">Log In</a></li>
-            </ul>
-        </div>
-        {% endif %}
-  </nav>
-</div>
-{% endblock navbar %}
+{% load bootstrap3 %}
 {% block content %}
-    <div id="details">
-        <h3>autorespond accounts:</h3>
+    <div id="details" class="container">
+        <h2>autorespond accounts:</h2>
         <ul>
             {% for gcredential in gcredentials %}
             <li>{{ gcredential.email }}</li>
@@ -52,10 +14,10 @@
         <a href="{% url 'license_details' %}">Purchase a subscription</a>.
         {% else %}
         <form action="{% url 'gchatautorespond.apps.autorespond.views.auth_view' %}">
-            <input class="button-primary" type="submit" value="add an autorespond account">
+            <input class="btn btn-primary" type="submit" value="add an autorespond account">
         </form>
         {% if gcredentials %}
-            <h3>autoresponses:</h3>
+            <h2>autoresponses:</h2>
 
             Creating an autoresponse will make the account:
             <ul>
@@ -73,7 +35,7 @@
                 <table>
                     {{ autorespond_formset }}
                 </table>
-                <input class="button-primary" type="submit" value="update autoresponses">
+                <input class="btn btn-primary" type="submit" value="update autoresponses">
             </form>
         {% endif %}
         {% endif %}

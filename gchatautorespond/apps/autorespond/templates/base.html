@@ -66,6 +66,40 @@
     <body>
         <div class="navbar-wrapper">
             {% block navbar %}
+            <div class="container">
+              <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    {% if user.is_authenticated %}
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="{% url 'autorespond' %}">Autoresponder</a>
+                    </div>
+                    {% else %}
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="/">Autoresponder</a>
+                    </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                    <ul class="nav navbar-nav">
+                        <li><a href="{% url 'license_details' %}">Billing</a></li>
+                        <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
+                        <li><a href="{% url 'auth_logout' %}?next=/">Log Out</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if user.currentlicense.license.is_trial %}
+                        <li><p class="navbar-text">
+                            Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
+                            </p></li>
+                            {% endif %}
+                            <li><p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{ user.username }} ({{ user.email }})</p></li>
+                    </ul>
+                    {% else %}
+                    <ul class="nav navbar-nav">
+                        <li><a href="{% url 'auth_login' %}?next=/">Log In</a></li>
+                    </ul>
+                    {% endif %}
+              </nav>
+            </div>
             {% endblock navbar %}
         </div>
 
@@ -74,7 +108,7 @@
             {% endblock header %}
         </div>
 
-        <div id="content">
+        <div id="content" class="container">
             {% block content %}
             {% endblock content %}
         </div>
