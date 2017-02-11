@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load bootstrap3 %}
 
 {% block content %}
 <form method="post" action=".">
     {% csrf_token %}
-  {{ form.as_p }}
+  {% bootstrap_form form %}
 
-  <input type="submit" value="{% trans 'Log in' %}" />
+  <input type="submit" class="btn btn-default" value="{% trans 'Log in' %}" />
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
