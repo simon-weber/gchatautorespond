@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 {% block content %}
-    <div id="details">
-        <h3>autorespond accounts:</h3>
+    <div id="details" class="container">
+        <h2>autorespond accounts:</h2>
         <ul>
             {% for gcredential in gcredentials %}
             <li>{{ gcredential.email }}</li>
@@ -13,10 +14,10 @@
         <a href="{% url 'license_details' %}">Purchase a subscription</a>.
         {% else %}
         <form action="{% url 'gchatautorespond.apps.autorespond.views.auth_view' %}">
-            <input class="button-primary" type="submit" value="add an autorespond account">
+            <input class="btn btn-primary" type="submit" value="add an autorespond account">
         </form>
         {% if gcredentials %}
-            <h3>autoresponses:</h3>
+            <h2>autoresponses:</h2>
 
             Creating an autoresponse will make the account:
             <ul>
@@ -32,9 +33,9 @@
             <form id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                 {% csrf_token %}
                 <table>
-                    {{ autorespond_formset }}
+                    {% bootstrap_formset autorespond_formset %}
                 </table>
-                <input class="button-primary" type="submit" value="update autoresponses">
+                <input class="btn btn-primary" type="submit" value="update autoresponses">
             </form>
         {% endif %}
         {% endif %}

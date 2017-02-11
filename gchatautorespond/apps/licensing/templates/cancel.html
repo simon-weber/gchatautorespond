@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 {% block content %}
     <div id="details">
         <h3>cancellation</h3>
@@ -18,7 +19,7 @@
             <br/>
             <textarea class="u-full-width" name="feedback"></textarea>
             <br/>
-            <input type="submit" value="cancel my subscription"/>
+            <input type="submit" class="btn btn-default" value="cancel my subscription"/>
         </form>
 
         {% endif %}

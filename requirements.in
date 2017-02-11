@@ -1,6 +1,7 @@
 braintree
 dj-static
 Django==1.8.14
+django-bootstrap3
 django-registration-redux
 git+git://github.com/simon-weber/django-supervisor.git@autoreload_on_created#egg=django-supervisor==0.3.3.dev0
 djmail

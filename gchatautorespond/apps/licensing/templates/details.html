@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 {% block content %}
     <div id="details">
         <h3>payment details:</h3>
@@ -49,6 +50,7 @@
             });
             var submit = document.createElement('input');
             submit.type='submit';
+            submit.className='btn btn-default'
             submit.value='{{ has_valid_subscription |yesno:"save changes,begin subscription" }}';
             document.getElementById('card-form').appendChild(submit);
         </script>

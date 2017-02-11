@@ -79,6 +79,7 @@ INSTALLED_APPS = (
     'djsupervisor',
     'registration',
     'raven.contrib.django.raven_compat',
+    'bootstrap3',
 )
 
 MIDDLEWARE_CLASSES = (
