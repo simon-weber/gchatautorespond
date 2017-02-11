@@ -33,7 +33,7 @@
             <form id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                 {% csrf_token %}
                 <table>
-                    {{ autorespond_formset }}
+                    {% bootstrap_formset autorespond_formset %}
                 </table>
                 <input class="btn btn-primary" type="submit" value="update autoresponses">
             </form>
