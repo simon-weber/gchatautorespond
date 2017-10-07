@@ -11,6 +11,8 @@ from sleekxmpp.xmlstream import cert
 
 from gchatautorespond.lib import report_ga_event_async
 
+TALK_BRIDGE_DOMAIN = 'public.talk.google.com'
+
 # This should be under 10 characters to avoid Google truncating it.
 # See https://github.com/simon-weber/gchatautorespond/issues/3.
 RESOURCE = 'autore'
@@ -235,7 +237,7 @@ class AutoRespondBot(GChatBot):
 
         from_jid = presence['from']
 
-        if from_jid.domain == 'public.talk.google.com':
+        if from_jid.domain == TALK_BRIDGE_DOMAIN:
             # Hangouts users get these goofy jids.
             # Replying to them doesn't seem to work, but replying to resources under it will.
             # So, we store the bare jid, with a weird name thing stripped out, then
@@ -273,19 +275,27 @@ class AutoRespondBot(GChatBot):
         report_ga_event_async(self.email, category='message', action='receive')
 
         if self.notify_email is not None:
+            # We'll always at least have a jid.
+            # Often they look like `...@public.talk.google.com/lcsw_hangouts_...` with no real meaning, though.
             from_identifier = jid.jid
+
+            # Often we'll have the contact's name, which is better.
             from_nick = self.client_roster[jid.jid]['name']
-            if from_nick:
+
+            if from_nick and TALK_BRIDGE_DOMAIN not in jid.jid:
+                # Rarely, we'll also have a valid email as the jid.
                 from_identifier = "%s (%s)" % (from_nick, jid.jid)
+            elif from_nick:
+                from_identifier = from_nick
 
             body_paragraphs = ["gchat.simon.codes just responded to a message from %s." % from_identifier]
 
             if message is not None:
-                body_paragraphs.append("The message we received was \"%s\"." % message.encode('utf-8'))
+                body_paragraphs.append("The message we received was: \"%s\"." % message.encode('utf-8'))
             else:
                 body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
 
-            body_paragraphs.append("We replied with your autoresponse \"%s\"." % self.response.encode('utf-8'))
+            body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response.encode('utf-8'))
 
             body_paragraphs.append(
                 "If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
