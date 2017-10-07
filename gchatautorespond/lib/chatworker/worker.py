@@ -113,6 +113,7 @@ class Worker(object):
             autorespond.id,
             autorespond.response,
             notify_email,
+            datetime.timedelta(minutes=autorespond.throttle_mins),
         )
 
         failed_auth_callback = functools.partial(self._bot_failed_auth,

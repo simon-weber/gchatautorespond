@@ -16,6 +16,11 @@ class GoogleCredential(models.Model):
 class AutoResponse(models.Model):
     response = models.TextField()
     user = models.ForeignKey(User)
+    throttle_mins = models.PositiveSmallIntegerField(
+        default=5,
+        verbose_name='rate limit (minutes)',
+        help_text=("After autoresponding, wait this many minutes before responding again to the same contact."
+                   ' Setting to 0 will respond to every message.'))
 
     credentials = models.OneToOneField(
         GoogleCredential,

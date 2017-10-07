@@ -28,7 +28,7 @@ FLOW = flow_from_clientsecrets(
 
 _AutoResponseFormSet = modelformset_factory(
     AutoResponse,
-    fields=('response', 'credentials', 'email_notifications'),
+    fields=('response', 'credentials', 'email_notifications', 'throttle_mins'),
     can_delete=True)
 
 logger = logging.getLogger(__name__)
