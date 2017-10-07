@@ -165,7 +165,7 @@ class AutoRespondBot(GChatBot):
     """
 
     def __init__(self, email, token, log_id, response, notify_email,
-                 response_throttle=datetime.timedelta(seconds=60), detect_unavailable=True):
+                 response_throttle=datetime.timedelta(minutes=5), detect_unavailable=True):
         """
         Args:
             email (string): see GChatBot.
