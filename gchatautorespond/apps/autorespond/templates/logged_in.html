@@ -32,9 +32,7 @@
 
             <form id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                 {% csrf_token %}
-                <table>
-                    {% bootstrap_formset autorespond_formset %}
-                </table>
+                {% bootstrap_formset autorespond_formset %}
                 <input class="btn btn-primary" type="submit" name="submit_autoresponses" value="update autoresponses">
             </form>
 
@@ -49,9 +47,7 @@
 
                 <form id="excludeds" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                     {% csrf_token %}
-                    <table>
-                        {% bootstrap_formset excluded_formset %}
-                    </table>
+                    {% bootstrap_formset excluded_formset %}
                     <input class="btn btn-primary" type="submit" name="submit_excludeds" value="update excluded contacts">
                 </form>
             {% endif %}
