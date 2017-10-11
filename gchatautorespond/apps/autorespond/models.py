@@ -10,7 +10,9 @@ class GoogleCredential(models.Model):
     email = models.EmailField(unique=True)
 
     def __unicode__(self):
-        return self.email
+        return "<GoogleCredential email:%s>" % self.email
+
+    __repr__ = __unicode__
 
 
 class AutoResponse(models.Model):
@@ -34,3 +36,20 @@ class AutoResponse(models.Model):
 
     def __unicode__(self):
         return "<AutoResponse email:%s>" % self.credentials.email
+
+    __repr__ = __unicode__
+
+
+class ExcludedUser(models.Model):
+    name = models.CharField(
+        max_length=128,
+        help_text="A contact's full name as it appears when you chat with them. Capitalization is ignored.",
+    )
+    autorespond = models.ForeignKey(
+        AutoResponse,
+        verbose_name="autorespond")
+
+    def __unicode__(self):
+        return "<ExcludedUser '%s' for %s>" % (self.name, self.autorespond)
+
+    __repr__ = __unicode__

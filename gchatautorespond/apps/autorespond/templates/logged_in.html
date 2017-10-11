@@ -35,8 +35,27 @@
                 <table>
                     {% bootstrap_formset autorespond_formset %}
                 </table>
-                <input class="btn btn-primary" type="submit" value="update autoresponses">
+                <input class="btn btn-primary" type="submit" name="submit_autoresponses" value="update autoresponses">
             </form>
+
+            {% if excluded_formset.autoresponds %}
+                <h2>excluded contacts:</h2>
+                Excluded contacts will never be sent an autoresponse (or trigger an email notification).
+                <br/>
+                Due to restrictions in Google's apis, they must be matched by name rather than email.
+
+                <br/>
+                <br/>
+
+                <form id="excludeds" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
+                    {% csrf_token %}
+                    <table>
+                        {% bootstrap_formset excluded_formset %}
+                    </table>
+                    <input class="btn btn-primary" type="submit" name="submit_excludeds" value="update excluded contacts">
+                </form>
+            {% endif %}
+
         {% endif %}
         {% endif %}
     </div>

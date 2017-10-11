@@ -17,7 +17,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 import requests
 
-from .models import GoogleCredential, AutoResponse
+from .models import GoogleCredential, AutoResponse, ExcludedUser
 from gchatautorespond.apps.licensing.models import License
 from gchatautorespond.lib import report_ga_event_async
 
@@ -31,6 +31,13 @@ _AutoResponseFormSet = modelformset_factory(
     fields=('response', 'credentials', 'email_notifications', 'throttle_mins'),
     can_delete=True)
 
+_ExcludedUserFormSet = modelformset_factory(
+    ExcludedUser,
+    fields=('autorespond', 'name'),
+    labels={'autorespond': 'Autorespond account'},
+    extra=1,
+    can_delete=True)
+
 logger = logging.getLogger(__name__)
 thread_pool = ThreadPoolExecutor(4)
 
@@ -38,6 +45,19 @@ thread_pool = ThreadPoolExecutor(4)
 def _send_to_worker(verb, url):
     method = getattr(requests, verb)
     return method("http://127.0.0.1:%s%s" % (settings.WORKER_PORT, url))
+
+
+class ExcludedUserFormSet(_ExcludedUserFormSet):
+    def __init__(self, autoresponds, *args, **kwargs):
+        self.autoresponds = autoresponds
+        super(ExcludedUserFormSet, self).__init__(*args, **kwargs)
+        self.prefix = 'excluded'
+
+    def _construct_form(self, i, **kwargs):
+        form = super(ExcludedUserFormSet, self)._construct_form(i, **kwargs)
+        form.fields['autorespond'].queryset = self.autoresponds
+        form.fields['autorespond'].label_from_instance = lambda obj: obj.credentials.email
+        return form
 
 
 class AutoResponseFormSet(_AutoResponseFormSet):
@@ -50,10 +70,12 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         self.extra = len(credentials)
 
         super(AutoResponseFormSet, self).__init__(*args, **kwargs)
+        self.prefix = 'autorespond'
 
     def _construct_form(self, i, **kwargs):
         form = super(AutoResponseFormSet, self)._construct_form(i, **kwargs)
         form.fields['credentials'].queryset = self.credentials
+        form.fields['credentials'].label_from_instance = lambda obj: obj.email
         return form
 
 
@@ -89,28 +111,32 @@ def autorespond_view(request):
         return redirect('logged_out')
 
     gcredentials = GoogleCredential.objects.filter(user=request.user)
+    autoresponds = AutoResponse.objects.filter(user=request.user)
+    excludeds = ExcludedUser.objects.filter(autorespond__user=request.user)
     license = request.user.currentlicense.license
 
     if request.method == 'GET':
-        autoresponds = AutoResponse.objects.filter(user=request.user)
-
-        formset = AutoResponseFormSet(credentials=gcredentials, queryset=autoresponds)
+        autorespond_formset = AutoResponseFormSet(credentials=gcredentials, queryset=autoresponds)
+        excluded_formset = ExcludedUserFormSet(autoresponds=autoresponds, queryset=excludeds)
 
         c = {
             'user': request.user,
             'is_active': license.is_active,
             'gcredentials': gcredentials,
-            'autorespond_formset': formset,
+            'autorespond_formset': autorespond_formset,
+            'excluded_formset': excluded_formset,
         }
         c.update(csrf(request))
 
         return render_to_response('logged_in.html', c)
 
     elif request.method == 'POST':
-        formset = AutoResponseFormSet(gcredentials, request.POST)
-        if formset.is_valid():
-            autoresponds = formset.save(commit=False)   # save_m2m if add many 2 many
-            for autorespond in formset.deleted_objects:
+        autorespond_formset = AutoResponseFormSet(gcredentials, request.POST)
+        excluded_formset = ExcludedUserFormSet(autoresponds, request.POST)
+
+        if request.POST.get("submit_autoresponses") and autorespond_formset.is_valid():
+            autoresponds = autorespond_formset.save(commit=False)   # save_m2m if add many 2 many
+            for autorespond in autorespond_formset.deleted_objects:
                 thread_pool.submit(_send_to_worker, 'post', "/stop/%s" % autorespond.id)
                 autorespond.delete()
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='delete')
@@ -122,12 +148,30 @@ def autorespond_view(request):
                 report_ga_event_async(autorespond.credentials.email, category='autoresponse', action='upsert')
 
             return redirect('autorespond')
+        elif request.POST.get("submit_excludeds") and excluded_formset.is_valid():
+            excludeds = excluded_formset.save(commit=False)   # save_m2m if add many 2 many
+            restart_ids = set()
+            for excluded in excluded_formset.deleted_objects:
+                restart_ids.add(excluded.autorespond.id)
+                excluded.delete()
+                report_ga_event_async(excluded.autorespond.credentials.email, category='excluded', action='delete')
+
+            for excluded in excludeds:
+                restart_ids.add(excluded.autorespond.id)
+                excluded.save()
+                report_ga_event_async(excluded.autorespond.credentials.email, category='excluded', action='upsert')
+
+            for restart_id in restart_ids:
+                thread_pool.submit(_send_to_worker, 'post', "/restart/%s" % restart_id)
+
+            return redirect('autorespond')
         else:
             c = {
                 'user': request.user,
                 'is_active': license.is_active,
                 'gcredentials': gcredentials,
-                'autorespond_formset': formset,
+                'autorespond_formset': autorespond_formset,
+                'excluded_formset': excluded_formset,
             }
             c.update(csrf(request))
 

@@ -107,6 +107,8 @@ class Worker(object):
         if autorespond.email_notifications:
             notify_email = autorespond.user.email
 
+        excluded_names = [n.name for n in autorespond.excludeduser_set.all()]
+
         bot = AutoRespondBot(
             autorespond.credentials.email,
             autorespond.credentials.credentials.access_token,
@@ -114,6 +116,8 @@ class Worker(object):
             autorespond.response,
             notify_email,
             datetime.timedelta(minutes=autorespond.throttle_mins),
+            True,
+            excluded_names,
         )
 
         failed_auth_callback = functools.partial(self._bot_failed_auth,

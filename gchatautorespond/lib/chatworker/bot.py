@@ -165,7 +165,8 @@ class AutoRespondBot(GChatBot):
     """
 
     def __init__(self, email, token, log_id, response, notify_email,
-                 response_throttle=datetime.timedelta(minutes=5), detect_unavailable=True):
+                 response_throttle=datetime.timedelta(minutes=5), detect_unavailable=True,
+                 excluded_names=None):
         """
         Args:
             email (string): see GChatBot.
@@ -175,12 +176,17 @@ class AutoRespondBot(GChatBot):
             response_throttle (datetime.timedelta): no more than one response will be sent during this interval.
             detect_unavailable (bool): when True, don't autorespond if another resource for the same account is
               available and not away.
+            excluded_names (iterable of strings): contact names to not respond to, matched case-insensitive.
         """
+
+        if excluded_names is None:
+            excluded_names = []
 
         self.response = response
         self.notify_email = notify_email
         self.response_throttle = response_throttle
         self.detect_unavailable = detect_unavailable
+        self.excluded_names = set(n.lower() for n in excluded_names)
 
         # FIXME this never gets cleaned up, leaking (a small amount of) memory
         self.last_reply_datetime = {}  # {jid: datetime.datetime}
@@ -310,7 +316,12 @@ class AutoRespondBot(GChatBot):
             self.logger.info("sent an email notification to %r", self.notify_email)
 
     def _should_send_to(self, jid):
-        """Return False if another resource is active or messages to the given jid are throttled."""
+        """
+        Return False if one of the following is true:
+        * another resource is active
+        * messages to the given jid are throttled
+        * the name for this jid is excluded
+        """
 
         throttled = False
         if jid in self.last_reply_datetime:
@@ -318,6 +329,11 @@ class AutoRespondBot(GChatBot):
 
         if throttled:
             self.logger.info("do not send; bot is throttled")
+            return False
+
+        name = self.client_roster[jid.jid]['name']
+        if name and name.lower() in self.excluded_names:
+            self.logger.info("do not send; %r is excluded", name)
             return False
 
         if self.detect_unavailable:
