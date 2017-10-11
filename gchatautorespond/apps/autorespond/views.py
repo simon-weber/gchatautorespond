@@ -166,6 +166,12 @@ def autorespond_view(request):
 
             return redirect('autorespond')
         else:
+            # Don't use the empty submitted data for the other form.
+            if request.POST.get("submit_excludeds"):
+                autorespond_formset = AutoResponseFormSet(credentials=gcredentials, queryset=autoresponds)
+            elif request.POST.get("submit_autoresponses"):
+                excluded_formset = ExcludedUserFormSet(autoresponds=autoresponds, queryset=excludeds)
+
             c = {
                 'user': request.user,
                 'is_active': license.is_active,
