@@ -326,10 +326,10 @@ class AutoRespondBot(GChatBot):
         elif from_nick:
             from_identifier = from_nick
 
-        body_paragraphs = ["gchat.simon.codes just responded to a message from %s." % from_identifier]
+        body_paragraphs = ["gchat.simon.codes just received a message from %s." % from_identifier]
 
         if message is not None:
-            body_paragraphs.append("The message we received was: \"%s\"." % message.encode('utf-8'))
+            body_paragraphs.append("The message we was: \"%s\"." % message.encode('utf-8'))
         else:
             body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
 
