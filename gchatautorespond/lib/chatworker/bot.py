@@ -329,20 +329,22 @@ class AutoRespondBot(GChatBot):
         body_paragraphs = ["gchat.simon.codes just received a message from %s." % from_identifier]
 
         if message is not None:
-            body_paragraphs.append("The message we was: \"%s\"." % message.encode('utf-8'))
+            body_paragraphs.append("The message was: \"%s\"." % message.encode('utf-8'))
         else:
             body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
 
         if did_reply:
             body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response.encode('utf-8'))
+            subject = 'gchat.simon.codes sent an autoresponse'
         else:
             body_paragraphs.append("Because this is an excluded contact, we did not autorespond.")
+            subject = 'gchat.simon.codes received a message'
 
         body_paragraphs.append(
             "If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
 
         email = EmailMessage(
-            subject='gchat.simon.codes sent an autoresponse',
+            subject=subject,
             to=[self.notify_email],
             body='\n\n'.join(body_paragraphs),
             reply_to=['noreply@gchat.simon.codes'],
