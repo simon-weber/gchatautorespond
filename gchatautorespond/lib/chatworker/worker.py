@@ -11,6 +11,7 @@ from oauth2client.client import AccessTokenRefreshError
 
 from gchatautorespond.apps.autorespond.models import AutoResponse
 from .bot import AutoRespondBot, ContextFilter
+from .throttle import MemoryThrottler
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ class Worker(object):
             autorespond.response,
             autorespond.email_notifications,
             autorespond.user.email,
-            datetime.timedelta(minutes=autorespond.throttle_mins),
+            MemoryThrottler(datetime.timedelta(minutes=autorespond.throttle_mins)),
             True,
             excluded_names,
             notify_overrides,

@@ -69,3 +69,18 @@ class ExcludedUser(models.Model):
         return "<ExcludedUser '%s' for %s>" % (self.name, self.autorespond)
 
     __repr__ = __unicode__
+
+
+class LastResponse(models.Model):
+    autorespond = models.ForeignKey(
+        AutoResponse,
+        verbose_name="autorespond")
+
+    bare_jid = models.CharField(
+        max_length=256,
+    )
+
+    last_response = models.DateTimeField(null=True)
+
+    class Meta:
+        index_together = [('autorespond', 'bare_jid')]

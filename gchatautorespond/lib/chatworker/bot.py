@@ -10,6 +10,7 @@ from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import cert
 
 from gchatautorespond.lib import report_ga_event_async
+from gchatautorespond.lib.chatworker.throttle import MemoryThrottler
 
 TALK_BRIDGE_DOMAIN = 'public.talk.google.com'
 
@@ -166,7 +167,7 @@ class AutoRespondBot(GChatBot):
 
     def __init__(self, email, token, log_id, response,
                  send_email_notifications, notify_email,
-                 response_throttle=datetime.timedelta(minutes=5), detect_unavailable=True,
+                 response_throttle=None, detect_unavailable=True,
                  excluded_names=None, notification_overrides=None):
         """
         Args:
@@ -176,7 +177,8 @@ class AutoRespondBot(GChatBot):
             send_email_notifications (bool): if true, send notification emails to notify_email.
               override with notification_overrides.
             notify_email (string): the email to send notifications to.
-            response_throttle (datetime.timedelta): no more than one response will be sent during this interval.
+            response_throttle (Throttler): control how often the bot replies to the same jid.
+              defaults to in-memory storage and 1 message / 5 mins limit.
             detect_unavailable (bool): when True, don't autorespond if another resource for the same account is
               available and not away.
             excluded_names (iterable of strings): contact names to not respond to, matched case-insensitive.
@@ -192,6 +194,9 @@ class AutoRespondBot(GChatBot):
         if notification_overrides is None:
             notification_overrides = {}
 
+        if response_throttle is None:
+            response_throttle = MemoryThrottler(datetime.timedelta(minutes=5))
+
         self.response = response
         self.notify_email = notify_email
         self.send_email_notifications = send_email_notifications
@@ -200,8 +205,6 @@ class AutoRespondBot(GChatBot):
         self.excluded_names = set(n.lower() for n in excluded_names)
         self.notification_overrides = notification_overrides
 
-        # FIXME this never gets cleaned up, leaking (a small amount of) memory
-        self.last_reply_datetime = {}  # {jid: datetime.datetime}
         self.other_active_resources = set()  # jids of other resources for our user
 
         super(AutoRespondBot, self).__init__(email, token, log_id)
@@ -304,7 +307,7 @@ class AutoRespondBot(GChatBot):
             message (string): the message received. None if unknown.
         """
 
-        self.last_reply_datetime[jid] = datetime.datetime.now()
+        self.response_throttle.update(jid.bare)
         report_ga_event_async(self.email, category='message', action='receive')
 
     def _send_email_notification(self, from_jid, message, did_reply):
@@ -363,11 +366,7 @@ class AutoRespondBot(GChatBot):
         * messages to the given jid are throttled
         """
 
-        throttled = False
-        if jid in self.last_reply_datetime:
-            throttled = (datetime.datetime.now() - self.last_reply_datetime[jid]) < self.response_throttle
-
-        if throttled:
+        if self.response_throttle.is_throttled(jid.bare):
             self.logger.info("do not send; bot is throttled")
             return False
 
