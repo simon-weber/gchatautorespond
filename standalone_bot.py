@@ -123,6 +123,6 @@ if __name__ == '__main__':
     if arguments['auth']:
         perform_oauth()
     elif arguments['run']:
-        bot = StandaloneBot(arguments['<email>'], None, None, arguments['<autoresponse>'], None)
+        bot = StandaloneBot(arguments['<email>'], None, None, arguments['<autoresponse>'], False, None)
         bot.connect()
         bot.process(block=True)

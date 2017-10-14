@@ -103,21 +103,25 @@ class Worker(object):
             logger.warning("refusing to start autorespond for inactive account %s", autorespond.user)
             return
 
-        notify_email = None
-        if autorespond.email_notifications:
-            notify_email = autorespond.user.email
-
-        excluded_names = [n.name for n in autorespond.excludeduser_set.all()]
+        excluded_users = list(autorespond.excludeduser_set.all())
+        excluded_names = []
+        notify_overrides = {}
+        for user in excluded_users:
+            excluded_names.append(user.name)
+            if user.email_notifications != user.DEFAULT:
+                notify_overrides[user.name] = True if user.email_notifications == user.ALWAYS else False
 
         bot = AutoRespondBot(
             autorespond.credentials.email,
             autorespond.credentials.credentials.access_token,
             autorespond.id,
             autorespond.response,
-            notify_email,
+            autorespond.email_notifications,
+            autorespond.user.email,
             datetime.timedelta(minutes=autorespond.throttle_mins),
             True,
             excluded_names,
+            notify_overrides,
         )
 
         failed_auth_callback = functools.partial(self._bot_failed_auth,

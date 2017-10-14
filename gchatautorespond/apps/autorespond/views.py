@@ -33,7 +33,7 @@ _AutoResponseFormSet = modelformset_factory(
 
 _ExcludedUserFormSet = modelformset_factory(
     ExcludedUser,
-    fields=('autorespond', 'name'),
+    fields=('autorespond', 'name', 'email_notifications'),
     labels={'autorespond': 'Autorespond account'},
     extra=1,
     can_delete=True)

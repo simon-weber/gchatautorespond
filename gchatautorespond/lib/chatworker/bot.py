@@ -164,29 +164,41 @@ class AutoRespondBot(GChatBot):
       * later, a resource under that jid coming online
     """
 
-    def __init__(self, email, token, log_id, response, notify_email,
+    def __init__(self, email, token, log_id, response,
+                 send_email_notifications, notify_email,
                  response_throttle=datetime.timedelta(minutes=5), detect_unavailable=True,
-                 excluded_names=None):
+                 excluded_names=None, notification_overrides=None):
         """
         Args:
             email (string): see GChatBot.
             token (string): see GChatBot.
             response (string): the message to respond with.
-            notify_email (string): if not None, an email will be sent for each response.
+            send_email_notifications (bool): if true, send notification emails to notify_email.
+              override with notification_overrides.
+            notify_email (string): the email to send notifications to.
             response_throttle (datetime.timedelta): no more than one response will be sent during this interval.
             detect_unavailable (bool): when True, don't autorespond if another resource for the same account is
               available and not away.
             excluded_names (iterable of strings): contact names to not respond to, matched case-insensitive.
+            notification_overrides ({'name': bool}): use to override send_email_notifications for contacts.
         """
+        if isinstance(send_email_notifications, basestring):
+            raise ValueError('received string for send_email_notifications'
+                             '(notify_email was split into two required fields)')
 
         if excluded_names is None:
             excluded_names = []
 
+        if notification_overrides is None:
+            notification_overrides = {}
+
         self.response = response
         self.notify_email = notify_email
+        self.send_email_notifications = send_email_notifications
         self.response_throttle = response_throttle
         self.detect_unavailable = detect_unavailable
         self.excluded_names = set(n.lower() for n in excluded_names)
+        self.notification_overrides = notification_overrides
 
         # FIXME this never gets cleaned up, leaking (a small amount of) memory
         self.last_reply_datetime = {}  # {jid: datetime.datetime}
@@ -209,11 +221,27 @@ class AutoRespondBot(GChatBot):
 
         self.logger.info("received message from %s: %r", msg['from'], msg)
         if msg['type'] in ('chat', 'normal') and self._should_send_to(msg['from']):
+            did_reply = False
             jid = msg['from']
             body = msg.get('body')
-            self.logger.info("responding to %s via message. message %r", jid, msg)
-            msg.reply(self.response).send()
-            self._sent_reply(jid, body)
+
+            if self._is_excluded(jid):
+                self.logger.info("not responding; %r is excluded", jid)
+            else:
+                self.logger.info("responding to %s via message. message %r", jid, msg)
+                msg.reply(self.response).send()
+                did_reply = True
+                self._sent_reply(jid, body)
+
+            should_send_email = self.send_email_notifications
+            notify_override = self.notification_overrides.get(self.client_roster[jid.jid]['name'])
+            if notify_override is not None:
+                self.logger.info("overriding notification setting from %s to %s",
+                                 self.send_email_notifications, notify_override)
+                should_send_email = notify_override
+
+            if should_send_email:
+                self._send_email_notification(jid.jid, body, did_reply)
 
     def presence(self, presence):
         other_jid = presence['from']
@@ -277,50 +305,60 @@ class AutoRespondBot(GChatBot):
         """
 
         self.last_reply_datetime[jid] = datetime.datetime.now()
-
         report_ga_event_async(self.email, category='message', action='receive')
 
-        if self.notify_email is not None:
-            # We'll always at least have a jid.
-            # Often they look like `...@public.talk.google.com/lcsw_hangouts_...` with no real meaning, though.
-            from_identifier = jid.jid
+    def _send_email_notification(self, from_jid, message, did_reply):
+        """
+        from_jid is a string (jid.jid).
+        """
 
-            # Often we'll have the contact's name, which is better.
-            from_nick = self.client_roster[jid.jid]['name']
+        # Building a decent representation of the sender is tricky.
+        # We'll always at least have a jid.
+        # Often they look like `...@public.talk.google.com/lcsw_hangouts_...` with no real meaning, though.
+        from_identifier = from_jid
 
-            if from_nick and TALK_BRIDGE_DOMAIN not in jid.jid:
-                # Rarely, we'll also have a valid email as the jid.
-                from_identifier = "%s (%s)" % (from_nick, jid.jid)
-            elif from_nick:
-                from_identifier = from_nick
+        # Often we'll have the contact's name, which is better.
+        from_nick = self.client_roster[from_jid]['name']
 
-            body_paragraphs = ["gchat.simon.codes just responded to a message from %s." % from_identifier]
+        if from_nick and TALK_BRIDGE_DOMAIN not in from_jid:
+            # Rarely, we'll also have a valid email as the jid.
+            from_identifier = "%s (%s)" % (from_nick, from_jid)
+        elif from_nick:
+            from_identifier = from_nick
 
-            if message is not None:
-                body_paragraphs.append("The message we received was: \"%s\"." % message.encode('utf-8'))
-            else:
-                body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
+        body_paragraphs = ["gchat.simon.codes just responded to a message from %s." % from_identifier]
 
+        if message is not None:
+            body_paragraphs.append("The message we received was: \"%s\"." % message.encode('utf-8'))
+        else:
+            body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
+
+        if did_reply:
             body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response.encode('utf-8'))
+        else:
+            body_paragraphs.append("Because this is an excluded contact, we did not autorespond.")
 
-            body_paragraphs.append(
-                "If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
+        body_paragraphs.append(
+            "If any of this is unexpected or strange, email support@gchat.simon.codes for support.")
 
-            email = EmailMessage(
-                subject='gchat.simon.codes sent an autoresponse',
-                to=[self.notify_email],
-                body='\n\n'.join(body_paragraphs),
-                reply_to=['noreply@gchat.simon.codes'],
-            )
-            email.send(fail_silently=True)
-            self.logger.info("sent an email notification to %r", self.notify_email)
+        email = EmailMessage(
+            subject='gchat.simon.codes sent an autoresponse',
+            to=[self.notify_email],
+            body='\n\n'.join(body_paragraphs),
+            reply_to=['noreply@gchat.simon.codes'],
+        )
+        email.send(fail_silently=True)
+        self.logger.info("sent an email notification to %r", self.notify_email)
+
+    def _is_excluded(self, jid):
+        name = self.client_roster[jid.jid]['name']
+        return bool(name and name.lower() in self.excluded_names)
 
     def _should_send_to(self, jid):
         """
         Return False if one of the following is true:
         * another resource is active
         * messages to the given jid are throttled
-        * the name for this jid is excluded
         """
 
         throttled = False
@@ -329,11 +367,6 @@ class AutoRespondBot(GChatBot):
 
         if throttled:
             self.logger.info("do not send; bot is throttled")
-            return False
-
-        name = self.client_roster[jid.jid]['name']
-        if name and name.lower() in self.excluded_names:
-            self.logger.info("do not send; %r is excluded", name)
             return False
 
         if self.detect_unavailable:

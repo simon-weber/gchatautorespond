@@ -45,9 +45,25 @@ class ExcludedUser(models.Model):
         max_length=128,
         help_text="A contact's full name as it appears when you chat with them. Capitalization is ignored.",
     )
+
     autorespond = models.ForeignKey(
         AutoResponse,
         verbose_name="autorespond")
+
+    DEFAULT = 'DE'
+    ALWAYS = 'AL'
+    NEVER = 'NE'
+    CHOICES = (
+        (DEFAULT, 'default'),
+        (ALWAYS, 'always'),
+        (NEVER, 'never'),
+    )
+    email_notifications = models.CharField(
+        max_length=2,
+        choices=CHOICES,
+        default=DEFAULT,
+        help_text="Use 'always' or 'never' to override the email notification setting for this user.",
+    )
 
     def __unicode__(self):
         return "<ExcludedUser '%s' for %s>" % (self.name, self.autorespond)
