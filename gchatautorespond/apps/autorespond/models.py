@@ -80,7 +80,7 @@ class LastResponse(models.Model):
         max_length=256,
     )
 
-    last_response = models.DateTimeField(null=True)
+    last_response_time = models.DateTimeField()
 
-    class Meta:
-        index_together = [('autorespond', 'bare_jid')]
+    class Meta(object):
+        index_together = unique_together = [['autorespond', 'bare_jid']]
