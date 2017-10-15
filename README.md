@@ -2,15 +2,13 @@
 
 Autoresponder is a Django project that hosts static Google Chat/Hangouts bots.
 
-It's intended for people who have multiple Google accounts which forward email to one main account.
-In this setup, chat messages sent to a forwarding account will never be seen.
-Autoresponder lets them set up a response directing people elsewhere, and optionally notifying them of a new message.
+I originally created it to avoid unnoticed messages to my forwarding accounts, but it's also found use with employees and small business owners.
 
-If you'd like to use it, sign up at https://gchat.simon.codes.
+The hosted version is available at https://gchat.simon.codes.
 
 ## self-hosting
 
-If you're only hosting for yourself, it's easy to run a bot without the django site.
+Autoresponder can also be self-hosted.
 
 First, install the dependencies and connect your account:
 ```
@@ -28,8 +26,7 @@ $ python standalone_bot.py run my-email@gmail.com 'my autoresponse'
 To further customize your bot, modify the constructor params for [AutoRespondBot](https://github.com/simon-weber/gchatautorespond/blob/master/gchatautorespond/lib/chatworker/bot.py)
 in standalone\_bot.py
 
-Email notifications are the only feature not currently support when self-hosting.
-You can track progress towards support in [#7](https://github.com/simon-weber/gchatautorespond/issues/7).
+Email notifications are not currently supported when self-hosting ([#7](https://github.com/simon-weber/gchatautorespond/issues/7)).
 
 ## project layout
 
