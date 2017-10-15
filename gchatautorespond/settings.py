@@ -224,3 +224,8 @@ RAVEN_CONFIG = {
         'gchatautorespond.lib.chatworker.bot.ContextProcessor',
     ],
 }
+
+BOOTSTRAP3 = {
+    'horizontal_label_class': 'col-md-3',
+    'horizontal_field_class': 'col-md-9',
+}

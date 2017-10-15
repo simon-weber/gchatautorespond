@@ -35,7 +35,7 @@
         <br/>
         Upon starting a subscription, a receipt will automatically be sent to your account email.
         {% endif %}
-        <form id="card-form" method="post" action=".">
+        <form class="form-horizontal" id="card-form" method="post" action=".">
             {% csrf_token %}
             Your payment details are stored securely by
             <a href="https://www.braintreepayments.com/" target="_blank" rel="noopener noreferrer">Braintree</a> (a PayPal company).

@@ -33,6 +33,12 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
         <style>
+
+            /* Always show the scrollbar, avoiding flickering content. */
+            html {
+                overflow-y: scroll;
+            }
+
             /* fix navbar-text indentation on mobile: http://stackoverflow.com/a/20411963 */
             @media (max-width: 767px) {    
                 p.navbar-text {
@@ -44,10 +50,10 @@
                 }
             }
 
-            /* Make the container smaller on large screens. */
-            @media (min-width: 1200px) {
-                .container {
-                    width: 1000px;
+            /* Make the container smaller on large screens when logged in. */
+            @media (min-width: 768px) {
+                .container:not(.landing) {
+                    width: 768px;
                 }
             }
         </style>
@@ -113,6 +119,7 @@
             {% endblock content %}
         </div>
 
+        <div id="footer" class="container">
             <footer class="footer text-center">
                 {% block footer %}
                 <br/>

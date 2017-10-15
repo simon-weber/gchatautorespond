@@ -9,15 +9,18 @@ You can sign up with any email, not just those you'd like to autorespond to.
 You'll set up your autoresponse emails after your account is active.
 </p>
 
-<form method="post" action=".">
+<form class="form-horizontal" method="post" action=".">
     {% csrf_token %}
-  {% bootstrap_form form %}
+  {% bootstrap_form form layout='horizontal' %}
 
-  Read the Terms of Service here:
-  <a href="{% url 'terms' %}" target="_blank" rel="noopener noreferrer">terms</a>.
-  <br/>
-  <br/>
+  <div class="form-group">
+      <label class="col-md-3 control-label">&nbsp;</label>
+      <div class="col-md-9">
+          The Terms of Service are available 
+          <a href="{% url 'terms' %}" target="_blank" rel="noopener noreferrer">here</a>.
+      </div>
+  </div>
 
-  <input type="submit" class="btn btn-default" value="{% trans 'Submit' %}" />
+  {% include 'form_button.html' with text="submit" %}
 </form>
 {% endblock %}

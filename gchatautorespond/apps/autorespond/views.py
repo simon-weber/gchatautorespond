@@ -15,6 +15,7 @@ from django.forms.models import modelformset_factory
 from django.template.context_processors import csrf
 from django.conf import settings
 from django.views.generic import TemplateView
+from django.forms.formsets import DELETION_FIELD_NAME
 import requests
 
 from .models import GoogleCredential, AutoResponse, ExcludedUser
@@ -57,6 +58,11 @@ class ExcludedUserFormSet(_ExcludedUserFormSet):
         form = super(ExcludedUserFormSet, self)._construct_form(i, **kwargs)
         form.fields['autorespond'].queryset = self.autoresponds
         form.fields['autorespond'].label_from_instance = lambda obj: obj.credentials.email
+
+        if form.empty_permitted:
+            # Don't show the delete field for empty forms.
+            del form.fields[DELETION_FIELD_NAME]
+
         return form
 
 
@@ -65,9 +71,9 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         self.credentials = credentials
 
         # There can only be 1 response per credential.
-        # This prevents showing more forms than needed.
+        # This prevents showing more empty forms if all are filled in.
         self.max_num = len(credentials)
-        self.extra = len(credentials)
+        self.extra = 1
 
         super(AutoResponseFormSet, self).__init__(*args, **kwargs)
         self.prefix = 'autorespond'
@@ -76,6 +82,10 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         form = super(AutoResponseFormSet, self)._construct_form(i, **kwargs)
         form.fields['credentials'].queryset = self.credentials
         form.fields['credentials'].label_from_instance = lambda obj: obj.email
+
+        if form.empty_permitted:
+            del form.fields[DELETION_FIELD_NAME]
+
         return form
 
 

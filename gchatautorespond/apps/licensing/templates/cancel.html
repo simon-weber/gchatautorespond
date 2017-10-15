@@ -15,9 +15,9 @@
 
         <form method="post" action=".">
             {% csrf_token %}
-            What could we have done better?
+            If you have any parting feedback, I'd love to hear it:
             <br/>
-            <textarea class="u-full-width" name="feedback"></textarea>
+            <textarea name="feedback" class="form-control col-l-12" rows="3"></textarea>
             <br/>
             <input type="submit" class="btn btn-default" value="cancel my subscription"/>
         </form>
