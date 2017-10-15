@@ -24,11 +24,8 @@
             <ul>
                 <li>accept all chat invitations</li>
                 <li>respond to Chat or Hangouts messages when you are offline, away, or busy</li>
+                <li>if enabled, send email notifications to your login email ({{ user.email }}).</li>
             </ul>
-            Be sure to include contact information like an email or profile link.
-
-            <br/>
-            If enabled, email notifications will be sent to your login email ({{ user.email }}).
 
             <form class="form-horizontal" id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
                 {% include 'fancy_formset.html' with formset=autorespond_formset name='autoresponse' %}
