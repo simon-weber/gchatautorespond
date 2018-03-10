@@ -11,6 +11,7 @@ def get_secret(filename):
     with open(os.path.join(SECRETS_DIR, filename)) as f:
         return f.read().strip()
 
+
 DEBUG = False
 SECRET_KEY = get_secret('secret_key.txt')
 
@@ -183,6 +184,7 @@ SPARKPOST_OPTIONS = {
     'track_opens': True,
     'track_clicks': False,
     'transactional': True,
+    'return_path': 'noreply@gchat-bounces.simon.codes',
 }
 DEFAULT_FROM_EMAIL = 'GChat Autoresponder <noreply@gchat.simon.codes>'
 
