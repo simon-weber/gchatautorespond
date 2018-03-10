@@ -130,9 +130,11 @@ class Worker(object):
         bot.add_event_handler('failed_auth', failed_auth_callback)
 
         disconnect_callback = functools.partial(self._bot_disconnected,
+                                                bot=bot,
                                                 autorespond=autorespond)
         bot.add_event_handler('disconnected', disconnect_callback)
 
+        logger.info("registering bot %s to autorespond %s", bot.bot_id, autorespond.id)
         self.autoresponds[autorespond.id] = bot
         bot.connect()
         bot.process(block=False)  # starts a new thread
@@ -147,15 +149,17 @@ class Worker(object):
             return
 
         bot = self.autoresponds.pop(autorespond_id)
+        logger.info("popped bot %s for autorespond %s", bot.bot_id, autorespond_id)
 
-        # TODO waiting here prevents race conditions between start/stop, but is that necessary?
-        # Worse case you have two bots running temporarily.
+        # TODO consider waiting here, then triggering abort if it fails.
         bot.disconnect(wait=False, send_close=False)  # safe if already disconnected
 
         return bot
 
-    def _bot_disconnected(self, bot, autorespond):
+    def _bot_disconnected(self, event, bot, autorespond):
         """Stop bots that are constantly disconnecting and reconnecting,"""
+
+        logger.info("bot %s has disconnected for autorespond %s", bot.bot_id, autorespond.id)
 
         disconnects = self.disconnects[autorespond.id]
 
@@ -171,7 +175,7 @@ class Worker(object):
             autorespond.admin_disabled = True
             autorespond.save()
 
-    def _bot_failed_auth(self, bot, autorespond):
+    def _bot_failed_auth(self, event, autorespond):
         """Handle two cases:
 
         * expired auth -> attempt to refresh
