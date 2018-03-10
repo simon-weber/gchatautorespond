@@ -53,7 +53,7 @@ class Worker(object):
     """
 
     # If a bot disconnects this many times in the period, it will be shut down.
-    max_disconnects = 3
+    max_disconnects = 8
     disconnect_period = datetime.timedelta(minutes=1)
 
     def __init__(self):
@@ -162,20 +162,27 @@ class Worker(object):
         return bot
 
     def _bot_messaged(self, event, bot, autorespond):
-        """Disconnect any bots that aren't registered.
+        """Disconnect any bots that aren't properly registered.
 
         This can happen if a disconnect is requested prior to session start,
         which sleekxmpp can fail to apply."""
 
         active_bot = self.autoresponds.get(autorespond.id)
         if active_bot is None:
+            # This bot survived a stop; kill it.
             logger.warning("killing zombie bot %s for autorespond %s",
                            bot.bot_id, autorespond.id)
             bot.abort()
+
         elif active_bot.bot_id != bot.bot_id:
-            logger.warning("killing evil twin bot %s for autorespond %s (keeping %s)",
-                           bot.bot_id, autorespond.id, active_bot.bot_id)
+            # This bot is an extra after a restart.
+            # Kill both twins, then ensure we're using the most recent state from the db.
+            logger.warning("killing evil twin %s and refreshing %s for autorespond %s",
+                           bot.bot_id, active_bot.bot_id, autorespond.id)
             bot.abort()
+            self.stop(autorespond.id)
+            autorespond.refresh_from_db()
+            self.start(autorespond)
 
     def _bot_disconnected(self, event, bot, autorespond):
         """Stop bots that are constantly disconnecting and reconnecting."""
