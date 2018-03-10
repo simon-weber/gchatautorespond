@@ -20,41 +20,52 @@ RESOURCE = 'autore'
 
 
 class ContextFilter(logging.Filter):
-    """If context.log_id is set, add it to log messages and tags.
+    """If context.log_id or context.bot_id is set, add them to log messages and tags.
 
-    This separates sleekxmpp logs by bot.
+    This separates sleekxmpp logs by autorespond and bot.
     """
 
     context = threading.local()
 
     @classmethod
     def filter(cls, record):
-        if getattr(cls.context, 'log_id', None):
-            record.msg = "[log_id=%s] %s" % (cls.context.log_id, record.msg)
-            record.tags = getattr(record, 'tags', {})
-            record.tags['log_id'] = cls.context.log_id
+        for param in ('log_id', 'bot_id'):
+            val = getattr(cls.context, param, None)
+            if val is not None:
+                record.msg = "[%s=%s] %s" % (param, val, record.msg)
+                record.tags = getattr(record, 'tags', {})
+                record.tags[param] = val
+
         return True
 
 
 class ContextProcessor(Processor):
-    """Remove the prepended log_id bit from messages going to sentry, since it prevents aggregation.
+    """Remove the prepended context bits from messages going to sentry, since it prevents aggregation.
 
     Sentry gets this information from the tags instead.
     """
 
-    pattern = re.compile(r'^\[log_id=\d\d*\] ')
+    patterns = [re.compile(r"\[%s=\d\d*\] " % param) for param in ('log_id', 'bot_id')]
 
-    def get_data(self, data, **kwargs):
+    @classmethod
+    def sub(cls, s):
+        r = s
+        for p in cls.patterns:
+            r = re.sub(p, '', r)
+        return r
+
+    @classmethod
+    def get_data(cls, data, **kwargs):
 
         if 'message' in data:
-            data['message'] = re.sub(self.pattern, '', data['message'])
+            data['message'] = cls.sub(data['message'])
 
         if 'sentry.interfaces.Message' in data:
             imes = data['sentry.interfaces.Message']
             if 'message' in imes:
-                imes['message'] = re.sub(self.pattern, '', imes['message'])
+                imes['message'] = cls.sub(imes['message'])
             if 'formatted' in imes:
-                imes['formatted'] = re.sub(self.pattern, '', imes['formatted'])
+                imes['formatted'] = cls.sub(imes['formatted'])
 
         return data
 
@@ -78,6 +89,7 @@ class GChatBot(ClientXMPP):
 
         self.email = email
         self.log_id = log_id
+        self.bot_id = id(self)
 
         logger_name = __name__
         if self.log_id is not None:
@@ -96,16 +108,19 @@ class GChatBot(ClientXMPP):
     # These spots were found from http://sleekxmpp.com/_modules/sleekxmpp/xmlstream/xmlstream.html#XMLStream.process.
     # It doesn't include the scheduler thread, but that doesn't seem to log anything interesting.
     def _process(self, *args, **kwargs):
+        ContextFilter.context.bot_id = self.bot_id
         if self.log_id:
             ContextFilter.context.log_id = self.log_id
         super(GChatBot, self)._process(*args, **kwargs)
 
     def _send_thread(self, *args, **kwargs):
+        ContextFilter.context.bot_id = self.bot_id
         if self.log_id:
             ContextFilter.context.log_id = self.log_id
         super(GChatBot, self)._send_thread(*args, **kwargs)
 
     def _event_runner(self, *args, **kwargs):
+        ContextFilter.context.bot_id = self.bot_id
         if self.log_id:
             ContextFilter.context.log_id = self.log_id
         super(GChatBot, self)._event_runner(*args, **kwargs)
