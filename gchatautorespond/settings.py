@@ -183,6 +183,7 @@ SPARKPOST_OPTIONS = {
     'track_opens': True,
     'track_clicks': False,
     'transactional': True,
+    'return_path': 'gchat-bounces.simon.codes',
 }
 DEFAULT_FROM_EMAIL = 'GChat Autoresponder <noreply@gchat.simon.codes>'
 
