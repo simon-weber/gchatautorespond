@@ -134,6 +134,11 @@ class Worker(object):
                                                 autorespond=autorespond)
         bot.add_event_handler('disconnected', disconnect_callback)
 
+        message_callback = functools.partial(self._bot_messaged,
+                                             bot=bot,
+                                             autorespond=autorespond)
+        bot.add_event_handler('message', message_callback)
+
         logger.info("registering bot %s to autorespond %s", bot.bot_id, autorespond.id)
         self.autoresponds[autorespond.id] = bot
         bot.connect()
@@ -156,8 +161,24 @@ class Worker(object):
 
         return bot
 
+    def _bot_messaged(self, event, bot, autorespond):
+        """Disconnect any bots that aren't registered.
+
+        This can happen if a disconnect is requested prior to session start,
+        which sleekxmpp can fail to apply."""
+
+        active_bot = self.autoresponds.get(autorespond.id)
+        if active_bot is None:
+            logger.warning("killing zombie bot %s for autorespond %s",
+                           bot.bot_id, autorespond.id)
+            bot.abort()
+        elif active_bot.bot_id != bot.bot_id:
+            logger.warning("killing evil twin bot %s for autorespond %s (keeping %s)",
+                           bot.bot_id, autorespond.id, active_bot.bot_id)
+            bot.abort()
+
     def _bot_disconnected(self, event, bot, autorespond):
-        """Stop bots that are constantly disconnecting and reconnecting,"""
+        """Stop bots that are constantly disconnecting and reconnecting."""
 
         logger.info("bot %s has disconnected for autorespond %s", bot.bot_id, autorespond.id)
 
