@@ -150,7 +150,7 @@ class Worker(object):
 
         # TODO waiting here prevents race conditions between start/stop, but is that necessary?
         # Worse case you have two bots running temporarily.
-        bot.disconnect(wait=False)  # safe if already disconnected
+        bot.disconnect(wait=False, send_close=False)  # safe if already disconnected
 
         return bot
 
