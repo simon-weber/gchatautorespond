@@ -120,7 +120,7 @@ class Worker(object):
             autorespond.email_notifications,
             autorespond.user.email,
             DbThrottler(autorespond.id, datetime.timedelta(minutes=autorespond.throttle_mins)),
-            True,
+            autorespond.status_detection,
             excluded_names,
             notify_overrides,
         )

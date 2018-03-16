@@ -23,8 +23,8 @@
             Creating an autoresponse will make the account:
             <ul>
                 <li>accept all chat invitations</li>
-                <li>respond to Chat or Hangouts messages when you are offline, away, or busy</li>
-                <li>if enabled, send email notifications to your login email ({{ user.email }}).</li>
+                <li>respond to messages when you are offline, away, or busy (or always, if status detection is disabled)</li>
+                <li>if enabled, send email notifications to your login email ({{ user.email }})</li>
             </ul>
 
             <form class="form-horizontal" id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">

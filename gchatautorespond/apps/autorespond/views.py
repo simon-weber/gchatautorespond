@@ -29,7 +29,7 @@ FLOW = flow_from_clientsecrets(
 
 _AutoResponseFormSet = modelformset_factory(
     AutoResponse,
-    fields=('response', 'credentials', 'email_notifications', 'throttle_mins'),
+    fields=('response', 'credentials', 'email_notifications', 'throttle_mins', 'status_detection'),
     can_delete=True)
 
 _ExcludedUserFormSet = modelformset_factory(

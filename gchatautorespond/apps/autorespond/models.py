@@ -32,6 +32,10 @@ class AutoResponse(models.Model):
         default=False,
         help_text="Enable to receive an email when an autoresponse is sent.")
 
+    status_detection = models.BooleanField(
+        default=True,
+        help_text="Disable to autorespond even when active in gmail or a mobile device.")
+
     admin_disabled = models.BooleanField(default=False)
 
     def __unicode__(self):
