@@ -1,5 +1,7 @@
+import base64
 import datetime
 import os
+import pickle
 
 import braintree
 
@@ -27,6 +29,9 @@ WORKER_PORT = 50001
 GOOGLE_OAUTH2_CLIENT_SECRETS_JSON = os.path.join(SECRETS_DIR, 'client_secrets.json')
 OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
+
+credential_row_raw = get_secret('test_account.credentialrow')
+test_credentials = pickle.loads(base64.b64decode(credential_row_raw))
 
 LOGIN_URL = '/'
 
