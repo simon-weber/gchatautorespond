@@ -2,17 +2,17 @@ import logging
 
 from apiclient.discovery import build
 from concurrent.futures import ThreadPoolExecutor
-from django.db import IntegrityError
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import redirect, render
 from django.utils.encoding import smart_str
 import httplib2
 import oauth2client.contrib.xsrfutil as xsrfutil
 from oauth2client.client import flow_from_clientsecrets
 from django.contrib.auth.views import login as contrib_login
 from django.forms.models import modelformset_factory
-from django.template.context_processors import csrf
 from django.conf import settings
 from django.views.generic import TemplateView
 from django.forms.formsets import DELETION_FIELD_NAME
@@ -48,6 +48,10 @@ def _send_to_worker(verb, url):
     return method("http://127.0.0.1:%s%s" % (settings.WORKER_PORT, url))
 
 
+def _request_test_message(email):
+    return requests.post("http://127.0.0.1:%s/message/%s" % (settings.TESTWORKER_PORT, email))
+
+
 class ExcludedUserFormSet(_ExcludedUserFormSet):
     def __init__(self, autoresponds, *args, **kwargs):
         self.autoresponds = autoresponds
@@ -76,6 +80,9 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         self.extra = 1
 
         super(AutoResponseFormSet, self).__init__(*args, **kwargs)
+        self.active_credentials = []
+        if self.queryset:
+            self.active_credentials = [autorespond.credentials for autorespond in self.queryset]
         self.prefix = 'autorespond'
 
     def _construct_form(self, i, **kwargs):
@@ -114,6 +121,27 @@ def login(request):
     return contrib_login(request)
 
 
+@login_required
+def test_view(request):
+    """Send a test message to an active autoresponder."""
+
+    autoresponds = AutoResponse.objects.filter(user=request.user)
+
+    if request.method == 'POST':
+        email = request.POST.get("email")
+        if email in [autorespond.credentials.email for autorespond in autoresponds]:
+            try:
+                _request_test_message(email)
+                messages.success(request, 'Successfully sent a test message.')
+            except:
+                logger.exception('failed to send test message')
+                messages.error(request, 'Failed to send a test message.')
+
+            return redirect('autorespond')
+    else:
+        return HttpResponseBadRequest()
+
+
 def autorespond_view(request):
     """List/update accounts and autoresponses."""
 
@@ -136,9 +164,8 @@ def autorespond_view(request):
             'autorespond_formset': autorespond_formset,
             'excluded_formset': excluded_formset,
         }
-        c.update(csrf(request))
 
-        return render_to_response('logged_in.html', c)
+        return render(request, 'logged_in.html', c)
 
     elif request.method == 'POST':
         autorespond_formset = AutoResponseFormSet(gcredentials, request.POST)
@@ -189,9 +216,8 @@ def autorespond_view(request):
                 'autorespond_formset': autorespond_formset,
                 'excluded_formset': excluded_formset,
             }
-            c.update(csrf(request))
 
-            return render_to_response('logged_in.html', c, status=400)
+            return render(request, 'logged_in.html', c, status=400)
     else:
         return HttpResponseBadRequest()
 

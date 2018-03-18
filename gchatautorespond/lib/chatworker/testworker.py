@@ -1,7 +1,7 @@
 import httplib
 import logging
 
-from flask import Flask, request
+from flask import Flask
 import httplib2
 from oauth2client.client import AccessTokenRefreshError
 
@@ -12,10 +12,9 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 
-@app.route('/message', methods=['POST'])
-def message():
-    body = request.get_json()
-    app.config['worker'].send_to(body['address'])
+@app.route('/message/<email>', methods=['POST'])
+def message(email):
+    app.config['worker'].send_to(email)
     return ('', httplib.NO_CONTENT)
 
 
