@@ -133,9 +133,11 @@ def test_view(request):
             try:
                 _request_test_message(email)
                 messages.success(request, 'Successfully sent a test message.')
+                report_ga_event_async(email, category='autoresponse', action='test', label='success')
             except:
                 logger.exception('failed to send test message')
                 messages.error(request, 'Failed to send a test message.')
+                report_ga_event_async(email, category='autoresponse', action='test', label='failure')
 
             return redirect('autorespond')
     else:
