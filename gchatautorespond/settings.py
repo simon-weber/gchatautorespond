@@ -25,13 +25,14 @@ HOST = 'gchat.simon.codes'
 ALLOWED_HOSTS = [HOST]
 PORT = 8000
 WORKER_PORT = 50001
+TESTWORKER_PORT = 50002
 
 GOOGLE_OAUTH2_CLIENT_SECRETS_JSON = os.path.join(SECRETS_DIR, 'client_secrets.json')
 OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 
-credential_row_raw = get_secret('test_account.credentialrow')
-test_credentials = pickle.loads(base64.b64decode(credential_row_raw))
+# This is a CredentialsField, not a GoogleCredentials.
+TEST_CREDENTIALS = pickle.loads(base64.b64decode(get_secret('test_account.credentialrow')))
 
 LOGIN_URL = '/'
 

@@ -71,7 +71,7 @@ class ContextProcessor(Processor):
 
 
 class GChatBot(ClientXMPP):
-    """A Bot that connects to Google Chat over ssl."""
+    """A long-running Bot that connects to Google Chat over ssl."""
 
     def __init__(self, email, token, log_id, **kwargs):
         """
@@ -158,6 +158,23 @@ class GChatBot(ClientXMPP):
         except cert.CertificateError as err:
             self.logger.error(err.message)
             self.disconnect(send_close=False)
+
+
+class MessageBot(GChatBot):
+    """A GChatBot that can send messages on request."""
+
+    def __init__(self, email, token):
+        super(MessageBot, self).__init__(email, token, log_id=None)
+        self.add_event_handler('message', self._message)
+
+    def _message(self, msg):
+        self.logger.info("received message from %s: %r", msg['from'], msg)
+
+    def send_to(self, recv, message):
+        # Subscribing (adding to contact list) is required before a message can be sent.
+        # Otherwise, you just get a 503.
+        self.send_presence(pto=recv, ptype='subscribe')
+        self.send_message(mto=recv, mbody=message, mtype='chat')
 
 
 class AutoRespondBot(GChatBot):

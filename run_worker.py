@@ -11,7 +11,7 @@ from django.conf import settings
 from gevent.wsgi import WSGIServer
 from raven.contrib.flask import Sentry
 
-from gchatautorespond.lib.chatworker import Worker, app
+from gchatautorespond.lib.chatworker.worker import Worker, app
 from gchatautorespond.lib.chatworker.bot import ContextFilter
 
 
