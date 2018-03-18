@@ -18,6 +18,8 @@ TALK_BRIDGE_DOMAIN = 'public.talk.google.com'
 # See https://github.com/simon-weber/gchatautorespond/issues/3.
 RESOURCE = 'autore'
 
+TEST_BOT_EMAIL = 'autorespond-testing@simonmweber.com'
+
 
 class ContextFilter(logging.Filter):
     """If context.log_id or context.bot_id is set, add them to log messages and tags.
@@ -276,7 +278,7 @@ class AutoRespondBot(GChatBot):
                 should_send_email = notify_override
 
             if should_send_email:
-                self._send_email_notification(jid.jid, body, did_reply)
+                self._send_email_notification(jid, body, did_reply)
 
     def presence(self, presence):
         other_jid = presence['from']
@@ -344,13 +346,13 @@ class AutoRespondBot(GChatBot):
 
     def _send_email_notification(self, from_jid, message, did_reply):
         """
-        from_jid is a string (jid.jid).
+        from_jid is a Jid.
         """
 
         # Building a decent representation of the sender is tricky.
         # We'll always at least have a jid.
         # Often they look like `...@public.talk.google.com/lcsw_hangouts_...` with no real meaning, though.
-        from_identifier = from_jid
+        from_identifier = from_jid.jid
 
         # Often we'll have the contact's name, which is better.
         from_nick = self.client_roster[from_jid]['name']
@@ -360,6 +362,10 @@ class AutoRespondBot(GChatBot):
             from_identifier = "%s (%s)" % (from_nick, from_jid)
         elif from_nick:
             from_identifier = from_nick
+
+        if from_jid.bare == TEST_BOT_EMAIL:
+            # Override the test bot's representation.
+            from_identifier = 'our testing bot'
 
         body_paragraphs = ["gchat.simon.codes just received a message from %s." % from_identifier]
 
@@ -396,7 +402,12 @@ class AutoRespondBot(GChatBot):
         Return False if one of the following is true:
         * another resource is active
         * messages to the given jid are throttled
+
+        Messages from the test bot are always responded to.
         """
+
+        if jid.bare == TEST_BOT_EMAIL:
+            return True
 
         if self.response_throttle.is_throttled(jid.bare):
             self.logger.info("do not send; bot is throttled")
