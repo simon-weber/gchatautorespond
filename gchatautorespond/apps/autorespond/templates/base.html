@@ -56,6 +56,16 @@
                     width: 768px;
                 }
             }
+
+            /* Squeeze more text into the navbar. */
+            .nav>li>a {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .navbar-text {
+                margin-left: 5px;
+                margin-right: 5px;
+            }
         </style>
 
         <script>
@@ -88,16 +98,14 @@
                     {% if user.is_authenticated %}
                     <ul class="nav navbar-nav">
                         <li><a href="{% url 'license_details' %}">Billing</a></li>
-                        <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
+                        <li><a href="{% url 'auth_password_change' %}">Password</a></li>
                         <li><a href="{% url 'auth_logout' %}?next=/">Log Out</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {% if user.currentlicense.license.is_trial %}
-                        <li><p class="navbar-text">
-                            Your trial expires on {{ user.currentlicense.license.trial_expire_date}}.
-                            </p></li>
-                            {% endif %}
-                            <li><p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</p></li>
+                        <li><p class="navbar-text">Trial ends {{ user.currentlicense.license.trial_expire_date|date:"M d"}}</p></li>
+                        {% endif %}
+                        <li><p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</p></li>
                     </ul>
                     {% else %}
                     <ul class="nav navbar-nav">
