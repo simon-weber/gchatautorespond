@@ -19,6 +19,8 @@ logentries_logs:
     path: /var/log/supervisord/webserver.log
   - name: supervisor_chatworker
     path: /var/log/supervisord/chatworker.log
+  - name: supervisor_testworker
+    path: /var/log/supervisord/testworker.log
   - name: syslog
     path: /var/log/syslog
   - name: fail2ban
