@@ -162,13 +162,24 @@ class Worker(object):
         return bot
 
     def _bot_messaged(self, event, bot, autorespond):
-        """Disconnect any bots that aren't properly registered.
+        """Disconnect any bots that aren't properly registered or licensed.
 
-        This can happen if a disconnect is requested prior to session start,
-        which sleekxmpp can fail to apply."""
+        The most common case is a disconnect prior to session start
+        (which sleekxmpp often fails to apply), but this will also clean up a
+        variety of other inconsistencies.
+        """
 
         active_bot = self.autoresponds.get(autorespond.id)
-        if active_bot is None:
+
+        license = autorespond.user.currentlicense.license
+        license.refresh_from_db()
+
+        if not license.is_active:
+            logger.warning("killing unlicensed bot %s for autorespond %s",
+                           bot.bot_id, autorespond.id)
+            bot.abort()
+
+        elif active_bot is None:
             # This bot survived a stop; kill it.
             logger.warning("killing zombie bot %s for autorespond %s",
                            bot.bot_id, autorespond.id)
