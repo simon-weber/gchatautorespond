@@ -97,11 +97,11 @@ class Worker(object):
             logger.warning("autorespond %s already running? state: %r", autorespond.id, self.autoresponds)
 
         if autorespond.admin_disabled:
-            logger.warning("refusing to start disabled autorespond %s", autorespond.id)
+            logger.info("refusing to start disabled autorespond %s", autorespond.id)
             return
 
         if not autorespond.user.currentlicense.license.is_active:
-            logger.warning("refusing to start autorespond for inactive account %s", autorespond.user)
+            logger.info("refusing to start autorespond for inactive account %s", autorespond.user)
             return
 
         excluded_users = list(autorespond.excludeduser_set.all())

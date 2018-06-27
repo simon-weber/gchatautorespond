@@ -286,7 +286,7 @@ class AutoRespondBot(GChatBot):
             if other_jid == self.boundjid:
                 # I have no idea why these happen.
                 # It seems to happen for a single user exactly twice before stopping.
-                self.logger.warning('received loopback presence: %r,%r', self.boundjid, other_jid)
+                self.logger.info('received loopback presence: %r,%r', self.boundjid, other_jid)
                 return
             if other_jid.resource.startswith(RESOURCE):
                 # There's probably something more to be done here, like ensuring only one autoresponder replies
