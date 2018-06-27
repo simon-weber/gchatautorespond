@@ -140,8 +140,7 @@ def test_view(request):
                 report_ga_event_async(email, category='autoresponse', action='test', label='failure')
 
             return redirect('autorespond')
-    else:
-        return HttpResponseBadRequest()
+    return HttpResponseBadRequest()
 
 
 def autorespond_view(request):
