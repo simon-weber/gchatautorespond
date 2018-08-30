@@ -35,7 +35,7 @@ Email notifications are not currently supported when self-hosting ([#7](https://
 * test: tests
 * ops: ansible config (3rd party roles vendorized)
 * secrets: prod secrets (managed with transcypt)
-* assets: served with dj-static (not nginx because I'm lazy)
+* assets: served with nginx (and dj-static locally)
 
 ## development
 

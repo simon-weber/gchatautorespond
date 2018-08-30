@@ -30,6 +30,9 @@
     - name: unpack new code
       unarchive: copy=no src={{ deploydir }}/{{ revparse.stdout }}.tar dest={{ appdir }} owner={{ appuser }} group={{ appgroup }}
 
+    - name: move in assets
+      shell: "rm -rf {{ assetdir }}/*; mv {{ appdir }}/assets {{ assetdir }}"
+
     - name: add release file
       shell: "echo {{ revparse.stdout }} > {{ appdir }}/release.sha"
 
