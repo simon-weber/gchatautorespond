@@ -1,5 +1,4 @@
 braintree
-dj-static
 Django==1.8.14
 django-bootstrap3
 django-registration-redux
