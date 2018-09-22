@@ -22,6 +22,9 @@ import httplib2  # included with oauth2client
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 import oauth2client.file
 
+import warnings
+warnings.filterwarnings('ignore', 'test worker credentials unavailable',)
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_standalone'
 import django
 django.setup()
@@ -111,7 +114,7 @@ def perform_oauth():
 
     credentials = flow.step2_exchange(code)
 
-    storage = StandaloneBot(credentials.id_token['email'], None, None, None, None).oauth_storage
+    storage = StandaloneBot(credentials.id_token['email'], None, None, None, None, None).oauth_storage
     storage.put(credentials)
 
     return credentials

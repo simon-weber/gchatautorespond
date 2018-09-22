@@ -32,7 +32,13 @@ OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 
 # This is a CredentialsField, not a GoogleCredentials.
-TEST_CREDENTIALS = pickle.loads(base64.b64decode(get_secret('test_account.credentialrow')))
+try:
+    TEST_CREDENTIALS = pickle.loads(base64.b64decode(get_secret('test_account.credentialrow')))
+except:
+    import warnings
+    warnings.warn('test worker credentials unavailable')
+    TEST_CREDENTIALS = None
+
 
 LOGIN_URL = '/'
 
