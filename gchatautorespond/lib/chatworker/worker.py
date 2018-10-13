@@ -21,6 +21,7 @@ app = Flask(__name__)
 
 @app.route('/status')
 def status():
+    # this is publicly exposed, so it mustn't present anything sensitive.
     return jsonify(app.config['worker'].get_status())
 
 

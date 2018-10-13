@@ -23,7 +23,19 @@ class ResponseAdmin(admin.ModelAdmin):
 
     def worker_status(self, request):
         res = _send_to_worker('get', '/status')
+
+        # add in additional context
         res_data = res.json()
+        bot_ids = res_data.pop('bots')
+        autoresponds = AutoResponse.objects.filter(id__in=bot_ids).select_related('user')
+
+        res_data['bot_details'] = sorted(
+            [{'ar_id': ar.id,
+              'user_email': ar.user.email,
+              'is_trial': ar.user.currentlicense.license.is_trial,
+              } for ar in autoresponds],
+            key=lambda d: d['ar_id'],
+        )
         res_data['admin_actions'] = {
             'stop': 'stop/...',
             'restart': 'restart/...',
