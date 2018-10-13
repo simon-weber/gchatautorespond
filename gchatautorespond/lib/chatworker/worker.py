@@ -27,8 +27,13 @@ def status():
 @app.route('/stop/<int:autorespond_id>', methods=['POST'])
 def stop(autorespond_id):
     ContextFilter.context.log_id = autorespond_id
-    app.config['worker'].stop(autorespond_id)
-    return ('', httplib.NO_CONTENT)
+    bot = app.config['worker'].stop(autorespond_id)
+    if bot is None:
+        return ('', httplib.NOT_FOUND)
+
+    return jsonify({
+        'bot_id': bot.bot_id,
+    })
 
 
 @app.route('/restart/<int:autorespond_id>', methods=['POST'])
@@ -36,10 +41,13 @@ def restart(autorespond_id):
     ContextFilter.context.log_id = autorespond_id
     autorespond = AutoResponse.objects.get(id=autorespond_id)
 
-    app.config['worker'].stop(autorespond.id)
-    app.config['worker'].start(autorespond)
+    old_bot = app.config['worker'].stop(autorespond.id)
+    new_bot = app.config['worker'].start(autorespond)
 
-    return ('', httplib.NO_CONTENT)
+    return jsonify({
+        'old_bot_id': old_bot.bot_id,
+        'new_bot_id': new_bot.bot_id,
+    })
 
 
 class Worker(object):
@@ -143,6 +151,7 @@ class Worker(object):
         self.autoresponds[autorespond.id] = bot
         bot.connect()
         bot.process(block=False)  # starts a new thread
+        return bot
 
     def stop(self, autorespond_id):
         """Stop an already-running bot for an autorespond_id."""
