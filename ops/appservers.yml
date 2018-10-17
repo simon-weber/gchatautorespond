@@ -13,7 +13,7 @@
       tags: backup
       backup_profiles:
         - name: gchat_db3
-          schedule: "0 18 * * *"
+          schedule: "0 23 * * *"
           source: "{{ approot }}"
           exclude:
              - "{{ assetdir }}"
