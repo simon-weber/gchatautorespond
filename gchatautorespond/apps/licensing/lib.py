@@ -42,7 +42,7 @@ def notify_of_trial_expiry(user):
         'Hi there!',
         'Your trial at https://gchat.simon.codes has just expired and your autoresponses have been disabled.',
         'To enable them again, buy a subscription at https://gchat.simon.codes/payment/detail.',
-        "It's only %s per month -- less than a cup of coffee!" % settings.PRICE_REPR,
+        "It's only %s per month and can be cancelled at any time." % settings.PRICE_REPR,
     ]
     email = EmailMessage(
         subject='trial expired, autoresponses disabled',
