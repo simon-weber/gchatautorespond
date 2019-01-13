@@ -28,7 +28,7 @@ WORKER_PORT = 50001
 TESTWORKER_PORT = 50002
 
 GOOGLE_OAUTH2_CLIENT_SECRETS_JSON = os.path.join(SECRETS_DIR, 'client_secrets.json')
-OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'email'])
+OAUTH_SCOPE = ' '.join(['https://www.googleapis.com/auth/googletalk', 'profile', 'email'])
 OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 
 # This is a CredentialsField, not a GoogleCredentials.
