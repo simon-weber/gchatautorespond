@@ -265,10 +265,10 @@ def auth_return_view(request):
         # we don't want to store reauths, since we'd clobber the refresh token.
         http = httplib2.Http()
         http = credential.authorize(http)
-        service = build("plus", "v1", http=http)
-        res = service.people().get(userId='me').execute()
+        service = build("oauth2", "v2", http=http)
+        res = service.userinfo().get().execute()
 
-        email = res['emails'][0]['value']
+        email = res['email']
 
         try:
             GoogleCredential.objects.update_or_create(
