@@ -41,6 +41,10 @@ class AutoResponse(models.Model):
         help_text="Enable to never autorespond (overriding other settings). Email notifications may still be sent.")
 
     admin_disabled = models.BooleanField(default=False)
+    admin_override_email = models.TextField(
+        blank=True,
+        help_text="A different user-provided email to receive notifications.",
+    )
 
     def __unicode__(self):
         return "<AutoResponse email:%s>" % self.credentials.email

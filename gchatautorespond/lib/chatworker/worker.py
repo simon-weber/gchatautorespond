@@ -121,13 +121,19 @@ class Worker(object):
             if user.email_notifications != user.DEFAULT:
                 notify_overrides[user.name] = True if user.email_notifications == user.ALWAYS else False
 
+        notify_email = autorespond.user.email
+        if autorespond.admin_override_email:
+            logger.info("overriding user email %r with %r for autorespond %s notifications",
+                        notify_email, autorespond.admin_override_email, autorespond.id)
+            notify_email = autorespond.admin_override_email
+
         bot = AutoRespondBot(
             autorespond.credentials.email,
             autorespond.credentials.credentials.access_token,
             autorespond.id,
             autorespond.response,
             autorespond.email_notifications,
-            autorespond.user.email,
+            notify_email,
             DbThrottler(autorespond.id, datetime.timedelta(minutes=autorespond.throttle_mins)),
             autorespond.status_detection,
             excluded_names,
