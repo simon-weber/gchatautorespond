@@ -132,6 +132,7 @@ class Worker(object):
             autorespond.status_detection,
             excluded_names,
             notify_overrides,
+            autorespond.disable_responses,
         )
 
         failed_auth_callback = functools.partial(self._bot_failed_auth,

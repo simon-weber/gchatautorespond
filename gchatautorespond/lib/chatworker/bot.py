@@ -180,7 +180,7 @@ class MessageBot(GChatBot):
 
 
 class AutoRespondBot(GChatBot):
-    """A GChatBot that responds to incoming messages with a set response.
+    """A GChatBot that can respond to incoming messages with a set response.
 
     This works for all sender/receiver combinations ({gchat, hangouts} x {gchat, hangouts}).
 
@@ -202,7 +202,8 @@ class AutoRespondBot(GChatBot):
     def __init__(self, email, token, log_id, response,
                  send_email_notifications, notify_email,
                  response_throttle=None, detect_unavailable=True,
-                 excluded_names=None, notification_overrides=None):
+                 excluded_names=None, notification_overrides=None,
+                 disable_responses=False):
         """
         Args:
             email (string): see GChatBot.
@@ -217,6 +218,7 @@ class AutoRespondBot(GChatBot):
               available and not away.
             excluded_names (iterable of strings): contact names to not respond to, matched case-insensitive.
             notification_overrides ({'name': bool}): use to override send_email_notifications for contacts.
+            disable_responses (bool): when True, never autorespond. Email notifications may still be sent.
         """
         if isinstance(send_email_notifications, basestring):
             raise ValueError('received string for send_email_notifications'
@@ -238,6 +240,7 @@ class AutoRespondBot(GChatBot):
         self.detect_unavailable = detect_unavailable
         self.excluded_names = set(n.lower() for n in excluded_names)
         self.notification_overrides = notification_overrides
+        self.disable_responses = disable_responses
 
         self.other_active_resources = set()  # jids of other resources for our user
 
@@ -262,7 +265,9 @@ class AutoRespondBot(GChatBot):
             jid = msg['from']
             body = msg.get('body')
 
-            if self._is_excluded(jid):
+            if self.disable_responses:
+                self.logger.info("not responding; responses are disabled")
+            elif self._is_excluded(jid):
                 self.logger.info("not responding; %r is excluded", jid)
             else:
                 self.logger.info("responding to %s via message. message %r", jid, msg)
@@ -324,6 +329,8 @@ class AutoRespondBot(GChatBot):
     def detect_hangouts_jids(self, presence):
         """Watch for Hangouts bridge jids coming online and respond to any in `hangouts_jids_seen`."""
 
+        # TODO this should probably be removed, since it's diverged from the normal handler
+
         from_jid = presence['from']
         if from_jid.bare in self.hangouts_jids_seen and from_jid.resource:
             self.hangouts_jids_seen.remove(from_jid.bare)
@@ -378,7 +385,7 @@ class AutoRespondBot(GChatBot):
             body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response.encode('utf-8'))
             subject = 'gchat.simon.codes sent an autoresponse'
         else:
-            body_paragraphs.append("Because this is an excluded contact, we did not autorespond.")
+            body_paragraphs.append("We did not reply because you've disabled responses for this or all contacts.")
             subject = 'gchat.simon.codes received a message'
 
         body_paragraphs.append(

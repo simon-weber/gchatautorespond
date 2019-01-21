@@ -36,6 +36,10 @@ class AutoResponse(models.Model):
         default=True,
         help_text="Disable to autorespond even when active in gmail or a mobile device.")
 
+    disable_responses = models.BooleanField(
+        default=False,
+        help_text="Enable to never autorespond (overriding other settings). Email notifications may still be sent.")
+
     admin_disabled = models.BooleanField(default=False)
 
     def __unicode__(self):
