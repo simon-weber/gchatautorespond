@@ -2,7 +2,7 @@ braintree
 Django
 django-bootstrap3
 django-registration-redux
-git+git://github.com/simon-weber/django-supervisor.git@autoreload_on_created#egg=django-supervisor==0.3.3.dev0
+git+git://github.com/simon-weber/django-supervisor.git@0.5.0dev0#egg=django-supervisor==0.5.0dev0
 djmail
 dnspython  # optional requirement for sleekxmpp
 docopt

@@ -9,7 +9,7 @@
         <ul>
             {% for gcredential in gcredentials %}
             <li>
-                <form class="form-inline" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.test_view' %}">
+                <form class="form-inline" method="post" action="{% url 'test_view' %}">
                     {% csrf_token %}
                     {{ gcredential.email }}
                     <input type="hidden" name="email" value="{{ gcredential.email }}">
@@ -25,7 +25,7 @@
         Your account is currently inactive.
         <a href="{% url 'license_details' %}">Purchase a subscription</a>.
         {% else %}
-        <form class="form-horizontal" action="{% url 'gchatautorespond.apps.autorespond.views.auth_view' %}">
+        <form class="form-horizontal" action="{% url 'auth_view' %}">
             <input class="btn btn-primary" type="submit" value="add an autorespond account">
         </form>
         {% if gcredentials %}
@@ -38,7 +38,7 @@
                 <li>if enabled, send email notifications to your login email ({{ user.email }})</li>
             </ul>
 
-            <form class="form-horizontal" id="autoresponses" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
+            <form class="form-horizontal" id="autoresponses" method="post" action="{% url 'autorespond' %}">
                 {% include 'fancy_formset.html' with formset=autorespond_formset name='autoresponse' %}
                 {% include 'form_button.html' with class='btn-primary' extra='name="submit_autoresponses" value="yes"' text="update autoresponses" %}
             </form>
@@ -49,7 +49,7 @@
                 <br/>
                 Due to restrictions in Google's apis, they must be matched by name rather than email.
 
-                <form class="form-horizontal" id="excludeds" method="post" action="{% url 'gchatautorespond.apps.autorespond.views.autorespond_view' %}">
+                <form class="form-horizontal" id="excludeds" method="post" action="{% url 'autorespond' %}">
                     {% include 'fancy_formset.html' with formset=excluded_formset name='contact' %}
                     {% include 'form_button.html' with class='btn-primary' extra='name="submit_excludeds" value="yes"' text="update excluded contacts" %}
                 </form>

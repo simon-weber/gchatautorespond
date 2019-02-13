@@ -13,8 +13,8 @@ click==6.6                # via flask, pip-tools
 contextlib2==0.5.4        # via raven
 django-bootstrap3==9.0.0
 django-registration-redux==1.4
-git+git://github.com/simon-weber/django-supervisor.git@autoreload_on_created#egg=django-supervisor==0.3.3.dev0
-Django==1.8.19
+git+git://github.com/simon-weber/django-supervisor.git@0.5.0dev0#egg=django-supervisor==0.5.0dev0
+Django==1.11.20
 djmail==0.13.0
 dnspython==1.14.0
 docopt==0.6.2
@@ -42,6 +42,7 @@ pbr==1.10.0               # via mock
 git+https://github.com/venmo/pip-tools.git@1.7.1a1#egg=pip-tools==1.7.1a1
 pyasn1-modules==0.0.8     # via oauth2client
 pyasn1==0.1.9             # via oauth2client, pyasn1-modules, rsa
+pytz==2018.9              # via django
 PyYAML==3.12              # via watchdog
 raven[flask]==5.26.0
 requests==2.20.1

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.contrib import admin
 from django.http import JsonResponse
 
@@ -13,12 +13,11 @@ admin.site.register(GoogleCredential)
 class ResponseAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(ResponseAdmin, self).get_urls()
-        my_urls = patterns(
-            '',
-            (r'^worker/$', self.admin_site.admin_view(self.worker_status)),
-            (r'^worker/stop/(\d+)/$', self.admin_site.admin_view(self.worker_stop)),
-            (r'^worker/restart/(\d+)/$', self.admin_site.admin_view(self.worker_restart)),
-        )
+        my_urls = [
+            url(r'^worker/$', self.admin_site.admin_view(self.worker_status)),
+            url(r'^worker/stop/(\d+)/$', self.admin_site.admin_view(self.worker_stop)),
+            url(r'^worker/restart/(\d+)/$', self.admin_site.admin_view(self.worker_restart)),
+        ]
         return my_urls + urls
 
     def worker_status(self, request):

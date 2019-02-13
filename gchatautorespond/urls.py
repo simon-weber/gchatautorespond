@@ -7,6 +7,7 @@ from registration.forms import RegistrationFormTermsOfService as RegTOS
 from .apps.autorespond import urls as autorespond_urls
 from .apps.licensing import urls as licensing_urls
 from .apps.autorespond.views import LoggedOutView, PrivacyView, TermsView
+from .apps.autorespond import views
 
 urlpatterns = [
     url(r'^autorespond/', include(autorespond_urls)),
@@ -14,7 +15,7 @@ urlpatterns = [
 
     # Override default login to redirect if already logged in.
     # TODO do this for signup as well?
-    url(r'^accounts/login', 'gchatautorespond.apps.autorespond.views.login'),
+    url(r'^accounts/login', views.login),
 
     url(r'^admin/', include(admin.site.urls)),
 

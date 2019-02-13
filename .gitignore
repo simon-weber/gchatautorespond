@@ -2,6 +2,7 @@
 venv-*
 *.pyc
 *.oauth_credentials
+.env
 
 *.sqlite3
 supervisord.log
