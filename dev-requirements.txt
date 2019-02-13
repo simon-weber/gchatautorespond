@@ -12,7 +12,7 @@ chardet==3.0.4            # via requests
 click==6.6                # via flask, pip-tools
 contextlib2==0.5.4        # via raven
 django-bootstrap3==9.0.0
-django-registration-redux==1.4
+django-registration-redux==1.9
 git+git://github.com/simon-weber/django-supervisor.git@0.5.0dev0#egg=django-supervisor==0.5.0dev0
 Django==1.11.20
 djmail==0.13.0
