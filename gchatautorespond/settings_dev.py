@@ -7,7 +7,7 @@ SEND_GA_EVENTS = False
 
 SCHEME = 'http://'
 HOST = '127.0.0.1'
-ALLOWED_HOSTS = [HOST]
+ALLOWED_HOSTS = ['*']
 PORT = 8000
 
 BRAINTREE_MERCHANT_ID = get_secret('bt_sandbox.merchant_id')
