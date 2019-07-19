@@ -1,5 +1,6 @@
 braintree
 Django
+django-amazon-ses
 django-bootstrap3
 django-registration-redux
 git+git://github.com/simon-weber/django-supervisor.git@0.5.0dev0#egg=django-supervisor==0.5.0dev0
@@ -18,6 +19,5 @@ oauth2client
 raven[flask]
 requests
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
-sparkpost
 supervisor
 git+https://github.com/venmo/pip-tools.git@1.7.1a1#egg=pip-tools==1.7.1a1
