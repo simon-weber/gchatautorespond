@@ -1,5 +1,5 @@
 braintree
-Django
+django
 django-amazon-ses
 django-bootstrap3
 django-registration-redux
@@ -7,12 +7,12 @@ djmail
 dnspython  # optional requirement for sleekxmpp
 docopt
 enum34
-Flask
+flask
+future
 futures
-gevent
 google-api-python-client
-google-measurement-protocol
-gunicorn
+google-measurement-protocol==0.1.6
+gunicorn[gevent]
 jsonpickle  # https://github.com/googleapis/oauth2client/issues/681
 newrelic
 oauth2client

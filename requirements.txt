@@ -22,12 +22,13 @@ docopt==0.6.2
 docutils==0.14            # via botocore
 enum34==1.1.6
 flask==0.12.3
+future==0.17.1
 futures==3.0.5
-gevent==1.1.2
+gevent==1.4.0             # via gunicorn
 google-api-python-client==1.6.7
 google-measurement-protocol==0.1.6
-greenlet==0.4.10          # via gevent
-gunicorn==19.6.0
+greenlet==0.4.15          # via gevent
+gunicorn[gevent]==19.9.0
 httplib2==0.9.2           # via google-api-python-client, oauth2client
 idna==2.7                 # via requests
 itsdangerous==0.24        # via flask
