@@ -52,7 +52,7 @@ class License(models.Model):
     def trial_expire_date(self):
         return (self.trial_start + self.TRIAL_LENGTH).date()
 
-    def __unicode__(self):
+    def __str__(self):
         return "<License %s user:%s active:%s>" % (self.id, self.user_id, self.is_active)
 
 
@@ -60,5 +60,5 @@ class CurrentLicense(models.Model):
     user = models.OneToOneField(User)
     license = models.OneToOneField(License)
 
-    def __unicode__(self):
+    def __str__(self):
         return "<CurrentLicense %s user:%s license:%s>" % (self.id, self.user_id, self.license_id)

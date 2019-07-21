@@ -9,10 +9,10 @@ class GoogleCredential(models.Model):
     user = models.ForeignKey(User)
     email = models.EmailField(unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "<GoogleCredential email:%s>" % self.email
 
-    __repr__ = __unicode__
+    __repr__ = __str__
 
 
 class AutoResponse(models.Model):
@@ -46,10 +46,10 @@ class AutoResponse(models.Model):
         help_text="A different user-provided email to receive notifications.",
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return "<AutoResponse email:%s>" % self.credentials.email
 
-    __repr__ = __unicode__
+    __repr__ = __str__
 
 
 class ExcludedUser(models.Model):
@@ -77,10 +77,10 @@ class ExcludedUser(models.Model):
         help_text="Use 'always' or 'never' to override the email notification setting for this user.",
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return "<ExcludedUser '%s' for %s>" % (self.name, self.autorespond)
 
-    __repr__ = __unicode__
+    __repr__ = __str__
 
 
 class LastResponse(models.Model):
