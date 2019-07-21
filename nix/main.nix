@@ -143,7 +143,7 @@ in let
       enable = true;
       description = "gchatautorespond delete old emails";
       startAt = "daily";
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python27 pkgs.bash pkgs.sqlite ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -153,6 +153,8 @@ in let
         User = "gchatautorespond";
         Group = "gchatautorespond";
       };
+      # reclaim disk
+      postStop = "sqlite3 ${dbPath} 'VACUUM;'";
     };
     systemd.services.gchatautorespond-reenable_bots = {
       enable = true;
