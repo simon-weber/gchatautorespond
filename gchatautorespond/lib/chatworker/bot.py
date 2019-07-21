@@ -1,14 +1,13 @@
 from past.builtins import basestring
 import datetime
 import logging
-import re
 import ssl
 import threading
 
 from django.core.mail import EmailMessage
-from raven.processors import Processor
 from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import cert
+import sentry_sdk
 
 from gchatautorespond.lib import report_ga_event_async
 from gchatautorespond.lib.chatworker.throttle import MemoryThrottler
@@ -40,37 +39,6 @@ class ContextFilter(logging.Filter):
                 record.tags[param] = val
 
         return True
-
-
-class ContextProcessor(Processor):
-    """Remove the prepended context bits from messages going to sentry, since it prevents aggregation.
-
-    Sentry gets this information from the tags instead.
-    """
-
-    patterns = [re.compile(r"\[%s=\d\d*\] " % param) for param in ('log_id', 'bot_id')]
-
-    @classmethod
-    def sub(cls, s):
-        r = s
-        for p in cls.patterns:
-            r = re.sub(p, '', r)
-        return r
-
-    @classmethod
-    def get_data(cls, data, **kwargs):
-
-        if 'message' in data:
-            data['message'] = cls.sub(data['message'])
-
-        if 'sentry.interfaces.Message' in data:
-            imes = data['sentry.interfaces.Message']
-            if 'message' in imes:
-                imes['message'] = cls.sub(imes['message'])
-            if 'formatted' in imes:
-                imes['formatted'] = cls.sub(imes['formatted'])
-
-        return data
 
 
 class GChatBot(ClientXMPP):
@@ -378,12 +346,12 @@ class AutoRespondBot(GChatBot):
         body_paragraphs = ["gchat.simon.codes just received a message from %s." % from_identifier]
 
         if message is not None:
-            body_paragraphs.append("The message was: \"%s\"." % message.encode('utf-8'))
+            body_paragraphs.append("The message was: \"%s\"." % message)
         else:
             body_paragraphs.append("Due to a bug on Google's end, we didn't receive a message body.")
 
         if did_reply:
-            body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response.encode('utf-8'))
+            body_paragraphs.append("We replied with your autoresponse: \"%s\"." % self.response)
             subject = 'gchat.simon.codes sent an autoresponse'
         else:
             body_paragraphs.append("We did not reply because you've disabled responses for this or all contacts.")

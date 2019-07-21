@@ -5,7 +5,7 @@ import logging
 
 from django.conf import settings
 import requests
-from raven.contrib.django.raven_compat.models import client as raven_client
+import sentry_sdk
 
 from gchatautorespond.apps.autorespond.models import AutoResponse
 
@@ -23,5 +23,6 @@ if __name__ == '__main__':
                 autorespond.admin_disabled = False
                 autorespond.save()
                 requests.post("http://127.0.0.1:%s/%s/%s" % (settings.WORKER_PORT, 'restart', autorespond.id))
-    except:
-        raven_client.captureException()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise

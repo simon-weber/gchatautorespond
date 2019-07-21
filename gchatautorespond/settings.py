@@ -1,9 +1,15 @@
 import base64
 import datetime
+import logging
 import os
 import pickle
+import re
 
 import braintree
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS_DIR = os.path.join(BASE_DIR, 'secrets')
@@ -90,7 +96,6 @@ INSTALLED_APPS = (
 
     'djmail',
     'registration',
-    'raven.contrib.django.raven_compat',
     'bootstrap3',
 )
 
@@ -128,7 +133,7 @@ WSGI_APPLICATION = 'gchatautorespond.wsgi.application'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'simple': {
             'format': '%(levelname)s: %(asctime)s - %(name)s: %(message)s'
@@ -146,31 +151,27 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'withfile',
         },
-        'sentry': {
-            'level': 'WARNING',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
     },
     'loggers': {
-        '': {
-            'level': 'WARNING',
-            'handlers': ['sentry'],
-        },
         'django': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
         },
         'sleekxmpp': {
             'handlers': ['console_simple'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'propagate': False,
         },
         'gchatautorespond': {
             'handlers': ['console_verbose'],
             'level': 'INFO',
+            'propagate': False,
         },
     },
 }
@@ -224,13 +225,33 @@ ACCOUNT_ACTIVATION_DAYS = 1
 
 
 # Sentry
-RAVEN_CONFIG = {
-    'dsn': get_secret('raven.dsn'),
-    'release': RELEASE,
-    'processors': [
-        'gchatautorespond.lib.chatworker.bot.ContextProcessor',
+_patterns = [re.compile(r"\[%s=\d\d*\] " % param) for param in ('log_id', 'bot_id')]
+def _sub(s):
+    r = s
+    for p in _patterns:
+        r = re.sub(p, '', r)
+    return r
+def _before_send(event, hint):
+    message = event.get('logentry', {}).get('message')
+    if message:
+        event['logentry']['message'] = _sub(message)
+
+    return event
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,
+    event_level=logging.WARNING,
+)
+sentry_sdk.init(
+    before_send=_before_send,
+    dsn=get_secret('sentry.dsn'),
+    release=RELEASE,
+    integrations=[
+        DjangoIntegration(),
+        FlaskIntegration(),
+        sentry_logging,
     ],
-}
+)
 
 BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-3',

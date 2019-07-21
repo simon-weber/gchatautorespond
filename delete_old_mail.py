@@ -6,7 +6,7 @@ import logging
 
 from djmail.models import Message
 from django.core.mail import mail_admins
-from raven.contrib.django.raven_compat.models import client as raven_client
+import sentry_sdk
 
 OLD_CUTOFF = datetime.timedelta(days=30)
 
@@ -29,5 +29,6 @@ if __name__ == '__main__':
         logger.info("deleting %s old messages", old_messages.count())
         old_messages.delete()
         logger.info("done")
-    except:
-        raven_client.captureException()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise

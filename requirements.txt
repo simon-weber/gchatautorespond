@@ -4,14 +4,13 @@
 #
 #    pip-compile requirements.in
 #
-blinker==1.4              # via raven
+blinker==1.4              # via sentry-sdk
 boto3==1.9.190            # via django-amazon-ses
 botocore==1.12.190        # via boto3, s3transfer
 braintree==3.29.2
-certifi==2018.10.15       # via requests
+certifi==2018.10.15       # via requests, sentry-sdk
 chardet==3.0.4            # via requests
 click==6.6                # via flask
-contextlib2==0.5.4        # via raven
 django-amazon-ses==2.1.1
 django-bootstrap3==9.0.0
 django-registration-redux==1.9
@@ -42,12 +41,12 @@ pyasn1-modules==0.0.8     # via oauth2client
 pyasn1==0.1.9             # via oauth2client, pyasn1-modules, rsa
 python-dateutil==2.8.0    # via botocore
 pytz==2018.9              # via django
-raven[flask]==5.26.0
 requests==2.20.1
 rsa==3.4.2                # via oauth2client
 s3transfer==0.2.1         # via boto3
+sentry-sdk[flask]==0.10.2
 six==1.10.0               # via google-api-python-client, oauth2client, python-dateutil
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
 uritemplate==3.0.0        # via google-api-python-client
-urllib3==1.24.1           # via botocore, requests
+urllib3==1.24.1           # via botocore, requests, sentry-sdk
 werkzeug==0.11.11         # via flask

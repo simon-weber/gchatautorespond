@@ -5,7 +5,6 @@ import datetime
 import logging
 
 import braintree
-from raven.contrib.django.raven_compat.models import client as raven_client
 
 from gchatautorespond.apps.licensing.lib import (
     sync_license,
@@ -34,5 +33,6 @@ if __name__ == '__main__':
                 # the license, but this case should be pretty rare.
                 notify_of_trial_expiry(license.user)
                 transition_license(license, {'notified_trial_expiry': True})
-    except:
-        raven_client.captureException()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise

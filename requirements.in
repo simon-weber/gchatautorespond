@@ -16,6 +16,6 @@ gunicorn[gevent]
 jsonpickle  # https://github.com/googleapis/oauth2client/issues/681
 newrelic
 oauth2client
-raven[flask]
+sentry-sdk[flask]
 requests
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1

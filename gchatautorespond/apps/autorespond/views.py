@@ -251,7 +251,7 @@ def auth_view(request):
 def auth_return_view(request):
     """Receive a successful oauth flow."""
 
-    token = smart_str(request.GET['state'])
+    token = str(request.GET['state']).encode()
     if not xsrfutil.validate_token(settings.SECRET_KEY, token, request.user):
         return HttpResponseBadRequest('Improper OAuth request.')
 
