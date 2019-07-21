@@ -1,5 +1,0 @@
----
-
-- include: backup.yml
-  when: backup_enabled
-  tags: [backup]

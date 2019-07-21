@@ -1,5 +1,0 @@
-# file: python/tasks/main.yml
-
-- include: package.yml
-- include: pip.yml
-- include: virtualenv.yml

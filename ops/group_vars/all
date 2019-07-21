@@ -1,5 +1,0 @@
-approot: "/opt/gchat"
-appdir: "/opt/gchat/code"
-venv: "{{ approot }}/venv"
-assetdir: "{{ approot }}/assets"
-deploydir: "{{ approot }}/deploy"
