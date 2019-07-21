@@ -215,6 +215,7 @@ in let
       git  # for vcs pip support
       sqlite
       duplicity
+      htop
       vim
       (python27.withPackages(ps: with ps; [ virtualenv pip ]))
     ];
