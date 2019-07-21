@@ -1,11 +1,34 @@
+import base64
+import pickle
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import encoding
 
+import jsonpickle
+import oauth2client
 from oauth2client.contrib.django_util.models import CredentialsField
 
 
+class CompatCredentialsField(CredentialsField):
+    def to_python(self, value):
+        """Allow python2 pickles to be decoded (assuming latin-1 is valid, which it was in my sample)."""
+
+        if value is None:
+            return None
+        elif isinstance(value, oauth2client.client.Credentials):
+            return value
+        else:
+            try:
+                return jsonpickle.decode(
+                    base64.b64decode(encoding.smart_bytes(value)).decode())
+            except ValueError:
+                return pickle.loads(
+                    base64.b64decode(encoding.smart_bytes(value)), encoding="latin-1")
+
+
 class GoogleCredential(models.Model):
-    credentials = CredentialsField()
+    credentials = CompatCredentialsField()
     user = models.ForeignKey(User)
     email = models.EmailField(unique=True)
 

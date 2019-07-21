@@ -93,7 +93,7 @@ in let
       description = "gchatautorespond web";
       after = [ "network-online.target" ];
       wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -110,7 +110,7 @@ in let
       description = "gchatautorespond chatworker";
       after = [ "network-online.target" ];
       wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -127,7 +127,7 @@ in let
       description = "gchatautorespond testworker";
       after = [ "network-online.target" ];
       wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -143,7 +143,7 @@ in let
       enable = true;
       description = "gchatautorespond delete old emails";
       startAt = "daily";
-      path = [ pkgs.python27 pkgs.bash pkgs.sqlite ];
+      path = [ pkgs.python37 pkgs.bash pkgs.sqlite ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -160,7 +160,7 @@ in let
       enable = true;
       description = "gchatautorespond reenable bots";
       startAt = "hourly";
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -175,7 +175,7 @@ in let
       enable = true;
       description = "gchatautorespond sync licenses";
       startAt = "*-*-* 11:00:00";  # mornings eastern
-      path = [ pkgs.python27 pkgs.bash ];
+      path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
       };
@@ -217,7 +217,7 @@ in let
       duplicity
       htop
       vim
-      (python27.withPackages(ps: with ps; [ virtualenv pip ]))
+      (python37.withPackages(ps: with ps; [ virtualenv pip ]))
     ];
   };
 in {

@@ -31,18 +31,18 @@
         name: pip
         virtualenv: "{{ venv }}"
 
-    - name: stat py27 dir
-      stat: path={{ venv }}/lib/python2.7
+    - name: stat py37 dir
+      stat: path={{ venv }}/lib/python3.7
       register: p
     
     - name: ensure py dir
-      fail: msg="py2k dir doesn't exist"
+      fail: msg="py3k dir doesn't exist"
       when: not p.stat.isdir
 
     - name: allow manylinux wheels
       copy:
         content: "manylinux1_compatible = True"
-        dest: "{{ venv }}/lib/python2.7/_manylinux.py"
+        dest: "{{ venv }}/lib/python3.7/_manylinux.py"
 
     - name: create venv exec script
       template: src=venv_exec.j2 dest={{ venv }}/exec mode=755

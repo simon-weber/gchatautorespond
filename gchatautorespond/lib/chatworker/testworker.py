@@ -25,6 +25,8 @@ class TestWorker:
                '\nIf you did not request one, email support@gchat.simon.codes for help.')
 
     def __init__(self, raw_credentials):
+        print(raw_credentials)
+        print(raw_credentials.__dict__)
         self.raw_credentials = raw_credentials
 
     def start(self):

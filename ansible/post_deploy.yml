@@ -31,7 +31,7 @@
         from django.contrib.auth import get_user_model;
         User = get_user_model();
         sus = User.objects.filter(is_superuser=True);
-        print any([su for su in sus if su.username == '{{ DJ_SUPERUSER }}'])"
+        print(any([su for su in sus if su.username == '{{ DJ_SUPERUSER }}']))"
         | {{ venv }}/exec python manage.py shell
       args:
           chdir: "{{ appdir }}"
@@ -43,7 +43,7 @@
         echo "from django.db import DEFAULT_DB_ALIAS as database;
         from django.contrib.auth import get_user_model;
         User = get_user_model();
-        print User.objects.db_manager(database).create_superuser('{{ DJ_SUPERUSER }}', '{{ DJ_SUPERUSER_EMAIL }}', '{{ DJ_SUPERUSER_PASSWORD }}')"
+        print(User.objects.db_manager(database).create_superuser('{{ DJ_SUPERUSER }}', '{{ DJ_SUPERUSER_EMAIL }}', '{{ DJ_SUPERUSER_PASSWORD }}'))"
         | {{ venv }}/exec python manage.py shell
       args:
           chdir: "{{ appdir }}"

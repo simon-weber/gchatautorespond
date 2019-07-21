@@ -41,8 +41,7 @@ OAUTH_REDIRECT_URI = "%s%s/%s" % (SCHEME, HOST, 'autorespond/oauth2callback/')
 try:
     TEST_CREDENTIALS = pickle.loads(base64.b64decode(get_secret('test_account.credentialrow')))
 except:
-    import warnings
-    warnings.warn('test worker credentials unavailable')
+    logging.warning("test worker credentials unavailable", exc_info=True)
     TEST_CREDENTIALS = None
 
 
