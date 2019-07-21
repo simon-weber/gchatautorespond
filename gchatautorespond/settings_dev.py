@@ -24,18 +24,15 @@ OAUTH_REDIRECT_URI = "%s%s:%s/%s" % (SCHEME, HOST, PORT, 'autorespond/oauth2call
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'gchat_db.sqlite3')
+if os.environ.get('IN_CODE_DB', 'false') == 'true':
+    # expected to be true when run outside a vm
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'gchatautorespond_db.sqlite3')
+        }
     }
-}
 
 DJMAIL_REAL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 RAVEN_CONFIG.pop('dsn')
-
-# serve static files without nginx in dev
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'assets'),
-)

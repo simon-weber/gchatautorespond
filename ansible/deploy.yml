@@ -1,0 +1,106 @@
+---
+
+- hosts: deploytargets
+  tasks:
+    - name: create writeable app dirs
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: "{{ appgroup }}"
+        mode: 0770
+      with_items:
+        - "{{ approot }}"
+
+    - name: create readable app dirs
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: "{{ appgroup }}"
+        mode: 0750
+      with_items:
+        - "{{ appdir }}"
+        - "{{ venv }}"
+        - "{{ assetdir }}"
+        - "{{ deploydir }}"
+
+    # this only creates the venv and doesn't install packages; pip is passed as a noop
+    - name: create venv
+      pip:
+        name: pip
+        virtualenv: "{{ venv }}"
+
+    - name: stat py27 dir
+      stat: path={{ venv }}/lib/python2.7
+      register: p
+    
+    - name: ensure py dir
+      fail: msg="py2k dir doesn't exist"
+      when: not p.stat.isdir
+
+    - name: allow manylinux wheels
+      copy:
+        content: "manylinux1_compatible = True"
+        dest: "{{ venv }}/lib/python2.7/_manylinux.py"
+
+    - name: create venv exec script
+      template: src=venv_exec.j2 dest={{ venv }}/exec mode=755
+
+    - name: create stash to archive working copy
+      local_action: command git stash create
+      args:
+        chdir: ..
+      run_once: true
+      register: stash
+
+    - name: expand ref
+      local_action: command git rev-parse --verify {{ stash.stdout | default("HEAD", true) }}
+      args:
+        chdir: ..
+      run_once: true
+      register: revparse
+
+    - name: create git archive
+      local_action: command git archive {{ revparse.stdout }} -o ansible/{{ revparse.stdout }}.tar
+      args:
+        chdir: ..
+      run_once: true
+
+    - name: push deploy tar
+      copy: src={{revparse.stdout}}.tar dest={{ deploydir }}/{{revparse.stdout}}.tar
+
+    - name: remove old code
+      command: find {{ appdir }} -mindepth 1 -delete
+
+    - name: stop app services
+      systemd:
+        state: stopped
+        name: "{{ item }}"
+      with_items:
+        - "gchatautorespond-web"
+        - "gchatautorespond-chatworker"
+        - "gchatautorespond-testworker"
+
+    - name: unpack new code
+      unarchive:
+         copy: no
+         src: "{{ deploydir }}/{{ revparse.stdout }}.tar"
+         dest: "{{ appdir }}"
+
+    - name: add release file
+      shell: "echo {{ revparse.stdout }} > {{ appdir }}/release.sha"
+
+    - name: set app owner
+      shell: "chown -R root:{{ appgroup }} {{ approot }}"
+
+    - name: let app user read files
+      shell: "chmod -R g+rX {{ approot }}"
+
+    - name: let app user write db
+      shell: "chmod g+w {{ approot }}/{{ appname }}_db.sqlite3; chmod g+w {{ approot }}"
+
+    - name: disallow other users
+      shell: "chmod -R o-rwx {{ approot }}"
+
+- import_playbook: post_deploy.yml

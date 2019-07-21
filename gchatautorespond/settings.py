@@ -89,13 +89,12 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'djmail',
-    'djsupervisor',
     'registration',
     'raven.contrib.django.raven_compat',
     'bootstrap3',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -104,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'gchatautorespond.apps.autorespond.middleware.CacheDefaultOffMiddleware',
 )
 
 ROOT_URLCONF = 'gchatautorespond.urls'
@@ -126,7 +126,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gchatautorespond.wsgi.application'
 
-SUPERVISOR_LOG_DIR = '/var/log/supervisord'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -184,7 +183,7 @@ LOGGING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '..', 'gchat_db.sqlite3')
+        'NAME': os.path.join(BASE_DIR, '..', 'gchatautorespond_db.sqlite3')
     }
 }
 
@@ -216,8 +215,8 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-# nginx in prod
 STATIC_URL = '/assets/'
+STATIC_ROOT = os.path.join(BASE_DIR, '..', 'assets')
 
 
 # Django Registration

@@ -1,0 +1,75 @@
+---
+
+- hosts: deploytargets
+  vars_files:
+    - secrets.yml
+  environment:
+      DJANGO_SETTINGS_MODULE: "{{ DJANGO_SETTINGS_MODULE }}"
+  tasks:
+    - name: install app dependencies
+      command: "{{ venv }}/exec pip install -r {{ appdir }}/requirements.txt"
+      register: pip_result
+      changed_when: 'pip_result.stdout is defined and "Successfully installed" in pip_result.stdout'
+
+    - name: perform migrations
+      become: yes
+      become_user: "{{ appuser }}"
+      command: "{{ venv }}/exec python manage.py migrate --noinput"
+      args:
+          chdir: "{{ appdir }}"
+      register: migrate_result
+      changed_when: 'migrate_result.stdout is defined and "No migrations to apply." not in migrate_result.stdout'
+
+    - name: collectstatic
+      command: "{{ venv }}/exec python manage.py collectstatic -c --noinput"
+      args:
+          chdir: "{{ appdir }}"
+
+    - name: check for superuser
+      shell: >
+        echo "from django.db import DEFAULT_DB_ALIAS as database;
+        from django.contrib.auth import get_user_model;
+        User = get_user_model();
+        sus = User.objects.filter(is_superuser=True);
+        print any([su for su in sus if su.username == '{{ DJ_SUPERUSER }}'])"
+        | {{ venv }}/exec python manage.py shell
+      args:
+          chdir: "{{ appdir }}"
+      register: superuser_present
+      changed_when: False
+    
+    - name: create superuser if not present
+      shell: >
+        echo "from django.db import DEFAULT_DB_ALIAS as database;
+        from django.contrib.auth import get_user_model;
+        User = get_user_model();
+        print User.objects.db_manager(database).create_superuser('{{ DJ_SUPERUSER }}', '{{ DJ_SUPERUSER_EMAIL }}', '{{ DJ_SUPERUSER_PASSWORD }}')"
+        | {{ venv }}/exec python manage.py shell
+      args:
+          chdir: "{{ appdir }}"
+      when: not "True" in superuser_present.stdout
+
+  #    - name: set site details
+  #      shell: >
+  #        echo "from django.contrib.sites.models import Site;
+  #        s = Site.objects.get_current();
+  #        s.domain = 'www.plugserv.com';
+  #        s.name = 'plugserv';
+  #        s.save();
+  #        print Site.objects.get_current()"
+  #        | {{ venv }}/exec python manage.py shell
+  #      args:
+  #          chdir: "{{ appdir }}"
+
+    - name: start app services
+      systemd:
+        state: started
+        daemon_reload: yes
+        name: "{{ item }}"
+      with_items:
+        - "gchatautorespond-web"
+        - "gchatautorespond-chatworker"
+        - "gchatautorespond-testworker"
+
+    - name: clean up deploy tars
+      shell: "rm -rf {{ deploydir }}/*"

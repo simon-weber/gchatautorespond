@@ -30,22 +30,8 @@ Email notifications are not currently supported when self-hosting ([#7](https://
 
 ## project layout
 
+* ansible: deployments
 * gchatautorespond/apps/autorespond: main django app
 * gchatautorespond/lib/chatworker: manages chat bots
-* test: tests
-* ops: ansible config (3rd party roles vendorized)
+* nix: infra/config management
 * secrets: prod secrets (managed with transcypt)
-* assets: served with nginx (django locally)
-
-## development
-
-To create a new dev environment:
-
-* create a new virtualenv
-* `pip install -r test_requirements.txt`
-* `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev python manage.py migrate`
-
-Then:
-
-* run locally: `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev python manage.py supervisor`
-* run tests: `DJANGO_SETTINGS_MODULE=gchatautorespond.settings_dev ./manage.py test test/`

@@ -4,6 +4,8 @@ from apiclient.discovery import build
 from concurrent.futures import ThreadPoolExecutor
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
+from django.utils.decorators import method_decorator
 from django.db import IntegrityError
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
@@ -96,7 +98,7 @@ class AutoResponseFormSet(_AutoResponseFormSet):
         return form
 
 
-# These next three views are static and should be cached aggressively.
+@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
 class LoggedOutView(TemplateView):
     price = settings.PRICE_REPR
     trial_length = "%s day" % License.TRIAL_LENGTH.days
@@ -104,6 +106,7 @@ class LoggedOutView(TemplateView):
     template_name = 'logged_out.html'
 
 
+# TODO these shouldn't show the logged-in navbar so they can be cached
 class PrivacyView(TemplateView):
     template_name = 'privacy.html'
 
@@ -265,7 +268,8 @@ def auth_return_view(request):
         # we don't want to store reauths, since we'd clobber the refresh token.
         http = httplib2.Http()
         http = credential.authorize(http)
-        service = build("oauth2", "v2", http=http)
+        # https://github.com/googleapis/google-api-python-client/issues/299
+        service = build("oauth2", "v2", http=http, cache_discovery=False)
         res = service.userinfo().get().execute()
 
         email = res['email']

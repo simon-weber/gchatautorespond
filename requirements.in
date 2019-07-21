@@ -3,7 +3,6 @@ Django
 django-amazon-ses
 django-bootstrap3
 django-registration-redux
-git+git://github.com/simon-weber/django-supervisor.git@0.5.0dev0#egg=django-supervisor==0.5.0dev0
 djmail
 dnspython  # optional requirement for sleekxmpp
 docopt
@@ -14,10 +13,9 @@ gevent
 google-api-python-client
 google-measurement-protocol
 gunicorn
+jsonpickle  # https://github.com/googleapis/oauth2client/issues/681
 newrelic
 oauth2client
 raven[flask]
 requests
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
-supervisor
-git+https://github.com/venmo/pip-tools.git@1.7.1a1#egg=pip-tools==1.7.1a1
