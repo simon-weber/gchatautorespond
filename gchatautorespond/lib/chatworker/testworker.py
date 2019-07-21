@@ -1,4 +1,4 @@
-import httplib
+import http.client
 import logging
 
 from flask import Flask
@@ -15,10 +15,10 @@ app = Flask(__name__)
 @app.route('/message/<email>', methods=['POST'])
 def message(email):
     app.config['worker'].send_to(email)
-    return ('', httplib.NO_CONTENT)
+    return ('', http.client.NO_CONTENT)
 
 
-class TestWorker(object):
+class TestWorker:
     """A TestWorker runs a bot that can send messages to other bots."""
 
     message = ('Hello! This is your Autoresponder test message.'

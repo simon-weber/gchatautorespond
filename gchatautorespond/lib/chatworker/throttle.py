@@ -8,7 +8,7 @@ from gchatautorespond.apps.autorespond.models import LastResponse
 logger = logging.getLogger(__name__)
 
 
-class Throttler(object):
+class Throttler:
     def __init__(self, throttle_delta):
         self.throttle_delta = throttle_delta
 

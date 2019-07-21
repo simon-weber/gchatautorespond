@@ -1,3 +1,4 @@
+from past.builtins import basestring
 import datetime
 import logging
 import re

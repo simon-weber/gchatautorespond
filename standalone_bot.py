@@ -16,6 +16,7 @@ Options:
 """
 from __future__ import print_function
 
+from builtins import input
 import os
 
 from docopt import docopt
@@ -111,7 +112,7 @@ def perform_oauth():
     print()
     print("Visit the following url:\n %s" % auth_uri)
 
-    code = raw_input("Follow the prompts, then paste the auth code here and hit enter: ")
+    code = input("Follow the prompts, then paste the auth code here and hit enter: ")
 
     credentials = flow.step2_exchange(code)
 

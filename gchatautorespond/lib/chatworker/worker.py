@@ -1,7 +1,7 @@
 from collections import deque, defaultdict
 import datetime
 import functools
-import httplib
+import http.client
 import logging
 import subprocess
 
@@ -30,7 +30,7 @@ def stop(autorespond_id):
     ContextFilter.context.log_id = autorespond_id
     bot = app.config['worker'].stop(autorespond_id)
     if bot is None:
-        return ('', httplib.NOT_FOUND)
+        return ('', http.client.NOT_FOUND)
 
     return jsonify({
         'bot_id': bot.bot_id,
@@ -51,7 +51,7 @@ def restart(autorespond_id):
     })
 
 
-class Worker(object):
+class Worker:
     """A Worker maintains multiple Bots.
 
     Typical usage::
@@ -94,7 +94,7 @@ class Worker(object):
         return {'status': status,
                 'num_bots': len(self.autoresponds),
                 'max_disk_percent': max_percent,
-                'bots': self.autoresponds.keys(),
+                'bots': list(self.autoresponds.keys()),
                 }
 
     def start(self, autorespond):
