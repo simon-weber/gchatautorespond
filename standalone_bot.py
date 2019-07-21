@@ -14,6 +14,7 @@ Usage:
 Options:
   -h --help     Show this screen.
 """
+from __future__ import print_function
 
 import os
 
@@ -107,8 +108,8 @@ def perform_oauth():
     )
 
     auth_uri = flow.step1_get_authorize_url()
-    print
-    print "Visit the following url:\n %s" % auth_uri
+    print()
+    print("Visit the following url:\n %s" % auth_uri)
 
     code = raw_input("Follow the prompts, then paste the auth code here and hit enter: ")
 

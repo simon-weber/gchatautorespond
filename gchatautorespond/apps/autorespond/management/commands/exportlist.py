@@ -1,3 +1,4 @@
+from __future__ import print_function
 import datetime
 
 from django.db.models import Q
@@ -26,4 +27,4 @@ class Command(BaseCommand):
                 emails.add(currentlicense.license.user.email)
 
         for email in emails:
-            print email
+            print(email)
