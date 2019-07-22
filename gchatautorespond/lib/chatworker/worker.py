@@ -48,7 +48,7 @@ def restart(autorespond_id):
     new_bot = app.config['worker'].start(autorespond)
 
     return jsonify({
-        'old_bot_id': old_bot.bot_id,
+        'old_bot_id': (old_bot.bot_id if old_bot else None),
         'new_bot_id': new_bot.bot_id,
     })
 
