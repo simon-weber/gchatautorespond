@@ -14,7 +14,6 @@ google-api-python-client
 google-measurement-protocol==0.1.6
 gunicorn[gevent]
 jsonpickle  # https://github.com/googleapis/oauth2client/issues/681
-newrelic
 oauth2client
 sentry-sdk[flask]
 requests

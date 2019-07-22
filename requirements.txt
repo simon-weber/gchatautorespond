@@ -20,7 +20,7 @@ dnspython==1.14.0
 docopt==0.6.2
 docutils==0.14            # via botocore
 enum34==1.1.6
-flask==0.12.3
+flask==1.1.1
 future==0.17.1
 futures==3.0.5
 gevent==1.4.0             # via gunicorn
@@ -35,7 +35,6 @@ jinja2==2.10.1            # via flask
 jmespath==0.9.4           # via boto3, botocore
 jsonpickle==1.2
 markupsafe==0.23          # via jinja2
-newrelic==2.70.0.51
 oauth2client==4.1.0
 pyasn1-modules==0.0.8     # via oauth2client
 pyasn1==0.1.9             # via oauth2client, pyasn1-modules, rsa
@@ -49,4 +48,4 @@ six==1.10.0               # via google-api-python-client, oauth2client, python-d
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
 uritemplate==3.0.0        # via google-api-python-client
 urllib3==1.24.1           # via botocore, requests, sentry-sdk
-werkzeug==0.11.11         # via flask
+werkzeug==0.15.5          # via flask
