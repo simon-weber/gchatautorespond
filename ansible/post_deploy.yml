@@ -6,10 +6,15 @@
   environment:
       DJANGO_SETTINGS_MODULE: "{{ DJANGO_SETTINGS_MODULE }}"
   tasks:
-    - name: install app dependencies
-      command: "{{ venv }}/exec pip install -r {{ appdir }}/requirements.txt"
+    - name: bootstrap pip-tools
+      command: "{{ venv }}/exec pip install pip-tools"
       register: pip_result
       changed_when: 'pip_result.stdout is defined and "Successfully installed" in pip_result.stdout'
+
+    - name: install app dependencies
+      command: "{{ venv }}/exec pip-sync {{ appdir }}/requirements.txt"
+      register: piptools_result
+      changed_when: 'piptools_result.stdout is defined and "Everything up-to-date" not in piptools_result.stdout'
 
     - name: perform migrations
       become: yes

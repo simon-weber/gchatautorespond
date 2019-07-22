@@ -15,6 +15,7 @@ google-measurement-protocol==0.1.6
 gunicorn[gevent]
 jsonpickle  # https://github.com/googleapis/oauth2client/issues/681
 oauth2client
+pip-tools
 sentry-sdk[flask]
 requests
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
