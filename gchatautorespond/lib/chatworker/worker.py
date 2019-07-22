@@ -85,7 +85,7 @@ class Worker:
         status = 'ok' if num_bots > 0 else 'idle'
 
         # Shockingly, NR can't report disk usage of virtual volumes.
-        df_output = subprocess.check_output(['df'])
+        df_output = subprocess.check_output(['df']).decode('utf-8')
         df_percents = [int(line.split()[4].rstrip('%')) for line in df_output.split('\n')[1:] if line]
         max_percent = max(df_percents)
         if max_percent > 75:
