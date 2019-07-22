@@ -15,6 +15,8 @@ from .throttle import DbThrottler
 
 logger = logging.getLogger(__name__)
 
+MAX_THROTTLE_MINS = 32000
+
 # This app provides an api to the Worker.
 app = Flask(__name__)
 
@@ -134,7 +136,7 @@ class Worker:
             autorespond.response,
             autorespond.email_notifications,
             notify_email,
-            DbThrottler(autorespond.id, datetime.timedelta(minutes=autorespond.throttle_mins)),
+            DbThrottler(autorespond.id, datetime.timedelta(minutes=min(autorespond.throttle_mins, MAX_THROTTLE_MINS))),
             autorespond.status_detection,
             excluded_names,
             notify_overrides,
