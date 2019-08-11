@@ -71,6 +71,7 @@ in let
     };
     services.duplicity = {
       enable = true;
+      frequency = "*-*-* 00,12:00:00";
       root = "/tmp/db.backup";
       targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db1";
       secretFile = pkgs.writeText "dupl.env" ''
