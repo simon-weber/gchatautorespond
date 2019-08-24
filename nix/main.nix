@@ -71,7 +71,7 @@ in let
     };
     services.duplicity = {
       enable = true;
-      frequency = "*-*-* 00,12:00:00";
+      frequency = "*-*-* 00,12:30:00";
       root = "/tmp/db.backup";
       targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db1";
       secretFile = pkgs.writeText "dupl.env" ''
@@ -143,7 +143,7 @@ in let
     systemd.services.gchatautorespond-delete_old_emails = {
       enable = true;
       description = "gchatautorespond delete old emails";
-      startAt = "daily";
+      startAt = "*-*-* 07:30:00";  # early mornings eastern
       path = [ pkgs.python37 pkgs.bash pkgs.sqlite ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
@@ -175,7 +175,7 @@ in let
     systemd.services.gchatautorespond-sync_licenses = {
       enable = true;
       description = "gchatautorespond sync licenses";
-      startAt = "*-*-* 11:00:00";  # mornings eastern
+      startAt = "*-*-* 11:30:00";  # mornings eastern
       path = [ pkgs.python37 pkgs.bash ];
       environment = {
         DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
