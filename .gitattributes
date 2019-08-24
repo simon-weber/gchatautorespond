@@ -2,4 +2,4 @@ secrets/*  filter=crypt diff=crypt
 ansible/secrets.yml  filter=crypt diff=crypt
 
 # exempt the secrets readme
-secrets/README.md
+secrets/README.md !filter !diff
