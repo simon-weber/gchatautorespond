@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load bootstrap3 %}
 {% block content %}
+    <script src="https://browser.sentry-cdn.com/5.9.1/bundle.min.js" integrity="sha384-/x1aHz0nKRd6zVUazsV6CbQvjJvr6zQL2CHbQZf3yoLkezyEtZUpqUNnOLW9Nt3v" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript">
+        Sentry.init({ dsn: 'https://bb7d4f2fe565430bb52204c1aeb0df3b@sentry.io/1835509' });
+    </script>
+
     <div id="details">
         <h3>payment details:</h3>
         {% if admin_override == 'EN' %}
@@ -35,23 +41,48 @@
         <br/>
         Upon starting a subscription, a receipt will automatically be sent to your account email.
         {% endif %}
+
+        <br/>
         <form class="form-horizontal" id="card-form" method="post" action=".">
             {% csrf_token %}
             Your payment details are stored securely by
             <a href="https://www.braintreepayments.com/" target="_blank" rel="noopener noreferrer">Braintree</a> (a PayPal company).
+            <br/>
+            <br/>
             <div id="dropin-container"></div>
         </form>
 
-        <script src="https://js.braintreegateway.com/js/braintree-2.28.0.min.js"></script>
+        <script src="https://js.braintreegateway.com/web/dropin/1.20.4/js/dropin.min.js"></script>
         <script type="text/javascript">
-            braintree.setup('{{ client_token }}', 'dropin', {
-                container: 'dropin-container',
-                defaultFirst: true,
-            });
             var submit = document.createElement('input');
-            submit.type='submit';
+            submit.type='button';
             submit.className='btn btn-default'
             submit.value='{{ has_valid_subscription |yesno:"save changes,begin subscription" }}';
+
+            braintree.dropin.create(
+                {authorization: '{{ client_token }}',
+                container: '#dropin-container'
+            }, function (createErr, instance) {
+                submit.addEventListener('click', function () {
+                    instance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+                        if (requestPaymentMethodErr) {
+                            console.log(requestPaymentMethodErr);
+                            Sentry.configureScope(function(scope) {
+                                scope.setExtra("details", requestPaymentMethodErr);
+                                Sentry.captureException(requestPaymentMethodErr);
+                            });
+                        } else {
+                            var nonceInput = document.createElement("input");
+                            nonceInput.type = 'hidden';
+                            nonceInput.value = payload.nonce;
+                            nonceInput.name = "payment_method_nonce";
+                            var cardForm = document.getElementById('card-form');
+                            cardForm.appendChild(nonceInput);
+                            cardForm.submit();
+                        }
+                    });
+                });
+            });
             document.getElementById('card-form').appendChild(submit);
         </script>
         <noscript>
