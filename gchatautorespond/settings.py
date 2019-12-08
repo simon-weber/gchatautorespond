@@ -10,6 +10,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.utils import BadDsn
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS_DIR = os.path.join(BASE_DIR, 'secrets')
@@ -241,16 +242,20 @@ sentry_logging = LoggingIntegration(
     level=logging.INFO,
     event_level=logging.WARNING,
 )
-sentry_sdk.init(
-    before_send=_before_send,
-    dsn=get_secret('sentry.dsn'),
-    release=RELEASE,
-    integrations=[
-        DjangoIntegration(),
-        FlaskIntegration(),
-        sentry_logging,
-    ],
-)
+try:
+    sentry_sdk.init(
+        before_send=_before_send,
+        dsn=get_secret('sentry.dsn'),
+        release=RELEASE,
+        integrations=[
+            DjangoIntegration(),
+            FlaskIntegration(),
+            sentry_logging,
+        ],
+    )
+except BadDsn:
+    logging.warning("sentry unavailable", exc_info=True)
+
 
 BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-3',
