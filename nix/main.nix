@@ -1,5 +1,4 @@
 let
-  pydrive = pkgs: import ./pydrive.nix {inherit pkgs;};
   duplKey = builtins.readFile ../secrets/pydriveprivatekey.pem;
   dbPath = "/opt/gchatautorespond/gchatautorespond_db.sqlite3";
   # this includes the process output + systemd context (eg "starting foo..." messages)
@@ -205,7 +204,6 @@ in let
     };
     nixpkgs.overlays = [ (self: super: {
       duplicity = super.duplicity.overrideAttrs (oldAttrs: { 
-        propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [ (pydrive pkgs).packages.PyDrive ];
         doCheck = false;
         doInstallCheck = false;
       });
