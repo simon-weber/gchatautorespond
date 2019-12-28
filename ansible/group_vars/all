@@ -1,9 +1,9 @@
 appname: gchatautorespond
 approot: "/opt/{{ appname }}"
-appdir: "{{ approot }}/code"
-venv: "{{ approot }}/venv"
 assetdir: "{{ approot }}/assets"
-deploydir: "{{ approot }}/deploy"
 appuser: "{{ appname }}"
 appgroup: "{{ appname }}"
 DJANGO_SETTINGS_MODULE: "gchatautorespond.settings"
+dockerargs: "--network=host -v /opt/{{ appname }}:/opt/{{ appname }}"
+gitlab_reg: "registry.gitlab.com"
+gitlab_repo: "{{ gitlab_reg }}/simon-weber/docker"

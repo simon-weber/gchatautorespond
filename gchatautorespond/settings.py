@@ -30,6 +30,9 @@ SEND_GA_EVENTS = True
 SCHEME = 'https://'
 HOST = 'gchat.simon.codes'
 ALLOWED_HOSTS = [HOST]
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 PORT = 8000
 WORKER_PORT = 50001
 TESTWORKER_PORT = 50002
@@ -184,7 +187,7 @@ LOGGING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '..', 'gchatautorespond_db.sqlite3')
+        'NAME': '/opt/gchatautorespond/gchatautorespond_db.sqlite3',
     }
 }
 
@@ -217,7 +220,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/assets/'
-STATIC_ROOT = os.path.join(BASE_DIR, '..', 'assets')
+STATIC_ROOT = '/opt/gchatautorespond/assets'
 
 
 # Django Registration

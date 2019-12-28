@@ -1,7 +1,12 @@
 ---
 
 - hosts: deploytargets
+  vars_files:
+    - secrets.yml
   tasks:
+    - name: auth remote docker
+      command: docker login {{ gitlab_reg }} -u {{ gitlab_reg_user }} -p {{ gitlab_reg_password }}
+
     - name: create writeable app dirs
       file:
         path: "{{ item }}"
@@ -20,32 +25,7 @@
         group: "{{ appgroup }}"
         mode: 0750
       with_items:
-        - "{{ appdir }}"
-        - "{{ venv }}"
         - "{{ assetdir }}"
-        - "{{ deploydir }}"
-
-    # this only creates the venv and doesn't install packages; pip is passed as a noop
-    - name: create venv
-      pip:
-        name: pip
-        virtualenv: "{{ venv }}"
-
-    - name: stat py37 dir
-      stat: path={{ venv }}/lib/python3.7
-      register: p
-    
-    - name: ensure py dir
-      fail: msg="py3k dir doesn't exist"
-      when: not p.stat.isdir
-
-    - name: allow manylinux wheels
-      copy:
-        content: "manylinux1_compatible = True"
-        dest: "{{ venv }}/lib/python3.7/_manylinux.py"
-
-    - name: create venv exec script
-      template: src=venv_exec.j2 dest={{ venv }}/exec mode=755
 
     - name: create stash to archive working copy
       local_action: command git stash create
@@ -62,34 +42,26 @@
       register: revparse
 
     - name: create git archive
-      local_action: command git archive {{ revparse.stdout }} -o ansible/{{ revparse.stdout }}.tar
+      local_action: command git archive {{ revparse.stdout }} -o docker-archive.tar
       args:
         chdir: ..
       run_once: true
 
-    - name: push deploy tar
-      copy: src={{revparse.stdout}}.tar dest={{ deploydir }}/{{revparse.stdout}}.tar
+    - name: build image
+      local_action: command docker build -t {{ appname }}:staging -t {{ appname }}:{{ revparse.stdout }} -t {{ gitlab_repo }}/{{ appname }}:staging .
+      args:
+        chdir: ..
+      run_once: true
 
-    - name: remove old code
-      command: find {{ appdir }} -mindepth 1 -delete
+    - name: push image
+      local_action: command docker push {{ gitlab_repo }}/{{ appname }}:staging
+      run_once: true
 
-    - name: stop app services
-      systemd:
-        state: stopped
-        name: "{{ item }}"
-      with_items:
-        - "gchatautorespond-web"
-        - "gchatautorespond-chatworker"
-        - "gchatautorespond-testworker"
+    - name: pull image
+      command: docker pull {{ gitlab_repo }}/{{ appname }}:staging
 
-    - name: unpack new code
-      unarchive:
-         copy: no
-         src: "{{ deploydir }}/{{ revparse.stdout }}.tar"
-         dest: "{{ appdir }}"
-
-    - name: add release file
-      shell: "echo {{ revparse.stdout }} > {{ appdir }}/release.sha"
+    - name: tag remote image
+      command: docker tag {{ gitlab_repo }}/{{ appname }}:staging {{ appname }}:staging
 
     - name: set app owner
       shell: "chown -R root:{{ appgroup }} {{ approot }}"

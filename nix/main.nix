@@ -16,6 +16,81 @@ let
   ]));
 in let
   genericConf = { config, pkgs, lib, ... }: {
+
+    virtualisation.docker = {
+      enable = true;
+      logDriver = "journald";
+    };
+    docker-containers.gchatautorespond-web = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+    };
+
+    docker-containers.gchatautorespond-chatworker = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+      entrypoint = "python";
+      cmd = [ "run_worker.py" ];
+    };
+
+    docker-containers.gchatautorespond-testworker = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+      entrypoint = "python";
+      cmd = [ "run_testworker.py" ];
+    };
+
+    docker-containers.gchatautorespond-delete_old_mails = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+      entrypoint = "python";
+      cmd = [ "delete_old_mail.py" ];
+    };
+    systemd.services.docker-gchatautorespond-delete_old_mails = {
+      startAt = "*-*-* 07:30:00";  # early mornings eastern
+      wantedBy = pkgs.lib.mkForce [];
+      serviceConfig = {
+        Restart = pkgs.lib.mkForce "no";
+        # TODO figure out how to merge these automatically
+        # https://github.com/NixOS/nixpkgs/issues/76620
+        ExecStopPost = pkgs.lib.mkForce [ "-${pkgs.docker}/bin/docker rm -f %n" "${pkgs.sqlite}/bin/sqlite3 ${dbPath} 'VACUUM;'" ];
+      };
+    };
+
+    docker-containers.gchatautorespond-reenable_bots = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+      entrypoint = "python";
+      cmd = [ "reenable_bots.py" ];
+    };
+    systemd.services.docker-gchatautorespond-reenable_bots = {
+      startAt = "hourly";
+      wantedBy = pkgs.lib.mkForce [];
+      serviceConfig = {
+        Restart = pkgs.lib.mkForce "no";
+      };
+    };
+
+    docker-containers.gchatautorespond-sync_licenses = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      extraDockerOptions = ["--network=host"];
+      entrypoint = "python";
+      cmd = [ "sync_licenses.py" ];
+    };
+    systemd.services.docker-gchatautorespond-sync_licenses = {
+      startAt = "*-*-* 11:30:00";  # mornings eastern
+      wantedBy = pkgs.lib.mkForce [];
+      serviceConfig = {
+        Restart = pkgs.lib.mkForce "no";
+      };
+    };
+
     services.nginx = {
       enable = true;
       recommendedGzipSettings = true;
@@ -26,7 +101,6 @@ in let
         servers = {
           "127.0.0.1:8000" = {};
         };
-        # extraConfig = "fail_timeout=0";
       };
       virtualHosts."gchat.simon.codes" = {
         enableACME = true;
@@ -51,6 +125,7 @@ in let
         access_log syslog:server=unix:/dev/log combined;
       '';
     };
+
     services.journalbeat = {
       enable = true;
       extraConfig = ''
@@ -68,133 +143,38 @@ in let
            template.enabled: false
       '';
     };
+
     services.duplicity = {
       enable = true;
       frequency = "*-*-* 00,12:30:00";
       root = "/tmp/db.backup";
-      targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db1";
+      targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db2";
       secretFile = pkgs.writeText "dupl.env" ''
         GOOGLE_DRIVE_ACCOUNT_KEY="${duplKey}"
       '';
       extraFlags = ["--no-encryption"];
     };
-    services.openssh = {
-      enable = true;
-    };
-
     systemd.services.duplicity = {
       path = [ pkgs.bash pkgs.sqlite ];
       preStart = ''sqlite3 ${dbPath} ".backup /tmp/db.backup"'';
       # privateTmp should handle this, but this helps in case it's eg disabled upstream
       postStop = "rm /tmp/db.backup";
     };
-    systemd.services.gchatautorespond-web = {
-      enable = true;
-      description = "gchatautorespond web";
-      after = [ "network-online.target" ];
-      wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python37 pkgs.bash ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec gunicorn --worker-class gevent gchatautorespond.wsgi -b '127.0.0.1:8000'";
-        Restart = "always";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-    };
-    systemd.services.gchatautorespond-chatworker = {
-      enable = true;
-      description = "gchatautorespond chatworker";
-      after = [ "network-online.target" ];
-      wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python37 pkgs.bash ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec python run_worker.py";
-        Restart = "always";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-    };
-    systemd.services.gchatautorespond-testworker = {
-      enable = true;
-      description = "gchatautorespond testworker";
-      after = [ "network-online.target" ];
-      wantedBy = [ "network-online.target" ];
-      path = [ pkgs.python37 pkgs.bash ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec python run_testworker.py";
-        Restart = "always";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-    };
-    systemd.services.gchatautorespond-delete_old_emails = {
-      enable = true;
-      description = "gchatautorespond delete old emails";
-      startAt = "*-*-* 07:30:00";  # early mornings eastern
-      path = [ pkgs.python37 pkgs.bash pkgs.sqlite ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec python delete_old_mail.py";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-      # reclaim disk
-      postStop = "sqlite3 ${dbPath} 'VACUUM;'";
-    };
-    systemd.services.gchatautorespond-reenable_bots = {
-      enable = true;
-      description = "gchatautorespond reenable bots";
-      startAt = "hourly";
-      path = [ pkgs.python37 pkgs.bash ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec python reenable_bots.py";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-    };
-    systemd.services.gchatautorespond-sync_licenses = {
-      enable = true;
-      description = "gchatautorespond sync licenses";
-      startAt = "*-*-* 11:30:00";  # mornings eastern
-      path = [ pkgs.python37 pkgs.bash ];
-      environment = {
-        DJANGO_SETTINGS_MODULE = "gchatautorespond.settings";
-      };
-      serviceConfig = {
-        WorkingDirectory = "/opt/gchatautorespond/code";
-        ExecStart = "/opt/gchatautorespond/venv/exec python sync_licenses.py";
-        User = "gchatautorespond";
-        Group = "gchatautorespond";
-      };
-    };
+
     users = {
       # using another user for admin tasks would be preferable, but nixops requires root ssh anyway:
       # https://github.com/NixOS/nixops/issues/730
+      users.root.extraGroups = [ "docker" ];
       users.root.openssh.authorizedKeys.keyFiles = [ ../../.ssh/id_rsa.pub ];
       users.gchatautorespond = {
         group = "gchatautorespond";
         isSystemUser = true;
+        uid = 497;
       };
-      groups.gchatautorespond.members = [ "gchatautorespond" "nginx" ];
+      groups.gchatautorespond = {
+        members = [ "gchatautorespond" "nginx" ];
+        gid = 499;
+      };
     };
 
     networking.firewall.allowedTCPPorts = [ 22 80 443 ];
@@ -211,12 +191,12 @@ in let
     )];
 
     environment.systemPackages = with pkgs; [
-      git  # for vcs pip support
+      curl
       sqlite
       duplicity
       htop
       vim
-      (python37.withPackages(ps: with ps; [ virtualenv pip ]))
+      python3  # for ansible
     ];
   };
 in {

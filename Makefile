@@ -12,3 +12,14 @@ nix-deploy-dev:
 
 pip-compile:
 	pip-compile -r requirements.in && pip-compile -r dev-requirements.in && pip-sync dev-requirements.txt
+
+# also consider vacuuming the journal:
+#    journalctl --vacuum-size=500M
+# and cleaning old nix generations:
+#    nix-env --list-generations --profile /nix/var/nix/profiles/system
+#  then
+#    nix-collect-garbage --delete-older-than 123 --dry-run
+#  or just
+#    nix-collect-garbage --delete-older-than 120d --dry-run
+cleanup-prod:
+	ansible all -i ansible/production -m shell -a "nix-collect-garbage; docker system prune --force; df -h"
