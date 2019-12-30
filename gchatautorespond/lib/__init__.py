@@ -26,7 +26,7 @@ def report_ga_event_async(client_id, **event_kwargs):
 
     if settings.SEND_GA_EVENTS:
         logger.info("queueing event %s: %r", client_id, event_kwargs)
-        thread_pool.submit(settings.GA_CODE, _report_event, client_id, **event_kwargs)
+        thread_pool.submit(_report_event, settings.GA_CODE, client_id, **event_kwargs)
 
 
 def _report_event(ga_code, client_id, **event_kwargs):
