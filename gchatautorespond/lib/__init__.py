@@ -30,6 +30,6 @@ def report_ga_event_async(client_id, **event_kwargs):
 
 
 def _report_event(ga_code, client_id, **event_kwargs):
-    event = gmp.Event(**event_kwargs)
+    event = gmp.event(**event_kwargs)
     gmp.report(ga_code, client_id, event)
     logger.info("reported event %s: %r", client_id, event_kwargs)
