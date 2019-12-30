@@ -14,5 +14,11 @@
     { config, lib, pkgs, ... }:
     { deployment.targetHost = "bravo.simon.codes";
       imports = [ <nixpkgs/nixos/modules/virtualisation/google-compute-image.nix> ];
+      swapDevices = [
+        {
+          device = "/var/swapfile";
+          size = 1024;
+        }
+      ];
     };
 }
