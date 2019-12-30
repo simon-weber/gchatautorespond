@@ -5,12 +5,12 @@ let
   logUnitYaml = lib: builtins.toJSON (lib.lists.flatten (builtins.map (x: [ "UNIT=${x}" "_SYSTEMD_UNIT=${x}" ]) [
     "acme-gchat.simon.codes.service"
     "duplicity.service"
-    "gchatautorespond-chatworker.service"
-    "gchatautorespond-delete_old_emails.service"
-    "gchatautorespond-reenable_bots.service"
-    "gchatautorespond-sync_licenses.service"
-    "gchatautorespond-testworker.service"
-    "gchatautorespond-web.service"
+    "docker-gchatautorespond-chatworker.service"
+    "docker-gchatautorespond-delete_old_emails.service"
+    "docker-gchatautorespond-reenable_bots.service"
+    "docker-gchatautorespond-sync_licenses.service"
+    "docker-gchatautorespond-testworker.service"
+    "docker-gchatautorespond-web.service"
     "nginx.service"
     "sshd.service"
   ]));
@@ -87,6 +87,9 @@ in let
       startAt = "*-*-* 11:30:00";  # mornings eastern
       wantedBy = pkgs.lib.mkForce [];
       serviceConfig = {
+        # The process usually finishes on its own.
+        # This makes it easier to set logging alerts for actually failing runs.
+        ExecStop = pkgs.lib.mkForce "-${pkgs.docker}/bin/docker stop %n";
         Restart = pkgs.lib.mkForce "no";
       };
     };
