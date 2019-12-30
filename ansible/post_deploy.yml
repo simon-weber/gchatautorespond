@@ -47,15 +47,14 @@
     - name: update remote tag
       command: docker tag {{ appname }}:staging {{ appname }}:latest
 
-    - name: start app services
+    - name: restart app services
       systemd:
-        state: started
+        state: restarted
         name: "{{ item }}"
       with_items:
         - "docker-gchatautorespond-web"
         - "docker-gchatautorespond-chatworker"
         - "docker-gchatautorespond-testworker"
-
 
     - name: update local tag
       local_action: command docker tag {{ appname }}:staging {{ appname }}:latest
