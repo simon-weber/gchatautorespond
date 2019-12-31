@@ -43,7 +43,7 @@ def details_view(request):
             token_options['customer_id'] = license.bt_customer_id
             token_options['options'] = {
                 'make_default': True,
-                'fail_on_duplicate_payment_method': True
+                'fail_on_duplicate_payment_method': False
             }
 
         client_token = braintree.ClientToken.generate(token_options)
