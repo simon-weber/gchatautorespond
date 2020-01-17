@@ -3,6 +3,7 @@ import pickle
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.utils import encoding
 
 import jsonpickle
@@ -43,9 +44,10 @@ class AutoResponse(models.Model):
     user = models.ForeignKey(User)
     throttle_mins = models.PositiveSmallIntegerField(
         default=5,
+        validators=[MinValueValidator(1)],
         verbose_name='rate limit (minutes)',
         help_text=("After autoresponding, wait this many minutes before responding again to the same contact."
-                   ' Setting to 0 will respond to every message.'))
+                   ' The minimum allowed value is 1.'))
 
     credentials = models.OneToOneField(
         GoogleCredential,
