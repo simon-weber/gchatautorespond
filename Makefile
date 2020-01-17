@@ -13,6 +13,12 @@ nix-deploy-dev:
 pip-compile:
 	pip-compile -r requirements.in && pip-compile -r dev-requirements.in && pip-sync dev-requirements.txt
 
+serve:
+	python manage.py runserver 0.0.0.0:8000
+
+run_worker:
+	python run_worker.py
+
 # also consider vacuuming the journal:
 #    journalctl --vacuum-size=500M
 # and cleaning old nix generations:
