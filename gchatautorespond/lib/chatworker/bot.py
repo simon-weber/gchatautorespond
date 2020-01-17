@@ -378,12 +378,17 @@ class AutoRespondBot(GChatBot):
         Return False if one of the following is true:
         * another resource is active
         * messages to the given jid are throttled
+        * the message was from another autoresponder
 
         Messages from the test bot are always responded to.
         """
 
         if jid.bare == TEST_BOT_EMAIL:
             return True
+
+        if jid.resource.startswith(RESOURCE):
+            self.logger.warning("do not send; %r is another autoresponder", jid.full)
+            return False
 
         if self.response_throttle.is_throttled(jid.bare):
             self.logger.info("do not send; bot is throttled")
