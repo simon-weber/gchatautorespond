@@ -20,7 +20,7 @@ django-amazon-ses==2.1.1
 django-bootstrap3==9.0.0
 django-registration-redux==2.7
 django==1.11.28
-djmail==0.13.0
+djmail==2.0.0
 dnspython==1.14.0
 docopt==0.6.2
 docutils==0.14
@@ -59,7 +59,7 @@ pyyaml==3.12              # via ansible
 requests==2.20.1
 rsa==3.4.2
 s3transfer==0.2.1
-sentry-sdk[flask]==0.10.2
+sentry-sdk[flask]==0.14.1
 six==1.10.0
 git+https://github.com/simon-weber/SleekXMPP.git@1.5.0rc1#egg=sleekxmpp==1.5.0rc1
 typing==3.7.4.1
