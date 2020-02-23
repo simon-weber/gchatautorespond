@@ -13,7 +13,7 @@ from django.utils.encoding import smart_str
 import httplib2
 import oauth2client.contrib.xsrfutil as xsrfutil
 from oauth2client.client import flow_from_clientsecrets
-from django.contrib.auth.views import login as contrib_login
+from django.contrib.auth import views as auth_views
 from django.forms.models import modelformset_factory
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -118,10 +118,10 @@ class TermsView(TemplateView):
 def login(request):
     """Default login, but redirect if we're already logged in."""
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect(settings.LOGIN_REDIRECT_URL)
 
-    return contrib_login(request)
+    return auth_views.LoginView.as_view()(request)
 
 
 @login_required
@@ -149,7 +149,7 @@ def test_view(request):
 def autorespond_view(request):
     """List/update accounts and autoresponses."""
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return redirect('logged_out')
 
     gcredentials = GoogleCredential.objects.filter(user=request.user)

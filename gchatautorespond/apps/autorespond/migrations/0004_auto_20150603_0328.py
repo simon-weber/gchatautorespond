@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='forward',
             name='credentials',
-            field=models.OneToOneField(to='autorespond.GoogleCredential'),
+            field=models.OneToOneField(to='autorespond.GoogleCredential', on_delete=models.CASCADE),
         ),
     ]

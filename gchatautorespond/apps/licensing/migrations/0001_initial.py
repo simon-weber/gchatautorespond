@@ -29,17 +29,17 @@ class Migration(migrations.Migration):
                 ('bt_status', models.TextField(blank=True)),
                 ('bt_subscription_id', models.TextField(blank=True)),
                 ('bt_customer_id', models.TextField(blank=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='currentlicense',
             name='license',
-            field=models.OneToOneField(to='licensing.License'),
+            field=models.OneToOneField(to='licensing.License', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='currentlicense',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
         ),
     ]

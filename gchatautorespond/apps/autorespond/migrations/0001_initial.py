@@ -26,17 +26,17 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('credentials', CredentialsField(null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='forward',
             name='credentials',
-            field=models.ForeignKey(to='autorespond.GoogleCredential'),
+            field=models.ForeignKey(to='autorespond.GoogleCredential', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='forward',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
         ),
     ]

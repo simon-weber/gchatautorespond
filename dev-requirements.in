@@ -1,4 +1,4 @@
--r requirements.in
+-r requirements.txt
 ansible
 flake8
 mock

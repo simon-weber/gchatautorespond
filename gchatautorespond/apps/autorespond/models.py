@@ -30,7 +30,7 @@ class CompatCredentialsField(CredentialsField):
 
 class GoogleCredential(models.Model):
     credentials = CompatCredentialsField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
 
     def __str__(self):
@@ -41,7 +41,7 @@ class GoogleCredential(models.Model):
 
 class AutoResponse(models.Model):
     response = models.TextField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     throttle_mins = models.PositiveSmallIntegerField(
         default=5,
         validators=[MinValueValidator(1)],
@@ -51,7 +51,9 @@ class AutoResponse(models.Model):
 
     credentials = models.OneToOneField(
         GoogleCredential,
-        verbose_name="autorespond account")
+        verbose_name="autorespond account",
+        on_delete=models.CASCADE,
+    )
 
     email_notifications = models.BooleanField(
         default=False,
@@ -85,7 +87,9 @@ class ExcludedUser(models.Model):
 
     autorespond = models.ForeignKey(
         AutoResponse,
-        verbose_name="autorespond")
+        verbose_name="autorespond",
+        on_delete=models.CASCADE,
+    )
 
     DEFAULT = 'DE'
     ALWAYS = 'AL'
@@ -111,7 +115,9 @@ class ExcludedUser(models.Model):
 class LastResponse(models.Model):
     autorespond = models.ForeignKey(
         AutoResponse,
-        verbose_name="autorespond")
+        verbose_name="autorespond",
+        on_delete=models.CASCADE,
+    )
 
     bare_jid = models.CharField(
         max_length=256,

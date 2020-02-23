@@ -17,7 +17,7 @@ urlpatterns = [
     # TODO do this for signup as well?
     url(r'^accounts/login', views.login),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     # Override the default registration form.
     url(r'^accounts/register/$', RegistrationView.as_view(form_class=RegTOS), name='registration_register'),

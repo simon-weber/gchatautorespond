@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('bare_jid', models.CharField(max_length=256)),
                 ('last_response_time', models.DateTimeField()),
-                ('autorespond', models.ForeignKey(verbose_name=b'autorespond', to='autorespond.AutoResponse')),
+                ('autorespond', models.ForeignKey(verbose_name=b'autorespond', to='autorespond.AutoResponse', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

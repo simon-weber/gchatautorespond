@@ -21,7 +21,7 @@ class License(models.Model):
         ENABLE = 'EN'
         DISABLE = 'DI'
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     trial_start = models.DateTimeField()
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,8 +57,8 @@ class License(models.Model):
 
 
 class CurrentLicense(models.Model):
-    user = models.OneToOneField(User)
-    license = models.OneToOneField(License)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    license = models.OneToOneField(License, on_delete=models.CASCADE)
 
     def __str__(self):
         return "<CurrentLicense %s user:%s license:%s>" % (self.id, self.user_id, self.license_id)

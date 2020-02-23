@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='autoresponse',
             name='credentials',
-            field=models.OneToOneField(verbose_name=b'autorespond account', to='autorespond.GoogleCredential'),
+            field=models.OneToOneField(verbose_name=b'autorespond account', to='autorespond.GoogleCredential', on_delete=models.CASCADE),
         ),
     ]
