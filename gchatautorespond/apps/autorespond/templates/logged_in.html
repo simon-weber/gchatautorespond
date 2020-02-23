@@ -13,7 +13,7 @@
                     {% csrf_token %}
                     {{ gcredential.email }}
                     <input type="hidden" name="email" value="{{ gcredential.email }}">
-                    {% if gcredential in autorespond_formset.active_credentials %}
+                    {% if gcredential in autorespond_formset.active_credentials and is_active %}
                         <input class="btn btn-link" type="submit" value="(send test message)">
                     {% endif %}
                 </form>
