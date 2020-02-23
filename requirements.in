@@ -1,5 +1,5 @@
 braintree
-django
+django<2
 django-amazon-ses
 django-bootstrap3
 django-registration-redux
