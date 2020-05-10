@@ -23,10 +23,28 @@ Then, start the bot:
 $ python standalone_bot.py run my-email@gmail.com 'my autoresponse'
 ```
 
-To further customize your bot, modify the constructor params for [AutoRespondBot](https://github.com/simon-weber/gchatautorespond/blob/master/gchatautorespond/lib/chatworker/bot.py)
-in standalone\_bot.py
+To further customize your bot, modify the constructor params for StandaloneBot at the bottom of standalone\_bot.py (the arguments are documented in [lib.chatworker.bot.AutoRespondBot](https://github.com/simon-weber/gchatautorespond/blob/master/gchatautorespond/lib/chatworker/bot.py)).
 
-Email notifications are not currently supported when self-hosting ([#7](https://github.com/simon-weber/gchatautorespond/issues/7)).
+### email notifications
+
+Email notifications are not enabled by default.
+To enable them you must configure [gchatautorespond/settings\_standalone.py](https://github.com/simon-weber/gchatautorespond/blob/master/gchatautorespond/settings_standalone.py) to use your mail server.
+[Gmail SMTP](https://support.google.com/a/answer/176600) values are provided as an example;
+to use it, set `DJ_EMAIL_HOST_USER` to your gmail address and `DJ_EMAIL_HOST_PASSWORD` to your password (or app password) as environment variables.
+Then, verify your configuration with:
+```
+DJANGO_SETTINGS_MODULE=gchatautorespond.settings_standalone python manage.py sendtestemail from@example.com to@example.com
+```
+Once email sending is configured, you can enable autoresponses with notifications by running:
+```
+$ python standalone_bot.py notify my-email@gmail.com 'my autoresponse'
+```
+Or, you can just send notifications without responses with:
+```
+$ python standalone_bot.py notify my-email@gmail.com
+```
+In either case, notifications are sent from your `DJ_EMAIL_HOST_USER` to your provided email.
+You can control the recipient email by changing the `notify_email` parameter to StandaloneBot.
 
 ## project layout
 

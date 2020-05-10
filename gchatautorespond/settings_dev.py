@@ -34,6 +34,7 @@ if os.environ.get('IN_CODE_DB', 'false') == 'true':
     }
 
 DJMAIL_REAL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+ADMINS = []
 
 # disable sentry
 sentry_sdk.init(dsn='')  # noqa: F405
