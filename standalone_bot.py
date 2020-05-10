@@ -9,6 +9,7 @@ Will exit and delete a credentials file upon revocation.
 Usage:
   standalone_bot.py auth
   standalone_bot.py run <email> <autoresponse>
+  standalone_bot.py notify <email> [<autoresponse>]
   standalone_bot.py (-h | --help)
 
 Options:
@@ -28,10 +29,11 @@ import warnings
 warnings.filterwarnings('ignore', 'test worker credentials unavailable',)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_standalone'
-import django
+import django  # noqa
 django.setup()
+from django.conf import settings
 
-from gchatautorespond.lib.chatworker.bot import AutoRespondBot
+from gchatautorespond.lib.chatworker.bot import AutoRespondBot  # noqa
 
 
 class StandaloneBot(AutoRespondBot):
@@ -128,6 +130,17 @@ if __name__ == '__main__':
     if arguments['auth']:
         perform_oauth()
     elif arguments['run']:
-        bot = StandaloneBot(arguments['<email>'], None, None, arguments['<autoresponse>'], False, None)
+        bot = StandaloneBot(
+            arguments['<email>'], None, None, arguments['<autoresponse>'], False, None
+        )
+        bot.connect()
+        bot.process(block=True)
+    elif arguments['notify']:
+        bot = StandaloneBot(
+            arguments['<email>'], None, None, arguments['<autoresponse>'],
+            send_email_notifications=True,
+            notify_email=arguments['<email>'],
+            disable_responses=(not bool(arguments['<autoresponse>']))
+        )
         bot.connect()
         bot.process(block=True)
