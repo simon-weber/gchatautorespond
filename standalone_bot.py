@@ -31,7 +31,7 @@ warnings.filterwarnings('ignore', 'test worker credentials unavailable',)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'gchatautorespond.settings_standalone'
 import django  # noqa
 django.setup()
-from django.conf import settings
+from django.conf import settings  # noqa
 
 from gchatautorespond.lib.chatworker.bot import AutoRespondBot  # noqa
 
@@ -123,20 +123,21 @@ def perform_oauth():
 
     return credentials
 
-
-if __name__ == '__main__':
+def main(bot_cls=None):
     arguments = docopt(__doc__)
+    if bot_cls is None:
+        bot_cls = StandaloneBot
 
     if arguments['auth']:
         perform_oauth()
     elif arguments['run']:
-        bot = StandaloneBot(
+        bot = bot_cls(
             arguments['<email>'], None, None, arguments['<autoresponse>'], False, None
         )
         bot.connect()
         bot.process(block=True)
     elif arguments['notify']:
-        bot = StandaloneBot(
+        bot = bot_cls(
             arguments['<email>'], None, None, arguments['<autoresponse>'],
             send_email_notifications=True,
             notify_email=arguments['<email>'],
@@ -144,3 +145,7 @@ if __name__ == '__main__':
         )
         bot.connect()
         bot.process(block=True)
+
+
+if __name__ == '__main__':
+    main()
