@@ -335,7 +335,7 @@ class AutoRespondBot(GChatBot):
 
         if from_nick and TALK_BRIDGE_DOMAIN not in from_jid.jid:
             # Rarely, we'll also have a valid email as the jid.
-            from_identifier = "%s (%s)" % (from_nick, from_jid.jid)
+            from_identifier = "%s (%s)" % (from_nick, from_jid.bare)
         elif from_nick:
             from_identifier = from_nick
 
