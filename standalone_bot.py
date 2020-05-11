@@ -70,7 +70,7 @@ class StandaloneBot(AutoRespondBot):
             self.password = credentials.access_token
             self.credentials['access_token'] = credentials.access_token
             self.oauth_storage.put(credentials)
-            self.reconnect()
+            self.disconnect(reconnect=True)
 
     @property
     def oauth_filename(self):
