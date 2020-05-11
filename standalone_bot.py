@@ -45,6 +45,8 @@ class StandaloneBot(AutoRespondBot):
     def __init__(self, *args, **kwargs):
         super(StandaloneBot, self).__init__(*args, **kwargs)
 
+        self.reconnect_delay = 5
+
         self.add_event_handler('failed_auth', self.failed_auth)
 
     def failed_auth(self, _):
