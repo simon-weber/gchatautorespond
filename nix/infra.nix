@@ -13,6 +13,8 @@
   bravo-simon-codes =
     { config, lib, pkgs, ... }:
     { deployment.targetHost = "bravo.simon.codes";
+      networking.hostName = "bravo";
+      networking.domain = "simon.codes";
       services.openssh = {
         passwordAuthentication = false;
         challengeResponseAuthentication = false;

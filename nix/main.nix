@@ -5,6 +5,7 @@ let
   logUnitYaml = lib: builtins.toJSON (lib.lists.flatten (builtins.map (x: [ "UNIT=${x}" "_SYSTEMD_UNIT=${x}" ]) [
     "acme-gchat.simon.codes.service"
     "duplicity.service"
+    "docker.service"
     "docker-gchatautorespond-chatworker.service"
     "docker-gchatautorespond-delete_old_emails.service"
     "docker-gchatautorespond-reenable_bots.service"
@@ -155,7 +156,7 @@ in let
       secretFile = pkgs.writeText "dupl.env" ''
         GOOGLE_DRIVE_ACCOUNT_KEY="${duplKey}"
       '';
-      extraFlags = ["--no-encryption"];
+      extraFlags = ["--no-encryption" "--allow-source-mismatch"];
     };
     systemd.services.duplicity = {
       path = [ pkgs.bash pkgs.sqlite ];
