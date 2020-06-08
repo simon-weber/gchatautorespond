@@ -5,7 +5,7 @@ deploy-dev:
 	 ansible-playbook -v -i ansible/dev ansible/deploy.yml
 
 nix-deploy-prod:
-	nixops deploy --include bravo-simon-codes -d gchatautorespond
+	nixops deploy --include foxtrot-simon-codes -d gchatautorespond
 
 nix-deploy-dev:
 	nixops deploy --include virtualbox -d gchatautorespond

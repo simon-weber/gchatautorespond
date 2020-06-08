@@ -152,7 +152,7 @@ in let
       enable = true;
       frequency = "*-*-* 00,12:30:00";
       root = "/tmp/db.backup";
-      targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db2";
+      targetUrl = "pydrive://duply-alpha@repominder.iam.gserviceaccount.com/gchatautoresponder_backups/db3";
       secretFile = pkgs.writeText "dupl.env" ''
         GOOGLE_DRIVE_ACCOUNT_KEY="${duplKey}"
       '';
@@ -212,5 +212,5 @@ in {
   network.description = "gchatautorespond";
   network.enableRollback = true;
   virtualbox = genericConf;
-  bravo-simon-codes = genericConf;
+  foxtrot-simon-codes = genericConf;
 }

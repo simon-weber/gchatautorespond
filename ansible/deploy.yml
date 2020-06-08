@@ -7,6 +7,17 @@
     - name: auth remote docker
       command: docker login {{ gitlab_reg }} -u {{ gitlab_reg_user }} -p {{ gitlab_reg_password }}
 
+    - name: create readable opt dir
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      with_items:
+        - "/opt"
+
+
     - name: create writeable app dirs
       file:
         path: "{{ item }}"
