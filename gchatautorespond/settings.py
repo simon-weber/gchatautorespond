@@ -168,7 +168,7 @@ LOGGING = {
         },
         'sleekxmpp': {
             'handlers': ['console_simple'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
             'propagate': False,
         },
         'gchatautorespond': {
