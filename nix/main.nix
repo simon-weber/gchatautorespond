@@ -202,6 +202,8 @@ in let
       sqlite
       duplicity
       htop
+      iotop
+      sysstat
       vim
       python3  # for ansible
     ];
