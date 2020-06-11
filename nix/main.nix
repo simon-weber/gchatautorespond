@@ -148,6 +148,16 @@ in let
       '';
     };
 
+    services.telegraf = {
+      enable = true;
+    };
+    systemd.services.telegraf = {
+      serviceConfig = {
+        ExecStart= pkgs.lib.mkForce ''${pkgs.telegraf}/bin/telegraf -config "${./telegraf.conf}"'';
+      };
+    };
+
+
     services.duplicity = {
       enable = true;
       frequency = "*-*-* 00,12:30:00";
