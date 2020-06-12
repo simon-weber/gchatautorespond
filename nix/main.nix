@@ -52,13 +52,24 @@ in let
       cmd = [ "delete_old_mail.py" ];
     };
     systemd.services.docker-gchatautorespond-delete_old_mails = {
-      startAt = "*-*-* 07:30:00";  # early mornings eastern
+      startAt = "*-*-* 07:15:00";  # early mornings eastern
       wantedBy = pkgs.lib.mkForce [];
       serviceConfig = {
         Restart = pkgs.lib.mkForce "no";
-        # TODO figure out how to merge these automatically
-        # https://github.com/NixOS/nixpkgs/issues/76620
-        ExecStopPost = pkgs.lib.mkForce [ "-${pkgs.docker}/bin/docker rm -f %n" "${pkgs.sqlite}/bin/sqlite3 ${dbPath} 'VACUUM;'" ];
+      };
+    };
+    docker-containers.gchatautorespond-cleanup = {
+      image = "gchatautorespond:latest";
+      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
+      entrypoint = "python";
+      cmd = [ "manage.py" "clearsessions" ];
+    };
+    systemd.services.docker-gchatautorespond-cleanup = {
+      startAt = "*-*-* 07:30:00";
+      wantedBy = pkgs.lib.mkForce [];
+      postStop = "${pkgs.sqlite}/bin/sqlite3 ${dbPath} 'VACUUM;'";
+      serviceConfig = {
+        Restart = pkgs.lib.mkForce "no";
       };
     };
 
@@ -211,11 +222,11 @@ in let
       curl
       sqlite
       duplicity
+      vim
+      python3  # for ansible
       htop
       iotop
       sysstat
-      vim
-      python3  # for ansible
     ];
   };
 in {
