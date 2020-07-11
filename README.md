@@ -1,6 +1,6 @@
-# Autoresponder for Google Chat and Hangouts
+# Autoresponder for Hangouts
 
-Autoresponder is a Django project that hosts static Google Chat/Hangouts bots.
+Autoresponder is a Django project that hosts static Hangouts bots.
 
 I originally created it to avoid unnoticed messages to my forwarding accounts, but it's also found use with employees and small business owners.
 
