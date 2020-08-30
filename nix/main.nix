@@ -1,5 +1,6 @@
 let
   duplKey = builtins.readFile ../secrets/pydriveprivatekey.pem;
+  opsgridToken = builtins.readFile ../secrets/opsgrid_token.txt;
   dbPath = "/opt/gchatautorespond/gchatautorespond_db.sqlite3";
   # this includes the process output + systemd context (eg "starting foo..." messages)
   logUnitYaml = lib: builtins.toJSON (lib.lists.flatten (builtins.map (x: [ "UNIT=${x}" "_SYSTEMD_UNIT=${x}" ]) [
@@ -67,8 +68,8 @@ in let
     systemd.services.docker-gchatautorespond-cleanup = {
       startAt = "*-*-* 07:30:00";
       wantedBy = pkgs.lib.mkForce [];
-      postStop = "${pkgs.sqlite}/bin/sqlite3 ${dbPath} 'VACUUM;'";
       serviceConfig = {
+        ExecStopPost = pkgs.lib.mkForce [ "-${pkgs.docker}/bin/docker rm -f %n" "${pkgs.sqlite}/bin/sqlite3 ${dbPath} 'VACUUM;'" ];
         Restart = pkgs.lib.mkForce "no";
       };
     };
@@ -163,6 +164,9 @@ in let
       enable = true;
     };
     systemd.services.telegraf = {
+      environment = {
+        OPSGRID_INGEST_TOKEN = opsgridToken;
+      };
       serviceConfig = {
         ExecStart= pkgs.lib.mkForce ''${pkgs.telegraf}/bin/telegraf -config "${./telegraf.conf}"'';
       };
