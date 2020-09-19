@@ -1,4 +1,4 @@
-FROM python:3.7.3-slim-stretch
+FROM python:3.7.9-slim-stretch
 
 WORKDIR /app
 EXPOSE 8000 50001 50002
