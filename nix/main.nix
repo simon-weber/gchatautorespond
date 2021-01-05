@@ -74,6 +74,21 @@ in let
       };
     };
 
+    systemd.services.gchatautorespond-restart_chatworker = {
+      startAt = "*-*-* 06:00:00";
+      script = "systemctl restart docker-gchatautorespond-chatworker.service";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+    };
+    systemd.services.gchatautorespond-restart_testworker = {
+      startAt = "*-*-* 06:20:00";
+      script = "systemctl restart docker-gchatautorespond-testworker.service";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+    };
+
     docker-containers.gchatautorespond-reenable_bots = {
       image = "gchatautorespond:latest";
       volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
