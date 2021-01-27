@@ -14,7 +14,9 @@
         <br/>
         It's {{ view.price }} charged monthly, with a {{ view.trial_length }} no-questions-asked free trial, and cancellable any time.
         </p>
-
+        <p class="text-muted">
+        Google Chat and Google Voice are not supported. Read more <a href="{% url 'service_support' %}">here</a>.
+        </p>
         <a class="btn btn-default btn-lg active" href="{% url 'auth_login' %}">Log In</a>
         <a class="btn btn-primary btn-lg active" href="{% url 'registration_register' %}">Sign Up</a>
     </div>

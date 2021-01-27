@@ -6,7 +6,7 @@ from registration.forms import RegistrationFormTermsOfService as RegTOS
 
 from .apps.autorespond import urls as autorespond_urls
 from .apps.licensing import urls as licensing_urls
-from .apps.autorespond.views import LoggedOutView, PrivacyView, TermsView
+from .apps.autorespond.views import LoggedOutView, PrivacyView, TermsView, ServiceSupportView
 from .apps.autorespond import views
 
 urlpatterns = [
@@ -30,5 +30,6 @@ urlpatterns = [
 
     url(r'^privacy/$', PrivacyView.as_view(), name='privacy'),
     url(r'^terms/$', TermsView.as_view(), name='terms'),
+    url(r'^services/$', ServiceSupportView.as_view(), name='service_support'),
     url(r'^$', LoggedOutView.as_view(), name='logged_out'),
 ]

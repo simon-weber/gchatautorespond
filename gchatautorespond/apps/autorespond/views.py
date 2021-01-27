@@ -115,6 +115,10 @@ class TermsView(TemplateView):
     template_name = 'terms.html'
 
 
+class ServiceSupportView(TemplateView):
+    template_name = 'service_support.html'
+
+
 def login(request):
     """Default login, but redirect if we're already logged in."""
 

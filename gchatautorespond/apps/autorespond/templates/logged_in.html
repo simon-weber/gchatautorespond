@@ -31,12 +31,17 @@
         {% if gcredentials %}
             <h2>autoresponses:</h2>
 
+            <p>
             Creating an autoresponse will make the account:
+            </p>
             <ul>
-                <li>accept all chat invitations</li>
                 <li>respond to messages when you are offline, away, or busy (or always, if status detection is disabled)</li>
                 <li>if enabled, send email notifications to your login email ({{ user.email }})</li>
             </ul>
+            <p>
+            Google Voice and Google Chat messages will <b>not</b> trigger an autoresponse. Read more <a href="{% url 'service_support' %}">here</a>.
+            </p>
+
 
             <form class="form-horizontal" id="autoresponses" method="post" action="{% url 'autorespond' %}">
                 {% include 'fancy_formset.html' with formset=autorespond_formset name='autoresponse' %}
