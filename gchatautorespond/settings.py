@@ -228,6 +228,15 @@ ACCOUNT_ACTIVATION_DAYS = 1
 
 
 # Sentry
+ignored_patterns = (
+    'IqTimeout',
+    'Can not read from closed socket',
+    'Socket Error #9',
+    'Request timed out',
+    'Timed out waiting for',
+    'Failed to send',
+    'Error reading from XML stream',
+)
 _patterns = [re.compile(r"\[%s=\d\d*\] " % param) for param in ('log_id', 'bot_id')]
 def _sub(s):
     r = s
@@ -238,6 +247,10 @@ def _before_send(event, hint):
     message = event.get('logentry', {}).get('message')
     if message:
         event['logentry']['message'] = _sub(message)
+
+    for p in ignored_patterns:
+        if p.lower() in event['message']:
+            return None
 
     return event
 
