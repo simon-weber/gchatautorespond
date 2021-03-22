@@ -248,8 +248,9 @@ def _before_send(event, hint):
     if message:
         event['logentry']['message'] = _sub(message)
 
+    str_event = str(event).lower()
     for p in ignored_patterns:
-        if p.lower() in event['message']:
+        if p.lower() in str_event:
             return None
 
     return event
