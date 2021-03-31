@@ -1,21 +1,22 @@
 let
   duplKey = builtins.readFile ../secrets/pydriveprivatekey.pem;
-  opsgridToken = builtins.readFile ../secrets/opsgrid_token.txt;
   dbPath = "/opt/gchatautorespond/gchatautorespond_db.sqlite3";
   # this includes the process output + systemd context (eg "starting foo..." messages)
   logUnitYaml = lib: builtins.toJSON (lib.lists.flatten (builtins.map (x: [ "UNIT=${x}" "_SYSTEMD_UNIT=${x}" ]) [
     "acme-gchat.simon.codes.service"
-    "duplicity.service"
-    "docker.service"
     "docker-gchatautorespond-chatworker.service"
     "docker-gchatautorespond-delete_old_emails.service"
     "docker-gchatautorespond-reenable_bots.service"
     "docker-gchatautorespond-sync_licenses.service"
     "docker-gchatautorespond-testworker.service"
     "docker-gchatautorespond-web.service"
+    "docker.service"
+    "duplicity.service"
     "nginx.service"
     "sshd.service"
+    "telegraf.service"
   ]));
+  unstable = import <unstable> { config = { allowUnfree = true; }; };
 in let
   genericConf = { config, pkgs, lib, ... }: {
 
@@ -180,10 +181,11 @@ in let
     };
     systemd.services.telegraf = {
       environment = {
-        OPSGRID_INGEST_TOKEN = opsgridToken;
+        GRAFANA_CLOUD_METRICS_ID = builtins.getEnv "GRAFANA_CLOUD_METRICS_ID";
+        GRAFANA_CLOUD_API_KEY = builtins.getEnv "GRAFANA_CLOUD_API_KEY";
       };
       serviceConfig = {
-        ExecStart= pkgs.lib.mkForce ''${pkgs.telegraf}/bin/telegraf -config "${./telegraf.conf}"'';
+        ExecStart= pkgs.lib.mkForce ''${unstable.pkgs.telegraf}/bin/telegraf -config "${./telegraf.conf}"'';
       };
     };
 
