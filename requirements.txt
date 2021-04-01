@@ -43,7 +43,7 @@ pyasn1==0.1.9             # via oauth2client, pyasn1-modules, rsa
 python-dateutil==2.8.0    # via botocore
 pytz==2018.9              # via babel, django
 requests==2.20.1          # via -r requirements.in, braintree, google-measurement-protocol
-rsa==3.4.2                # via oauth2client
+rsa==4.7.2                # via oauth2client
 s3transfer==0.2.1         # via boto3
 sentry-sdk[flask]==0.14.1  # via -r requirements.in
 six==1.10.0               # via google-api-python-client, oauth2client, python-dateutil

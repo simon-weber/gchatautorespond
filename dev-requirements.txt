@@ -57,7 +57,7 @@ python-dateutil==2.8.0    # via -r requirements.txt, botocore
 pytz==2018.9              # via -r requirements.txt, babel, django
 pyyaml==3.12              # via ansible
 requests==2.20.1          # via -r requirements.txt, braintree, google-measurement-protocol
-rsa==3.4.2                # via -r requirements.txt, oauth2client
+rsa==4.7.2                # via -r requirements.txt, oauth2client
 s3transfer==0.2.1         # via -r requirements.txt, boto3
 sentry-sdk[flask]==0.14.1  # via -r requirements.txt
 six==1.10.0               # via -r requirements.txt, cryptography, google-api-python-client, mock, oauth2client, pip-tools, python-dateutil
