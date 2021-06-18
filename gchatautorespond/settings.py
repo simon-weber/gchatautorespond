@@ -236,6 +236,7 @@ ignored_patterns = (
     'Timed out waiting for',
     'Failed to send',
     'Error reading from XML stream',
+    'File descriptor was closed in another greenlet',
 )
 _patterns = [re.compile(r"\[%s=\d\d*\] " % param) for param in ('log_id', 'bot_id')]
 def _sub(s):
