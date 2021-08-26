@@ -5,6 +5,7 @@ import datetime
 import logging
 
 import braintree
+import sentry_sdk
 
 from gchatautorespond.apps.licensing.lib import (
     sync_license,
