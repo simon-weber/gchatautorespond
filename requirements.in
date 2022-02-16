@@ -6,10 +6,8 @@ django-registration-redux
 djmail
 dnspython  # optional requirement for sleekxmpp
 docopt
-enum34
 flask
 future
-futures
 google-api-python-client
 google-measurement-protocol==1.0.0
 gunicorn[gevent]

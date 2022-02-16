@@ -2,4 +2,4 @@
 ansible
 flake8
 mock
-pip-tools
+pip-tools==5.4.0
