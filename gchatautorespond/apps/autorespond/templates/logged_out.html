@@ -12,10 +12,9 @@
         <p>
         Autoresponder lets you reply automatically to Google Hangouts messages, even if you're offline.
         <br/>
-        It's {{ view.price }} charged monthly, with a {{ view.trial_length }} no-questions-asked free trial, and cancellable any time.
-        </p>
-        <p class="text-muted">
-        Google Chat and Google Voice are not supported. Read more <a href="{% url 'service_support' %}">here</a>.
+        Due to <a href="https://support.google.com/chat/answer/9854901">Google's impending shutdown of Hangouts</a>, the service is no longer supported.
+        <br/>
+        It will run until Hangouts is fully shut down, but there's no guarantee that it works.
         </p>
         <a class="btn btn-default btn-lg active" href="{% url 'auth_login' %}">Log In</a>
         <a class="btn btn-primary btn-lg active" href="{% url 'registration_register' %}">Sign Up</a>
