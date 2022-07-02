@@ -38,14 +38,6 @@ in let
       cmd = [ "run_worker.py" ];
     };
 
-    docker-containers.gchatautorespond-testworker = {
-      image = "gchatautorespond:latest";
-      volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
-      extraDockerOptions = ["--network=host"];
-      entrypoint = "python";
-      cmd = [ "run_testworker.py" ];
-    };
-
     docker-containers.gchatautorespond-delete_old_mails = {
       image = "gchatautorespond:latest";
       volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
@@ -82,14 +74,6 @@ in let
         Type = "oneshot";
       };
     };
-    systemd.services.gchatautorespond-restart_testworker = {
-      startAt = "*-*-* 06:20:00";
-      script = "systemctl restart docker-gchatautorespond-testworker.service";
-      serviceConfig = {
-        Type = "oneshot";
-      };
-    };
-
     docker-containers.gchatautorespond-reenable_bots = {
       image = "gchatautorespond:latest";
       volumes = [ "/opt/gchatautorespond:/opt/gchatautorespond" ];
