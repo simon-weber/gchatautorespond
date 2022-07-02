@@ -12,9 +12,9 @@ class Command(BaseCommand):
     help = 'Prints user emails to stdout for import into eg mailchimp.'
 
     def handle(self, *args, **options):
-        # Licensed users, and anyone active in the past 6 months,
+        # Licensed users and anyone active in the past month
 
-        cutoff = datetime.datetime.now() - datetime.timedelta(days=30 * 6)
+        cutoff = datetime.datetime.now() - datetime.timedelta(days=30 * 1)
         actives = User.objects.filter(
             Q(is_active=True) & (
                 Q(date_joined__gt=cutoff) | Q(last_login__gt=cutoff)
