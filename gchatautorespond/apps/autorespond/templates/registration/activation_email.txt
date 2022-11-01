@@ -1,3 +1,0 @@
-To activate your Autoresponder account, please follow this link:
-
-https://{{ site.domain }}{% url 'registration_activate' activation_key %}

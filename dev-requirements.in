@@ -1,5 +1,0 @@
--r requirements.txt
-ansible
-flake8
-mock
-pip-tools==5.4.0

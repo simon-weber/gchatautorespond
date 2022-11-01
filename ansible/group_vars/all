@@ -1,9 +1,0 @@
-appname: gchatautorespond
-approot: "/opt/{{ appname }}"
-assetdir: "{{ approot }}/assets"
-appuser: "{{ appname }}"
-appgroup: "{{ appname }}"
-DJANGO_SETTINGS_MODULE: "gchatautorespond.settings"
-dockerargs: "--network=host -v /opt/{{ appname }}:/opt/{{ appname }}"
-gitlab_reg: "registry.gitlab.com"
-gitlab_repo: "{{ gitlab_reg }}/simon-weber/docker"
